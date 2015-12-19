@@ -16,6 +16,7 @@ class shipment_customer_contact_model extends CRUD_model {
 
     public function get_contacts($id) {
         $this->db->select(''
+                . ' ts_customer_contact_idts_customer_contact AS contact_id,'
                 . ' ts_customer_contact.name AS name,'
                 . ' ts_customer_contact.phone AS phone,'
                 . ' ts_customer_contact.email AS email'

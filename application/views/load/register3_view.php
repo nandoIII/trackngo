@@ -334,6 +334,8 @@
             $("#mpk_zipcode").attr('class', 'mpk_zipcode_' + pickup.data('shp_id'));
             $('#view_pickup').attr('data-shp_id', pickup.data('shp_id'));
             $('#set_pickup').attr('data-shp_id', pickup.data('shp_id'));
+            $('#mpk_address').val('');
+            $('#mpk_zipcode').val('');
         });
 
         //Set drop model vars
@@ -345,6 +347,9 @@
             $("#mdp_zipcode").attr('class', 'mdp_zipcode_' + drop.data('shp_id'));
             $('#view_drop').attr('data-shp_id', drop.data('shp_id'));
             $('#set_drop').attr('data-shp_id', drop.data('shp_id'));
+            $('#mdp_address').val('');
+            $('#mdp_zipcode').val('');
+
         });
 
         //view pickup address
@@ -957,6 +962,7 @@
         if (output != '<ul></ul>') {
             $('#register_form_error').html(output);
             $('#register_form_error').show();
+            $("html, body").animate({scrollTop: $('#register_form_error').offset().top - 100}, 1000);
             return false;
         }
 

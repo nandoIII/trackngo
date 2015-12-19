@@ -44,6 +44,7 @@ class customer extends MY_Controller {
         $data['user'] = $this->session->userdata('name');
         $data['roles'] = $GLOBALS['roles'];
         $data['customers'] = $this->customer_model->get(['status' => 1]);
+        
 
         $this->load->view('general/inc/header_view', $data);
         $this->load->view('customer/customer_view');

@@ -83,9 +83,9 @@
 
                                             echo'<tr>'
                                             . '<td style="text-align: center; width:90px">' . $row['customer_name'] . '</td>'
-                                            . '<td style="text-align: center; width:90px">' . $row['pickup_address'] . '</td>'
+                                            . '<td style="text-align: center; width:90px">' . $row['pickup_format_address'] . '</td>'
                                             . '<td style="text-align: center; width:90px">' . $row['pickup_number'] . '</td>'
-                                            . '<td style="text-align: center; width:90px">' . $row['drop_address'] . '</td>'
+                                            . '<td style="text-align: center; width:90px">' . $row['drop_format_address'] . '</td>'
                                             . '<td style="text-align: center; width:90px">' . $row['drop_number'] . '</td>'
                                             . '<td style="text-align: center;">'
                                             . '<a href="../../../tkgo_files2/' . $row['url_bol'] . '" target="_blank">Digital BOL</a>'
