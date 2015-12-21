@@ -33,7 +33,13 @@ function __autoload($class){
   | environments.
   |
  */
-$config['base_url'] = 'http://leanstaffing.com/trackngo2/';
+
+$temp_url = $_SERVER['HTTP_HOST'];
+$url = 'http://'.$temp_url . '/trackngo2';
+$config['base_url'] = $url;
+
+//$config['base_url'] = 'http://localhost/trackngo2/';
+//$config['base_url'] = 'http://leanstaffing.com/trackngo2/';
 
 /*
   |--------------------------------------------------------------------------

@@ -65,17 +65,16 @@ $user ='lss_test_trackng';
 $pass = 'lss_test';
 $database ='lss_test_trackngo';
 
-// development server
-$user ='root';
-$pass = 'root';
-$database ='tkng2';
-
 
 // production server
 $user ='lss_trackngo';
 $pass = 'uai^T*L;F}t0';
 $database ='lss_trackngo2';
 
+// development server
+$user ='root';
+$pass = '';
+$database ='tkng2';
 
 $active_group = 'default';
 $query_builder = TRUE;

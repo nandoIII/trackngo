@@ -6,11 +6,11 @@
 <div class="container">
     <div class="row">
         <div class="container">
-            <h2>Load #<?php echo $load['load_number'] ?></h2>
+            <h2>Edit Load #<?php echo $load['load_number'] ?></h2>
             <?php echo $error; ?>
             <?php $attributes = array('id' => 'register3_form'); ?>
             <div id="register_form_error" class="alert alert-error" style="display:none"><!-- Dynamic --></div>
-            <div id="register_form_success" class="success alert-success" style="display:none"><!-- Dynamic --></div>            
+            <div id="register_form_success" class="success alert-success" style="display:none"><!-- Dynamic --></div>
             <?php echo form_open_multipart('load/do_upload2/' . $load['idts_load'], $attributes); ?>
             <?php // print_r('file is '.$file); ?>
             <input type="hidden" name="load_number" value="<?php echo $load['load_number'] ?>" />
@@ -332,6 +332,11 @@
 
     .modal.fade.in {
         top: 5%;
+    } 
+
+    select, input[type="file"] {
+        height: 42px;
+
     }    
 
 
@@ -562,7 +567,7 @@
                             var file = $(this);
                             var id = file.data('shp_id');
                             $('#shp_file_sw_' + id).val(1);
-                            $('#shp_file_' + id).html('<input type="file" id="shp_file_input' + id + '" multiple="multiple" accept="application/pdf" class="form-control" name="uploadfile[]" size="20">');
+                            $('#shp_file_' + id).html('<input type="file" id="shp_file_input' + id + '" multiple="multiple" accept="application/pdf" class="" name="uploadfile[]" size="20">');
                         });
 
                         //Remove new shipment
@@ -978,7 +983,7 @@
                         //second row header and content
                         tRowContent = $('<tr id="shp_' + shp_number + '" class="shp_' + shp_number + '">');
                         bolNumber = $('<td colspan="2" style="width:125px">').html('BOL #<input type="text" data-iter="' + shp_number + '" id="bn_' + shp_number + '" class="bol-number" name="bol_number"/>');
-                        bolFile = $('<td colspan="3">').html('BOL file<input type="file" id="shp_file_' + shp_number + '" multiple = "multiple" accept = "application/pdf" class = "form-control" name="uploadfile[]" size="20" />');
+                        bolFile = $('<td colspan="3">').html('BOL file<input type="file" id="shp_file_' + shp_number + '" multiple = "multiple" accept = "application/pdf" class = "" name="uploadfile[]" size="20" />');
 
                         tRowContent.append(bolNumber);
                         tRowContent.append(bolFile);

@@ -463,6 +463,7 @@
                     var output = '';
                     for (var i = 0; i < data.length; i++) {
                         var status = data[i].status;
+                        
                         var data_format = data[i].date_created.split(" ");
                         var myd = data_format[0].split("-");
                         output += '<tr data-status="' + status + '" id="load_' + data[i].idts_load + '" data-load_id="' + data[i].idts_load + '" data-toggle="popover" class="po">';
@@ -470,7 +471,7 @@
                         output += '<td>' + myd[1] + '/' + myd[2] + '/' + myd[0] + ' ' + data_format[1] + '</td>';
                         output += '<td>' + data[i].carrier_name + '</td>';
                         output += '<td>' + data[i].driver_name + ' ' + data[i].driver_last_name + '</td>';
-                        output += '<td>' + data[i].driver_address + '</td>';
+                        output += '<td>' + data[i].address + '</td>';
                         output += '<td class="color" style="font-weight: 800;color: #666;">' + status + '</td>';
                         output += '<td><a href=" <?php echo site_url('load/update2') ?>' + '/' + data[i].idts_load + '"> Edit </a><a href=" <?php echo site_url('load/load_details') ?>' + '/' + data[i].idts_load + '"> View </a><a class="trash" data-id="' + data[i].idts_load + '" href="<?php echo site_url('load/trash') ?>' + '/' + data[i].idts_load + '"> Trash </a></td>';
                         output += '</tr>';

@@ -203,8 +203,8 @@ class load extends MY_Controller {
             $shipments[$i]['drop_format_address'] = $drop_format_address->results[0]->formatted_address;
         }
         $data['shipments'] = $shipments;
-
-//        $this->output->set_output(json_encode($shipments));
+        
+//        $this->output->set_output(json_encode($data['load']));
 //        return false;
 
         $result = $this->load_trace_model->get(['ts_load_idts_load' => $id], 'date', 'asc');
@@ -213,8 +213,6 @@ class load extends MY_Controller {
             $driver_address = json_decode($this->get_driver_address($result[$i]['lat'], $result[$i]['lng']));
             $result[$i]['driver_address'] = $driver_address->results[0]->formatted_address;
         }
-
-
 
         $data['traces'] = $result;
 
@@ -583,7 +581,8 @@ class load extends MY_Controller {
             if ($tender == 1) {
                 $drivers = $this->driver_model->get($this->input->post('driver'));
                 $driver = $drivers[0];
-                $this->push_not_new_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number']);
+//                $this->push_not_new_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number']);
+                $this->push_not_custom_msg_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number'], 'New Load #' . $this->input->post('load_number'), 'New Load', 1, $driver['email'], $load_id);
             }
 
             $this->output->set_output(json_encode(['result' => 1, 'msg' => 'Load created.']));
@@ -905,14 +904,15 @@ class load extends MY_Controller {
         $num = 0;
         if (@copy($file, $path . $file_name)) {
             $file_route = $path . $file_name;
+//            echo 'file route: ' . $file_route;
             $num = $this->count_pages($file_route);
-//            $this->pages_number = $num;
-//            $image = new Imagick();
-//            $image->setResolution(200, 200);
-//            for ($j = 0; $j < $num; $j++) {
-//                $image->readImage($file_route . "[" . $j . "]");
-//                $image->writeImage($path . $file_name_not_ext . "-" . $j . ".jpg");
-//            }
+            $this->pages_number = $num;
+            $image = new Imagick();
+            $image->setResolution(200, 200);
+            for ($j = 0; $j < $num; $j++) {
+                $image->readImage($file_route . "[" . $j . "]");
+                $image->writeImage($path . $file_name_not_ext . "-" . $j . ".jpg");
+            }
         } else {
             echo 'not copied';
         }
@@ -1893,17 +1893,17 @@ class load extends MY_Controller {
     public function tender($load_number, $driver_id, $push = null, $email = null) {
         $this->load_model->update(['tender' => 1], ['load_number' => $load_number]);
 
-        if (!$push) {
-            $this->load->model('driver_model');
-            $drivers = $this->driver_model->get($driver_id);
-            $driver = $drivers[0];
-            $this->push_not_new_load($load_number, $driver['app_id'], $driver['apns_number']);
-        }
-
-        $param['email'] = $email;
-        $param['load_number'] = $load_number;
-        $this->send_tender_mail($param);
-        $this->output->set_output(json_encode(['status' => '1', 'msg' => 'Load sucesfully tendered']));
+//        if (!$push) {
+//            $this->load->model('driver_model');
+//            $drivers = $this->driver_model->get($driver_id);
+//            $driver = $drivers[0];
+//            $this->push_not_new_load($load_number, $driver['app_id'], $driver['apns_number']);
+//        }
+//
+//        $param['email'] = $email;
+//        $param['load_number'] = $load_number;
+//        $this->send_tender_mail($param);
+//        $this->output->set_output(json_encode(['status' => '1', 'msg' => 'Load sucesfully tendered']));
     }
 
     public function send_tender_mail($param) {
@@ -1963,8 +1963,11 @@ class load extends MY_Controller {
             $android_title = $this->input->post('android_title');
         }
 
-        if ($tender) {
+        if (!$tender) {
             $tender = $this->input->post('tender');
+        }
+
+        if ($tender) {
             $android_msg = 'New load #' . $load_number . '-' . $msg;
             $apple_msg = 'New load #' . $load_number . '-' . $msg;
         }
@@ -1990,10 +1993,11 @@ class load extends MY_Controller {
             //if tender
             if ($tender) {
                 $this->tender($load_number, 1, 1, $email);
-                //save in callcheck                
+                //change load status              
             }
 
             $this->save_callcheck($this->session->userdata('user_id'), $load_id, 1, 0, $msg, 26.13778000, -80.33429800, 1, $email, $load_number, 1);
+            $this->output->set_output(json_encode(['status' => 1]));
         } else {
             return $this->output->set_output(json_encode(['status' => 0, 'msg' => 'Apple or Android id not found']));
         }
@@ -2088,14 +2092,14 @@ class load extends MY_Controller {
 // Put your device token here (without spaces):
         $deviceToken = $app_id; //'5ed672addefa254d8e0d054c8acb1658bde5ef8a1b49c75c838ed56b037eb3fa';//
 // Put your private key's passphrase here:
-        $passphrase = 'staffing';  //20151102        
-//        $passphrase = 'Staffing1a';
+//        $passphrase = 'staffing';  //development        
+        $passphrase = 'Staffing1a'; //production
 // Put your alert message here:
 //        $message = 'It works, this piece of art works!';
 //        
 // Enviroment
-        $ck = 'ck_bk.pem'; //Development
-//        $ck = 'ck.pem'; //production
+//        $ck = 'ck_bk.pem'; //Development
+        $ck = 'ck.pem'; //production
 ////////////////////////////////////////////////////////////////////////////////
 
         $ctx = stream_context_create();
@@ -2103,8 +2107,8 @@ class load extends MY_Controller {
         stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
 
 // Open a connection to the APNS server
-//        $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT |
-        $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT |
+        $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT |
+//        $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT |
 // REMOVE sandbox when app is in appstore
                 STREAM_CLIENT_PERSISTENT, $ctx);
 

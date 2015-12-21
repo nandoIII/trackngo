@@ -7,7 +7,7 @@
     <div class="row">
         <div class="container">
             <div>
-                <h2>Load #<?php echo $last_load['load_number'] + 1 ?></h2>
+                <h2>New Load #<?php echo $last_load['load_number'] + 1 ?></h2>
                 <?php echo $error; ?>
                 <?php $attributes = array('id' => 'register3_form', 'class' => 'upload-image-form'); ?>
                 <div id="register_form_error" class="alert alert-error" style="display:none"><!-- Dynamic --></div>
@@ -91,7 +91,7 @@
                         </tr>
                         <tr class="shp_1">
                             <td colspan="2">BOL #: <input type="text" id="bn_1" class="bol-number" name="bol_number"/></td>
-                            <td colspan="3">BOL file <input type="file" id="shp_file_1" multiple = "multiple" accept = "application/pdf" class = "form-control" name="uploadfile[]" size="20" /></td>
+                            <td colspan="3">BOL file <input type="file" id="shp_file_1" multiple = "multiple" accept = "application/pdf" class = "" name="uploadfile[]" size="20" /></td>
                         </tr>
                         <tr class="shp_1">
                             <td colspan="5">Contacts:
@@ -287,6 +287,11 @@
         width: 520px;
         margin: 0;
         padding: 0;
+    }
+
+    select, input[type="file"] {
+        height: 42px;
+
     }    
 
 </style>
@@ -841,7 +846,7 @@
         //second row header and content
         tRowContent = $('<tr id="shp_' + shp_number + '" class="shp_' + shp_number + '">');
         bolNumber = $('<td colspan="2" style="width:125px">').html('BOL #<input type="text" id="bn_' + shp_number + '" class="bol-number" name="bol_number"/>');
-        bolFile = $('<td colspan="3">').html('BOL file<input type="file" id="shp_file_' + shp_number + '" multiple = "multiple" accept = "application/pdf" class = "form-control" name="uploadfile[]" size="20" />');
+        bolFile = $('<td colspan="3">').html('BOL file<input type="file" id="shp_file_' + shp_number + '" multiple = "multiple" accept = "application/pdf" class = "" name="uploadfile[]" size="20" />');
 
         tRowContent.append(bolNumber);
         tRowContent.append(bolFile);

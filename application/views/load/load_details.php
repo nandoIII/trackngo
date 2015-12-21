@@ -35,6 +35,7 @@
         <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/add2'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-add-bt-45w.png" width="45" height="70" alt="Add a Load"></a></div>
     </div>    
     <!--<div class="text-left"><h1>Load Details #<?php echo $load['load_number'] ?></h1></div>-->
+    <h2>Details Load #<?php echo $load['load_number'] ?></h2>
 
     <div class="container container-wide">
 
@@ -66,7 +67,7 @@
 //                                            $date_formated_temp = explode('-', $date[0]);
 //                                            $date_formated = $date_formated_temp[1] . '/' . $date_formated_temp[0] . '/' . $date_formated_temp[2];
                                             echo'<tr>';
-                                            echo'<td colspan="6" style="background-color: #EBEBEB; font-size: 14px;font-weight: bolder;">BOL #' . $row['bol_number'] . '<span style="float: right;">S' . $i . '</span></td>';
+                                            echo'<td colspan="7" style="background-color: #EBEBEB; font-size: 14px;font-weight: bolder;">BOL #' . $row['bol_number'] . '<span style="float: right;">S' . $i . '</span></td>';
                                             echo'</tr>';
 
                                             echo'<tr>';
@@ -75,18 +76,29 @@
                                             echo'<td class="bol_header">Pickup #</td>';
                                             echo'<td class="bol_header">Drop</td>';
                                             echo'<td class="bol_header">Drop #</td>';
+                                            echo'<td class="bol_header">Status</td>';
                                             echo'<td class="bol_header">Documents</td>';
                                             echo'</tr>';
 
                                             $shp = $row['origin_sign'] == 1 ? '<div><a href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
                                             $pod = $row['destination_sign'] == 1 ? '<a href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" target="_blank">' . $row['drop_doc'] . '</a>' : '';
-
-                                            echo'<tr>'
+                                            $status = 'test';
+                                            if ($load['tender'] == 0) {
+                                                $status = 'Not tendered';
+                                            } else if (($shp == '') && ($pod == '')) {
+                                                $status = 'To Pickup';
+                                            } else if (($shp != '') && ($pod == '')) {
+                                                $status = 'In transit';
+                                            } else {
+                                                $status = 'Delivered';
+                                            }
+                                            echo'<tr data-status="' . $status . '">'
                                             . '<td style="text-align: center; width:90px">' . $row['customer_name'] . '</td>'
                                             . '<td style="text-align: center; width:90px">' . $row['pickup_format_address'] . '</td>'
                                             . '<td style="text-align: center; width:90px">' . $row['pickup_number'] . '</td>'
                                             . '<td style="text-align: center; width:90px">' . $row['drop_format_address'] . '</td>'
                                             . '<td style="text-align: center; width:90px">' . $row['drop_number'] . '</td>'
+                                            . '<td class="status color" style="text-align: center; width:90px">' . $status . '</td>'
                                             . '<td style="text-align: center;">'
                                             . '<a href="../../../tkgo_files2/' . $row['url_bol'] . '" target="_blank">Digital BOL</a>'
                                             . $shp
@@ -95,7 +107,7 @@
                                             . '</tr>';
 
                                             echo'<tr>';
-                                            echo'<td colspan="6">Contacts: ';
+                                            echo'<td colspan="7">Contacts: ';
                                             foreach ($row['contacts'] as $contact) {
                                                 echo $contact['name'] . ', ';
                                             }
@@ -103,7 +115,7 @@
                                             echo'</tr>';
 
                                             echo'<tr>';
-                                            echo'<td colspan="6" style="border-left: none;border-right: none;">&nbsp;</td>';
+                                            echo'<td colspan="7" style="border-left: none;border-right: none;">&nbsp;</td>';
                                             echo'</tr>';
                                             $i++;
                                         }

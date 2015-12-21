@@ -183,10 +183,10 @@ table tbody tr td{
 }
 
 #category-actions {
-	position: relative;
-	height: 70px;
-	width: 100%;
-	background-color: #F6F6F6;
+    position: relative;
+    height: 70px;
+    width: 100%;
+    background-color: #F6F6F6;
 }
 
 #category-title {
@@ -210,3 +210,10 @@ table tbody tr td{
     width: 45px;
     background-color: #F6F6F6;
     float: left;
+}
+
+/*************** Boostrap custom styles *****************/
+
+.control-group {
+    margin-bottom: 20px;
+}
