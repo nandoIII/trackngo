@@ -25,7 +25,8 @@
         <script src="<?php echo base_url() ?>public/third-party/js/jquery.datetimepicker.js"></script>
         <script src="<?php echo base_url() ?>public/third-party/js/jquery.ajaxfileupload.js"></script>
         <script src="<?php echo base_url() ?>public/third-party/js/bootbox.min.js"></script>
-        <script type = "text/javascript" src = "//cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.js"></script>
+        <script src="<?php echo base_url() ?>public/third-party/js/jquery.form.js"></script>
+        <!--<script type = "text/javascript" src = "//cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.js"></script>-->
         <script src="<?php echo base_url() ?>public/js/<?php echo $class ?>/result.js"></script>
         <script src="<?php echo base_url() ?>public/js/<?php echo $class ?>/event.js"></script>
         <script src="<?php echo base_url() ?>public/js/<?php echo $class ?>/template.js"></script>

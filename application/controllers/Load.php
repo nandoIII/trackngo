@@ -626,8 +626,9 @@ class load extends MY_Controller {
         return false;
     }
 
-    function do_upload2($id_load) {
-//        return false;
+    function do_upload2($load_id) {
+        $load_num = $this->input->post('load_number');
+
         date_default_timezone_set("America/New_York");
 //        $this->output->set_content_type('application_json');
         $this->load->model('shipment_model');
@@ -636,6 +637,8 @@ class load extends MY_Controller {
 //        for ($i = 0; $i < count($_FILES["uploadfile"]["name"]); $i++) {
 //            echo $_FILES["uploadfile"]["name"][$i];
 //        }
+
+        $status = 1;
 
         $this->form_validation->set_rules('carrier', 'Carrier', 'required');
         $this->form_validation->set_rules('driver', 'Driver', 'required');
@@ -684,13 +687,13 @@ class load extends MY_Controller {
                 'ts_carrier_idts_carrier' => $carrier,
                 'tender' => $tender,
                 'ts_driver_idts_driver' => $driver
-                    ], $id_load);
+                    ], $load_id);
         } else {
             $affected_rows = $this->load_model->update([
                 'user_iduser' => $this->session->userdata('user_id'),
                 'ts_carrier_idts_carrier' => $carrier,
                 'ts_driver_idts_driver' => $driver
-                    ], $id_load);
+                    ], $load_id);
         }
 
 
@@ -698,80 +701,129 @@ class load extends MY_Controller {
          * Upddate shipments
          */
         //update shipments
-        //**************** Insert Shipments in Database **************************
+        //**************** Update n Insert Shipments in Database **************************
 
+        $file_index = 0;
+        $path = '../tkgo_files2/';
         for ($i = 0; $i < count($shipments); $i++) {
-            $shp_id = 0;
-            if ($shipments[$i]->type == 1) {
-                $shipment_data = array(
-                    'ts_customer_idts_customer' => $shipments[$i]->customer,
-                    'pickup_address' => $shipments[$i]->pickup,
-                    'pickup_number' => $shipments[$i]->pickup_number,
-                    'pickup_zipcode' => $shipments[$i]->pickup_zipcode,
-                    'pickup_lat' => $shipments[$i]->pickup_lat,
-                    'pickup_lng' => $shipments[$i]->pickup_lng,
-                    'drop_address' => $shipments[$i]->drop,
-                    'drop_number' => $shipments[$i]->drop_number,
-                    'drop_zipcode' => $shipments[$i]->drop_zipcode,
-                    'drop_lat' => $shipments[$i]->drop_lat,
-                    'drop_lng' => $shipments[$i]->drop_lng,
-                    'bol_number' => $shipments[$i]->bol_number,
+            if (isset($shipments[$i]->type)) {
+                $shp_id = 0;
+                if ($shipments[$i]->type == 1) {
+                    $shipment_data = array(
+                        'ts_customer_idts_customer' => $shipments[$i]->customer,
+                        'pickup_address' => $shipments[$i]->pickup,
+                        'pickup_number' => $shipments[$i]->pickup_number,
+                        'pickup_zipcode' => $shipments[$i]->pickup_zipcode,
+                        'pickup_lat' => $shipments[$i]->pickup_lat,
+                        'pickup_lng' => $shipments[$i]->pickup_lng,
+                        'drop_address' => $shipments[$i]->drop,
+                        'drop_number' => $shipments[$i]->drop_number,
+                        'drop_zipcode' => $shipments[$i]->drop_zipcode,
+                        'drop_lat' => $shipments[$i]->drop_lat,
+                        'drop_lng' => $shipments[$i]->drop_lng,
+                        'bol_number' => $shipments[$i]->bol_number,
 //                    'pages_number' => is_array($pdf_pages_number) ? $pdf_pages_number[$i] : 0,
-//                    'url_bol' => $id_load . '_bol_' . $shipments[$i]->bol_number . '.pdf',
-                    'date_created' => date("Y-m-d H:i:s")
-                );
-                $this->shipment_model->update($shipment_data, $shipments[$i]->shipment_id);
-                $shp_id = $shipments[$i]->shipment_id;
-                $this->shipment_customer_contact_model->delete(['shipment_idshipment' => $shp_id]);
-            } else {
-                $shipment_data = array(
-                    'ts_load_idts_load' => $id_load,
-                    'ts_customer_idts_customer' => $shipments[$i]->customer,
-                    'pickup_address' => $shipments[$i]->pickup,
-                    'pickup_number' => $shipments[$i]->pickup_number,
-                    'pickup_zipcode' => $shipments[$i]->pickup_zipcode,
-                    'pickup_lat' => $shipments[$i]->pickup_lat,
-                    'pickup_lng' => $shipments[$i]->pickup_lng,
-                    'drop_address' => $shipments[$i]->drop,
-                    'drop_number' => $shipments[$i]->drop_number,
-                    'drop_zipcode' => $shipments[$i]->drop_zipcode,
-                    'drop_lat' => $shipments[$i]->drop_lat,
-                    'drop_lng' => $shipments[$i]->drop_lng,
-                    'bol_number' => $shipments[$i]->bol_number,
-                    'pages_number' => is_array($pdf_pages_number) ? $pdf_pages_number[$i] : 0,
-                    'url_bol' => $id_load . '_bol_' . $shipments[$i]->bol_number . '.pdf',
-                    'date_created' => date("Y-m-d H:i:s")
-                );
-
-                //insert shipments in database
-                $shp_id = $this->shipment_model->insert($shipment_data);
-            }
-            //Insert  contacts in database
-            $index = $i + 1;
-            $ship_contacts = json_decode($this->input->post('ship_contacts_' . $index));
-            if ($ship_contacts) {
-                $ship_contacts_value = [];
-                for ($j = 0; $j < count($ship_contacts); $j++) {
-                    $ship_contacts_data = array(
-                        'shipment_idshipment' => $shp_id,
-                        'ts_customer_contact_idts_customer_contact' => $ship_contacts[$j]->contact_id
+//                    'url_bol' => $load_id . '_bol_' . $shipments[$i]->bol_number . '.pdf',
+                        'date_created' => date("Y-m-d H:i:s")
                     );
-                    $ship_contacts_value[$j] = $ship_contacts_data;
-                    $email_data['email'] = $ship_contacts[$j]->email;
-                    $email_data['bol'] = $shipments[$i]->bol_number;
-                    $email_data['load_id'] = $id_load;
-//                    $this->send_ship_contact_email($email_data);
+                    $this->shipment_model->update($shipment_data, $shipments[$i]->shipment_id);
+                    $shp_id = $shipments[$i]->shipment_id;
+                    $this->shipment_customer_contact_model->delete(['shipment_idshipment' => $shp_id]);
+
+                    if ($shipments[$i]->shp_file_sw == 1) {
+                        $file = $_FILES['uploadfile']["tmp_name"][$file_index];
+                        $file_name = $load_id . '_bol_' . $shipments[$i]->bol_number . '.pdf';
+                        $file_name_not_ext = $load_id . '_bol_' . $shipments[$i]->bol_number;
+
+                        $num_pages = $this->upload_shipment_file($file, $path, $file_name, $file_name_not_ext);
+                        $upd = [
+                            'pages_number' => $num_pages,
+                            'url_bol' => $load_id . '_bol_' . $shipments[$i]->bol_number . '.pdf',
+                        ];
+                        $this->shipment_model->update($upd, $shipments[$i]->shipment_id);
+                        $file_index++;
+                    }
+                } else {
+
+
+                    $file = $_FILES['uploadfile']["tmp_name"][$file_index];
+                    $file_name = $load_id . '_bol_' . $shipments[$i]->bol_number . '.pdf';
+                    $file_name_not_ext = $load_id . '_bol_' . $shipments[$i]->bol_number;
+                    $num_pages = $this->upload_shipment_file($file, $path, $file_name, $file_name_not_ext);
+                    $file_index++;
+
+                    $shipment_data = array(
+                        'ts_load_idts_load' => $load_id,
+                        'ts_customer_idts_customer' => $shipments[$i]->customer,
+                        'pickup_address' => $shipments[$i]->pickup,
+                        'pickup_number' => $shipments[$i]->pickup_number,
+                        'pickup_zipcode' => $shipments[$i]->pickup_zipcode,
+                        'pickup_lat' => $shipments[$i]->pickup_lat,
+                        'pickup_lng' => $shipments[$i]->pickup_lng,
+                        'drop_address' => $shipments[$i]->drop,
+                        'drop_number' => $shipments[$i]->drop_number,
+                        'drop_zipcode' => $shipments[$i]->drop_zipcode,
+                        'drop_lat' => $shipments[$i]->drop_lat,
+                        'drop_lng' => $shipments[$i]->drop_lng,
+                        'bol_number' => $shipments[$i]->bol_number,
+                        'pages_number' => $num_pages,
+                        'url_bol' => $load_id . '_bol_' . $shipments[$i]->bol_number . '.pdf',
+                        'date_created' => date("Y-m-d H:i:s")
+                    );
+
+                    //insert shipments in database
+                    $shp_id = $this->shipment_model->insert($shipment_data);
                 }
-                $this->shipment_customer_contact_model->insertBatch($ship_contacts_value);
+                //Insert  contacts in database
+                $index = $i + 1;
+                $ship_contacts = json_decode($this->input->post('ship_contacts_' . $index));
+                if ($ship_contacts) {
+                    $ship_contacts_value = [];
+                    for ($j = 0; $j < count($ship_contacts); $j++) {
+                        $ship_contacts_data = array(
+                            'shipment_idshipment' => $shp_id,
+                            'ts_customer_contact_idts_customer_contact' => $ship_contacts[$j]->contact_id
+                        );
+                        $ship_contacts_value[$j] = $ship_contacts_data;
+                        $email_data['email'] = $ship_contacts[$j]->email;
+                        $email_data['bol'] = $shipments[$i]->bol_number;
+                        $email_data['load_id'] = $load_id;
+//                    $this->send_ship_contact_email($email_data);
+                    }
+                    $this->shipment_customer_contact_model->insertBatch($ship_contacts_value);
+                }
             }
         }
 
 
+        //Delete shipments in database
+        $delete_shipments = json_decode($this->input->post('delete_shipment'));
+        if (count($delete_shipments) > 0) {
+            for ($i = 0; $i < count($delete_shipments); $i++) {
+                $this->shipment_customer_contact_model->delete(['shipment_idshipment' => $delete_shipments[$i]->shipment_id]);
+                $this->shipment_model->delete($delete_shipments[$i]->shipment_id);
+            }
+        }
+
+        $msg = '';
+        if ($status == 1) {
+            $msg = 'Load successfully uploadted.';
+        } else {
+            $msg = 'Failed uploading file.';
+        }
 
 
+        //send push notification
+        if ($status == 1) {
+            $this->load->model('driver_model');
+            $drivers = $this->driver_model->get($this->input->post('driver'));
+            $driver = $drivers[0];
+            $this->push_not_custom_msg_load($load_num, $driver['app_id'], $driver['apns_number'], 'check Load #' . $load_num, 'Load Updated', 0, $driver['email'], $load_id);
+        }
 
+        $this->output->set_output(json_encode(['status' => $status, 'msg' => $msg]));
 
-
+//        $this->output->enable_profiler(TRUE);
 
         return false;
 
@@ -801,7 +853,7 @@ class load extends MY_Controller {
             "max_height" => '768'
         ));
 
-        if ($this->upload->do_multi_upload("uploadfile", $id_load, $new_shipments)) {
+        if ($this->upload->do_multi_upload("uploadfile", $load_id, $new_shipments)) {
 
             $data['upload_data'] = $this->upload->get_multi_upload_data();
 
@@ -829,13 +881,13 @@ class load extends MY_Controller {
         if (count($new_shipments) > 0) {
             for ($i = 0; $i < count($new_shipments); $i++) {
                 $shipment_data = array(
-                    'ts_load_idts_load' => $id_load,
+                    'ts_load_idts_load' => $load_id,
                     'ts_customer_idts_customer' => $new_shipments[$i]->customer,
                     'pickup_address' => $new_shipments[$i]->pickup,
                     'drop_address' => $new_shipments[$i]->drop,
                     'bol_number' => $new_shipments[$i]->bol_number,
                     'pages_number' => is_array($pdf_pages_number) ? $pdf_pages_number[$i] : 0,
-                    'url_bol' => $id_load . '_bol_' . $new_shipments[$i]->bol_number . '.pdf',
+                    'url_bol' => $load_id . '_bol_' . $new_shipments[$i]->bol_number . '.pdf',
                     'date_created' => date("Y-m-d H:i:s")
                 );
                 $shipment_value[$i] = $shipment_data;
@@ -845,35 +897,32 @@ class load extends MY_Controller {
 //            $this->output->enable_profiler(TRUE);
         }
 
-        //Delete shipments in database
-        $delete_shipments = json_decode($this->input->post('delete_shipment'), true);
-
-        if (count($delete_shipments) > 0) {
-            foreach ($delete_shipments as $delete_shipment => $value) {
-                $this->shipment_model->delete($value['idshipment']);
-            }
-        }
-
         //Send notification to the driver
         $this->load->model('driver_model');
+    }
 
-        //send push notification
-        if ($status == 1) {
-            $drivers = $this->driver_model->get($this->input->post('driver'));
-            $driver = $drivers[0];
-            $this->push_not_custom_msg_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number'], 'check Load #', 'Load Updated');
+    function upload_shipment_file($file, $path, $file_name, $file_name_not_ext) {
+        $num = 0;
+        if (@copy($file, $path . $file_name)) {
+            $file_route = $path . $file_name;
+            $num = $this->count_pages($file_route);
+//            $this->pages_number = $num;
+//            $image = new Imagick();
+//            $image->setResolution(200, 200);
+//            for ($j = 0; $j < $num; $j++) {
+//                $image->readImage($file_route . "[" . $j . "]");
+//                $image->writeImage($path . $file_name_not_ext . "-" . $j . ".jpg");
+//            }
+        } else {
+            echo 'not copied';
         }
+        return $num;
+    }
 
-        $this->output->set_output(json_encode(['result' => 1, 'msg' => 'Load updated.']));
-
-//            $loads = $this->get_load_view(['idts_load' => $load_id]);
-//            $load = $loads[0];
-//
-//            $param['email'] = $load['driver_email'];
-//            $param['customer'] = $load['customer_name'];
-//            $param['load_number'] = $load['load_number'];
-//            $this->send_mail_2($param);
-//            $this->output->set_output(json_encode(['result' => 1]));
+    function count_pages($pdfname) {
+        $pdftext = file_get_contents($pdfname);
+        $num = preg_match_all("/\/Page\W/", $pdftext, $dummy);
+        return $num;
     }
 
     function multi_upload() {
@@ -1303,6 +1352,7 @@ class load extends MY_Controller {
         $data['load'] = $this->load_model->get($id);
         $data['load'] = $data['load'][0];
 
+
         $this->load->model('carrier_model');
         $data['carriers'] = $this->carrier_model->get();
 
@@ -1310,6 +1360,10 @@ class load extends MY_Controller {
         $data['drivers'] = $this->driver_model->get([
             'ts_carrier_idts_carrier' => $data['load']['ts_carrier_idts_carrier']
         ]);
+
+//        $this->output->set_output(json_encode($data['drivers']));
+//
+//        return false;
 
         $this->load->model('customer_model');
         $data['customers'] = $this->customer_model->get();
@@ -1909,7 +1963,7 @@ class load extends MY_Controller {
             $android_title = $this->input->post('android_title');
         }
 
-        if (!$tender) {
+        if ($tender) {
             $tender = $this->input->post('tender');
             $android_msg = 'New load #' . $load_number . '-' . $msg;
             $apple_msg = 'New load #' . $load_number . '-' . $msg;
@@ -1936,9 +1990,10 @@ class load extends MY_Controller {
             //if tender
             if ($tender) {
                 $this->tender($load_number, 1, 1, $email);
-                //save in callcheck
-                $this->save_callcheck($this->session->userdata('user_id'), $load_id, 1, 0, $msg, 26.13778000, -80.33429800, 1, $email, $load_number, 1);
+                //save in callcheck                
             }
+
+            $this->save_callcheck($this->session->userdata('user_id'), $load_id, 1, 0, $msg, 26.13778000, -80.33429800, 1, $email, $load_number, 1);
         } else {
             return $this->output->set_output(json_encode(['status' => 0, 'msg' => 'Apple or Android id not found']));
         }
