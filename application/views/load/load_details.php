@@ -61,13 +61,14 @@
                                 <table id="bol-table" class="table table-hover table-striped">
                                     <tbody>
                                         <?php
+                                        $file_path = '../../../tkgo_files2/';
                                         $i = 1;
                                         foreach ($shipments as $shipment => $row) {
 //                                            $date = explode(' ', $row['date']);
 //                                            $date_formated_temp = explode('-', $date[0]);
 //                                            $date_formated = $date_formated_temp[1] . '/' . $date_formated_temp[0] . '/' . $date_formated_temp[2];
                                             echo'<tr>';
-                                            echo'<td colspan="7" style="background-color: #EBEBEB; font-size: 14px;font-weight: bolder;">BOL #' . $row['bol_number'] . '<span style="float: right;">S' . $i . '</span></td>';
+                                            echo'<td colspan="7" style="background-color: #EBEBEB; font-size: 14px;font-weight: bolder;">BOL #' . $row['bol_number'] . '<div style="float: right;"><span onclick="location.reload();" style="cursor:pointer">Refresh</span>&nbsp;&nbsp<span>S' . $i . '</span></div></td>';
                                             echo'</tr>';
 
                                             echo'<tr>';
@@ -100,7 +101,7 @@
                                             . '<td style="text-align: center; width:90px">' . $row['drop_number'] . '</td>'
                                             . '<td class="status color" style="text-align: center; width:90px">' . $status . '</td>'
                                             . '<td style="text-align: center;">'
-                                            . '<a href="../../../tkgo_files2/' . $row['url_bol'] . '" target="_blank">Digital BOL</a>'
+                                            . '<a href="../../../tkgo_files2/' . $row['url_bol'] . '" target="_blank">Original Document</a>'
                                             . $shp
                                             . $pod
                                             . ' </td>'
@@ -110,6 +111,14 @@
                                             echo'<td colspan="7">Contacts: ';
                                             foreach ($row['contacts'] as $contact) {
                                                 echo $contact['name'] . ', ';
+                                            }
+                                            echo'</td>';
+                                            echo'</tr>';
+
+                                            echo'<tr>';
+                                            echo'<td colspan="7" style="border-left: none;border-right: none;">Documents: ';
+                                            foreach ($row['documents'] as $documents) {
+                                                echo '<a href="' . $file_path . $documents['url'] . '" target="_blank">' . $documents['name'] . '</a>, ';
                                             }
                                             echo'</td>';
                                             echo'</tr>';
@@ -279,7 +288,7 @@
                                                 <div class="input_styled checklist">
                                                     <div class="rowCheckbox checkbox-filled"><!--<div class="custom-checkbox"><input name="save" type="checkbox" checked="" id="save" value="save" hidefocus="true" style="outline: none;"><label for="save" class="checked">&nbsp;</label></div>--></div>
                                                 </div>
-                                                <span style="float:left; padding-left: 15px"><input type="checkbox" name="sw_not_driver" id="ntfy_driver" value=""> Notify Driver</span>
+                                                <span style="float:left; padding-left: 15px; visibility: hidden"><input type="checkbox" name="sw_not_driver" id="ntfy_driver" value="" checked=""> Notify Driver</span>
                                                 <span class="btn"><input type="submit" id="send" value="Send Message" hidefocus="true" class="gradient" style="outline: none;"></span>
                                             </div>
                                         </form>

@@ -720,7 +720,7 @@
                             var pickup = $(this);
                             var id = global_pickup;
                             console.log('shipment id: ' + id);
-                            var address = $('#mpk_address').val();
+                            var address = $('#mpk_address').val() + ', ' + $('#mpk_zipcode').val();
                             var url_address = address.split(' ').join('+');
 
                             $.ajax({
@@ -790,7 +790,7 @@
                             var drop = $(this);
                             var id = global_drop;
                             console.log('shipment id: ' + id);
-                            var address = $('.mdp_address_' + id).val();
+                            var address = $('.mdp_address_' + id).val()+ ', ' + $('#mdp_zipcode').val();
                             var url_address = address.split(' ').join('+');
 
                             $.ajax({
@@ -967,9 +967,9 @@
                         // First row Content <input type="hidden" name="type" id="type" value="1">
                         tRow = $('<tr id="shp_' + shp_number + '" class="shp_' + shp_number + '" data-data="1">');
                         customer = $('<td>').html($('#customer_list').html());
-                        pickup = $('<td>').html('<input type="text" class="pk" id="pk_' + shp_number + '" name="pickup" style="width:220px" /><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none; margin: 0px 5px;" data-toggle="modal" data-target="#originAddressModal" id="set-model-pickup"><span class="gradient">+</span></button>');
+                        pickup = $('<td>').html('<input type="text" class="pk" id="pk_' + shp_number + '" name="pickup" style="width:220px" readonly/><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none; margin: 0px 5px;" data-toggle="modal" data-target="#originAddressModal" id="set-model-pickup"><span class="gradient">+</span></button>');
                         pickupNumber = $('<td>').html('<input type="text" class="pk_number" id="pk_number_' + shp_number + '" name="pickup" style="width:50px;" /><input type="hidden" class="pk_zipcode" name="pk_zipcode_' + shp_number + '" id="pk_zipcode_' + shp_number + '"><input type="hidden" class="pk_lat" name="pk_lat_' + shp_number + '" id="pk_lat_' + shp_number + '"><input type="hidden" class="pk_lng" name="pk_lng_' + shp_number + '" id="pk_lng_' + shp_number + '">');
-                        drop = $('<td>').html('<input type="text" class="dp" id="dp_' + shp_number + '" name="drop" style="width:220px"/><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#destinationAddressModal" id="set-model-drop"><span class="gradient">+</span></button>');
+                        drop = $('<td>').html('<input type="text" class="dp" id="dp_' + shp_number + '" name="drop" style="width:220px" readonly/><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#destinationAddressModal" id="set-model-drop"><span class="gradient">+</span></button>');
                         dropNumber = $('<td>').html('<input type="text" class="dp_number" id="dp_number_' + shp_number + '" name="drop" style="width:50px;" /><input type="hidden" class="dp_zipcode" name="dp_zipcode_' + shp_number + '" id="dp_zipcode_' + shp_number + '"><input type="hidden" class="dp_lat" name="dp_lat_' + shp_number + '" id="dp_lat_' + shp_number + '"><input type="hidden" class="dp_lng" name="dp_lng_' + shp_number + '" id="dp_lng_' + shp_number + '"><input type="hidden" class="bol-num" name="dp_lng_' + shp_number + '" id="bol_num_' + shp_number + '" class="bol-num"><input type="hidden" class="type" name="type_' + shp_number + '" id="type_' + shp_number + '" value="0">');
 
                         tRow.append(customer);

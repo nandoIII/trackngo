@@ -73,20 +73,20 @@
                                     ?>
                                 </select>
                             </td>
-                            <td><input type="text" id="pk_1" name="pickup" readonly="readonly" style="width:235px"/><button type="button" class="btn btn-red btn-small" data-shp_id="1" hidefocus="true" style="outline: medium none; margin: 0px 5px;" data-toggle="modal" data-target="#originAddressModal" id="set-model-pickup"><span class="gradient">+</span></button></td>
+                            <td><input type="text" class="pk" id="pk_1" name="pickup" readonly="readonly" style="width:235px"/><button type="button" class="btn btn-red btn-small" data-shp_id="1" hidefocus="true" style="outline: medium none; margin: 0px 5px;" data-toggle="modal" data-target="#originAddressModal" id="set-model-pickup"><span class="gradient">+</span></button></td>
                             <td>
-                                <input type="text" id="pk_number_1" name="pickup_number" style="width:50px;"/>
-                                <input type="hidden" name="pk_zipcode_1" id="pk_zipcode_1">
-                                <input type="hidden" name="pk_lat_1" id="pk_lat_1">
-                                <input type="hidden" name="pk_lng_1" id="pk_lng_1">
+                                <input type="text" class="pk_number" id="pk_number_1" name="pickup_number" style="width:50px;"/>
+                                <input type="hidden" class="pk_zipcode" name="pk_zipcode_1" id="pk_zipcode_1">
+                                <input type="hidden" class="pk_lat" name="pk_lat_1" id="pk_lat_1">
+                                <input type="hidden" class="pk_lng" name="pk_lng_1" id="pk_lng_1">
                             </td>
-                            <td><input type="text" id="dp_1" name="drop" readonly="readonly" style="width:242px"><button type="button" class="btn btn-red btn-small" data-shp_id="1" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#destinationAddressModal" id="set-model-drop"><span class="gradient">+</span></button></td>
+                            <td><input type="text" class="dp" id="dp_1" name="drop" readonly="readonly" style="width:242px"><button type="button" class="btn btn-red btn-small" data-shp_id="1" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#destinationAddressModal" id="set-model-drop"><span class="gradient">+</span></button></td>
                             <td>
-                                <input type="text" id="dp_number_1" name="drop_number" style="width:50px;"/>
-                                <input type="hidden" name="dp_zipcode_1" id="dp_zipcode_1">
-                                <input type="hidden" name="dp_lat_1" id="dp_lat_1">
-                                <input type="hidden" name="dp_lng_1" id="dp_lng_1">
-                                <input type="hidden" name="dp_lng_1" id="bol_num_1" class="bol-num">
+                                <input type="text" class="dp_number" id="dp_number_1" name="drop_number" style="width:50px;"/>
+                                <input type="hidden" class="dp_zipcode" name="dp_zipcode_1" id="dp_zipcode_1">
+                                <input type="hidden" class="dp_lat" name="dp_lat_1" id="dp_lat_1">
+                                <input type="hidden" class="dp_lng" name="dp_lng_1" id="dp_lng_1">
+                                <input type="hidden" class="bol-num" name="bol-num" id="bol_num_1" class="bol-num">
                             </td>                    
                         </tr>
                         <tr class="shp_1">
@@ -341,6 +341,7 @@
             $('#set_pickup').attr('data-shp_id', pickup.data('shp_id'));
             $('#mpk_address').val('');
             $('#mpk_zipcode').val('');
+            $("#map_pickup").html("");
         });
 
         //Set drop model vars
@@ -354,6 +355,7 @@
             $('#set_drop').attr('data-shp_id', drop.data('shp_id'));
             $('#mdp_address').val('');
             $('#mdp_zipcode').val('');
+            $("#map_drop").html("");
 
         });
 
@@ -375,8 +377,7 @@
 
             var pickup = $(this);
             var id = global_pickup;
-            console.log('shipment id: ' + id);
-            var address = $('#mpk_address').val();
+            var address = $('#mpk_address').val() + ', ' + $('#mpk_zipcode').val();
             var url_address = address.split(' ').join('+');
 
             $.ajax({
@@ -429,7 +430,7 @@
             var drop = $(this);
             var id = global_drop;
             console.log('shipment id: ' + id);
-            var address = $('.mdp_address_' + id).val();
+            var address = $('.mdp_address_' + id).val() + ', ' + $('#mdp_zipcode').val();
             var url_address = address.split(' ').join('+');
 
             $.ajax({
@@ -830,10 +831,10 @@
         // First row Content
         tRow = $('<tr id="shp_' + shp_number + '" class="shp_' + shp_number + '">');
         customer = $('<td>').html($('#customer_list').html());
-        pickup = $('<td>').html('<input type="text" id="pk_' + shp_number + '" name="pickup" style="width:235px" /><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none; margin: 0px 5px;" data-toggle="modal" data-target="#originAddressModal" id="set-model-pickup"><span class="gradient">+</span></button>');
-        pickupNumber = $('<td>').html('<input type="text" id="pk_number_' + shp_number + '" name="pickup" style="width:50px;" /><input type="hidden" name="pk_zipcode_' + shp_number + '" id="pk_zipcode_' + shp_number + '"><input type="hidden" name="pk_lat_' + shp_number + '" id="pk_lat_' + shp_number + '"><input type="hidden" name="pk_lng_' + shp_number + '" id="pk_lng_' + shp_number + '">');
-        drop = $('<td>').html('<input type="text" id="dp_' + shp_number + '" name="drop" style="width:242px"/><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#destinationAddressModal" id="set-model-drop"><span class="gradient">+</span></button>');
-        dropNumber = $('<td>').html('<input type="text" id="dp_number_' + shp_number + '" name="drop" style="width:50px;" /><input type="hidden" name="dp_zipcode_' + shp_number + '" id="dp_zipcode_' + shp_number + '"><input type="hidden" name="dp_lat_' + shp_number + '" id="dp_lat_' + shp_number + '"><input type="hidden" name="dp_lng_' + shp_number + '" id="dp_lng_' + shp_number + '"><input type="hidden" name="dp_lng_' + shp_number + '" id="bol_num_' + shp_number + '" class="bol-num">');
+        pickup = $('<td>').html('<input type="text" class="pk" id="pk_' + shp_number + '" name="pickup" style="width:235px" readonly/><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none; margin: 0px 5px;" data-toggle="modal" data-target="#originAddressModal" id="set-model-pickup"><span class="gradient">+</span></button>');
+        pickupNumber = $('<td>').html('<input type="text" class="pk_number" id="pk_number_' + shp_number + '" name="pickup" style="width:50px;" /><input type="hidden" class="pk_zipcode" name="pk_zipcode_' + shp_number + '" id="pk_zipcode_' + shp_number + '"><input type="hidden" class="pk_lat" name="pk_lat_' + shp_number + '" id="pk_lat_' + shp_number + '"><input type="hidden" class="pk_lng" name="pk_lng_' + shp_number + '" id="pk_lng_' + shp_number + '">');
+        drop = $('<td>').html('<input type="text" class="dp" id="dp_' + shp_number + '" name="drop" style="width:242px" readonly/><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#destinationAddressModal" id="set-model-drop"><span class="gradient">+</span></button>');
+        dropNumber = $('<td>').html('<input type="text" class="dp_number" id="dp_number_' + shp_number + '" name="drop" style="width:50px;" /><input type="hidden" class="dp_zipcode" name="dp_zipcode_' + shp_number + '" id="dp_zipcode_' + shp_number + '"><input type="hidden" class="dp_lat" name="dp_lat_' + shp_number + '" id="dp_lat_' + shp_number + '"><input type="hidden" class="dp_lng" name="dp_lng_' + shp_number + '" id="dp_lng_' + shp_number + '"><input type="hidden" class="bol-num" name="bol_num_' + shp_number + '" id="bol-num_' + shp_number + '" class="bol-num">');
 
         tRow.append(customer);
         tRow.append(pickup);
@@ -877,17 +878,17 @@
                 shipments.push({
                     index: j,
                     customer: tr.find('select').val(),
-                    pickup: tr.find('#pk_' + j).val(),
-                    pickup_number: tr.find('#pk_number_' + j).val(),
-                    pickup_zipcode: tr.find('#pk_zipcode_' + j).val(),
-                    pickup_lat: tr.find('#pk_lat_' + j).val(),
-                    pickup_lng: tr.find('#pk_lng_' + j).val(),
-                    drop: tr.find('#dp_' + j).val(),
-                    drop_number: tr.find('#dp_number_' + j).val(),
-                    drop_zipcode: tr.find('#dp_zipcode_' + j).val(),
-                    drop_lat: tr.find('#dp_lat_' + j).val(),
-                    drop_lng: tr.find('#dp_lng_' + j).val(),
-                    bol_number: tr.find('#bol_num_' + j).val()
+                    pickup: tr.find('.pk').val(),
+                    pickup_number: tr.find('.pk_number').val(),
+                    pickup_zipcode: tr.find('.pk_zipcode').val(),
+                    pickup_lat: tr.find('.pk_lat').val(),
+                    pickup_lng: tr.find('.pk_lng').val(),
+                    drop: tr.find('.dp').val(),
+                    drop_number: tr.find('.dp_number').val(),
+                    drop_zipcode: tr.find('.dp_zipcode').val(),
+                    drop_lat: tr.find('.dp_lat').val(),
+                    drop_lng: tr.find('.dp_lng').val(),
+                    bol_number: tr.find('.bol-num').val()
                 });
                 j++;
             }

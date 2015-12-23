@@ -196,15 +196,17 @@ class load extends MY_Controller {
             $ship_contacts = $this->get_shipment_contacts($shipments[$i]['idshipment']);
             $shipments[$i]['contacts'] = $ship_contacts;
 
-            $pickup_format_address = json_decode($this->get_driver_address($shipments[$i]['pickup_lat'], $shipments[$i]['pickup_lng']));
+            $shipments[$i]['documents'] = $this->get_shipment_documents($shipments[$i]['idshipment']);
+
+            $pickup_format_address = json_decode($this->get_google_address($shipments[$i]['pickup_address'], $shipments[$i]['pickup_zipcode']));
             $shipments[$i]['pickup_format_address'] = $pickup_format_address->results[0]->formatted_address;
 
-            $drop_format_address = json_decode($this->get_driver_address($shipments[$i]['drop_lat'], $shipments[$i]['drop_lng']));
+            $drop_format_address = json_decode($this->get_google_address($shipments[$i]['drop_address'], $shipments[$i]['drop_zipcode']));
             $shipments[$i]['drop_format_address'] = $drop_format_address->results[0]->formatted_address;
         }
         $data['shipments'] = $shipments;
-        
-//        $this->output->set_output(json_encode($data['load']));
+
+//        $this->output->set_output(json_encode($data['shipments']));
 //        return false;
 
         $result = $this->load_trace_model->get(['ts_load_idts_load' => $id], 'date', 'asc');
@@ -224,6 +226,16 @@ class load extends MY_Controller {
     public function get_shipment_contacts($id, $json = null) {
         $this->load->model('shipment_customer_contact_model');
         $result = $this->shipment_customer_contact_model->get_contacts(['shipment_idshipment' => $id]);
+        if ($json) {
+            $this->output->set_output(json_encode($result));
+            return false;
+        }
+        return $result;
+    }
+
+    public function get_shipment_documents($shipment_id = null, $json = null) {
+        $this->load->model('shipment_document');
+        $result = $this->shipment_document->get(['shipment_idshipment' => $shipment_id]);
         if ($json) {
             $this->output->set_output(json_encode($result));
             return false;
@@ -428,6 +440,7 @@ class load extends MY_Controller {
     }
 
     function do_upload() {
+//        return false;
 //        echo 'total files: ' . count($_FILES['uploadfile']);
 //        for ($i = 1; $i < 3; $i++) {
 //            print_r(json_decode($this->input->post('ship_contacts_' . $i)));
@@ -1568,6 +1581,24 @@ class load extends MY_Controller {
 //        echo 'url '.$var;
 
         curl_setopt($ch, CURLOPT_URL, 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $lat . ',' . $lng . '&key=AIzaSyAp8XadZn74QX4NLDphnzehQ0AN7q6NCwg');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+
+        $output = curl_exec($ch);
+        curl_close($ch);
+
+        return $output;
+    }
+
+    public function get_google_address($address, $zipcode) {
+        $ch = curl_init();
+        $address_zipcode = $address . ', ' . $zipcode;
+        $url_address = str_replace(" ", "+", $address_zipcode);
+        $var = 'https://maps.googleapis.com/maps/api/geocode/json?address=' . $url_address . '&key=AIzaSyAp8XadZn74QX4NLDphnzehQ0AN7q6NCwg';
+//        echo 'url '.$var;
+
+        curl_setopt($ch, CURLOPT_URL, $var);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
