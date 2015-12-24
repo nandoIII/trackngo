@@ -2094,7 +2094,7 @@ textarea{
 }
 input[type="text"],
 input[type="password"]{
-	height:43px;
+	height:35px;
 	margin: 0;
 	outline: none;
         background-color: #fff;

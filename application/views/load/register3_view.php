@@ -73,14 +73,25 @@
                                     ?>
                                 </select>
                             </td>
-                            <td><input type="text" class="pk" id="pk_1" name="pickup" readonly="readonly" style="width:235px"/><button type="button" class="btn btn-red btn-small" data-shp_id="1" hidefocus="true" style="outline: medium none; margin: 0px 5px;" data-toggle="modal" data-target="#originAddressModal" id="set-model-pickup"><span class="gradient">+</span></button></td>
+                            <td>
+                                <input type="text" class="pk" id="pk_1" name="pickup" readonly="readonly" style="width:235px"/>
+                                <input type="hidden" class="pk2" id="pk2_1" name="pickup" style="width:235px"/>
+                                <button type="button" class="btn btn-red btn-small" data-shp_id="1" hidefocus="true" style="outline: medium none; margin: 0px 5px;" data-toggle="modal" data-target="#originAddressModal" id="set-model-pickup">
+                                    <span class="gradient">+</span>
+                                </button></td>
                             <td>
                                 <input type="text" class="pk_number" id="pk_number_1" name="pickup_number" style="width:50px;"/>
                                 <input type="hidden" class="pk_zipcode" name="pk_zipcode_1" id="pk_zipcode_1">
                                 <input type="hidden" class="pk_lat" name="pk_lat_1" id="pk_lat_1">
                                 <input type="hidden" class="pk_lng" name="pk_lng_1" id="pk_lng_1">
                             </td>
-                            <td><input type="text" class="dp" id="dp_1" name="drop" readonly="readonly" style="width:242px"><button type="button" class="btn btn-red btn-small" data-shp_id="1" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#destinationAddressModal" id="set-model-drop"><span class="gradient">+</span></button></td>
+                            <td>
+                                <input type="text" class="dp" id="dp_1" name="drop" readonly="readonly" style="width:235px">
+                                <input type="hidden" class="dp2" id="dp2_1" name="drop">
+                                <button type="button" class="btn btn-red btn-small" data-shp_id="1" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#destinationAddressModal" id="set-model-drop">
+                                    <span class="gradient">+</span>
+                                </button>
+                            </td>
                             <td>
                                 <input type="text" class="dp_number" id="dp_number_1" name="drop_number" style="width:50px;"/>
                                 <input type="hidden" class="dp_zipcode" name="dp_zipcode_1" id="dp_zipcode_1">
@@ -133,6 +144,10 @@
                                             <td><input type="text" id="mpk_address" name="drop_number" style="width:250px;"/></td>
                                         </tr>
                                         <tr>
+                                            <td>Address 2:</td>
+                                            <td><input type="text" id="mpk_address2" name="address2" style="width:250px;"/></td>
+                                        </tr>
+                                        <tr>
                                             <td>Zipcode:</td>
                                             <td><input type="text" id="mpk_zipcode" name="drop_number" style="width:250px;"/></td>
                                         </tr>
@@ -170,6 +185,10 @@
                                         <tr>
                                             <td>Address:</td>
                                             <td><input type="text" id="mdp_address" class="mdp_address" name="drop_number" style="width:250px;"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Address2:</td>
+                                            <td><input type="text" id="mdp_address2" class="mdp_address2" name="drop_number" style="width:250px;"></td>
                                         </tr>
                                         <tr>
                                             <td>Zipcode:</td>
@@ -287,12 +306,7 @@
         width: 520px;
         margin: 0;
         padding: 0;
-    }
-
-    select, input[type="file"] {
-        height: 42px;
-
-    }    
+    }  
 
 </style>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAp8XadZn74QX4NLDphnzehQ0AN7q6NCwg"></script>
@@ -340,6 +354,7 @@
             $('#view_pickup').attr('data-shp_id', pickup.data('shp_id'));
             $('#set_pickup').attr('data-shp_id', pickup.data('shp_id'));
             $('#mpk_address').val('');
+            $('#mpk_address2').val('');
             $('#mpk_zipcode').val('');
             $("#map_pickup").html("");
         });
@@ -354,6 +369,7 @@
             $('#view_drop').attr('data-shp_id', drop.data('shp_id'));
             $('#set_drop').attr('data-shp_id', drop.data('shp_id'));
             $('#mdp_address').val('');
+            $('#mdp_address2').val('');
             $('#mdp_zipcode').val('');
             $("#map_drop").html("");
 
@@ -404,6 +420,7 @@
                     }
 
                     $('#pk_' + id).val(address);
+                    $('#pk2_' + id).val($('#mpk_address2').val());
                     $('#pk_' + id).removeAttr("readonly");
                     $('#pk_zipcode_' + id).val($('.mpk_zipcode_' + id).val());
                     $('#pk_lat_' + id).val(lat);
@@ -458,6 +475,7 @@
 
                     $('#dp_' + id).val(address);
                     $('#dp_' + id).removeAttr("readonly");
+                    $('#dp2_' + id).val($('#mdp_address2').val());
                     $('#dp_zipcode_' + id).val($('.mdp_zipcode_' + id).val());
                     $('#dp_lat_' + id).val(lat);
                     $('#dp_lng_' + id).val(lng);
@@ -831,9 +849,9 @@
         // First row Content
         tRow = $('<tr id="shp_' + shp_number + '" class="shp_' + shp_number + '">');
         customer = $('<td>').html($('#customer_list').html());
-        pickup = $('<td>').html('<input type="text" class="pk" id="pk_' + shp_number + '" name="pickup" style="width:235px" readonly/><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none; margin: 0px 5px;" data-toggle="modal" data-target="#originAddressModal" id="set-model-pickup"><span class="gradient">+</span></button>');
+        pickup = $('<td>').html('<input type="text" class="pk" id="pk_' + shp_number + '" name="pickup" style="width:235px" readonly/><input type="hidden" class="pk2" id="pk2_' + shp_number + '" name="pickup" style="width:235px"/><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none; margin: 0px 5px;" data-toggle="modal" data-target="#originAddressModal" id="set-model-pickup"><span class="gradient">+</span></button>');
         pickupNumber = $('<td>').html('<input type="text" class="pk_number" id="pk_number_' + shp_number + '" name="pickup" style="width:50px;" /><input type="hidden" class="pk_zipcode" name="pk_zipcode_' + shp_number + '" id="pk_zipcode_' + shp_number + '"><input type="hidden" class="pk_lat" name="pk_lat_' + shp_number + '" id="pk_lat_' + shp_number + '"><input type="hidden" class="pk_lng" name="pk_lng_' + shp_number + '" id="pk_lng_' + shp_number + '">');
-        drop = $('<td>').html('<input type="text" class="dp" id="dp_' + shp_number + '" name="drop" style="width:242px" readonly/><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#destinationAddressModal" id="set-model-drop"><span class="gradient">+</span></button>');
+        drop = $('<td>').html('<input type="text" class="dp" id="dp_' + shp_number + '" name="drop" style="width:242px" readonly/><input type="hidden" class="dp2" id="dp2_' + shp_number + '" name="drop"><button type="button" class="btn btn-red btn-small" data-shp_id="' + shp_number + '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#destinationAddressModal" id="set-model-drop"><span class="gradient">+</span></button>');
         dropNumber = $('<td>').html('<input type="text" class="dp_number" id="dp_number_' + shp_number + '" name="drop" style="width:50px;" /><input type="hidden" class="dp_zipcode" name="dp_zipcode_' + shp_number + '" id="dp_zipcode_' + shp_number + '"><input type="hidden" class="dp_lat" name="dp_lat_' + shp_number + '" id="dp_lat_' + shp_number + '"><input type="hidden" class="dp_lng" name="dp_lng_' + shp_number + '" id="dp_lng_' + shp_number + '"><input type="hidden" class="bol-num" name="bol_num_' + shp_number + '" id="bol-num_' + shp_number + '" class="bol-num">');
 
         tRow.append(customer);
@@ -879,11 +897,13 @@
                     index: j,
                     customer: tr.find('select').val(),
                     pickup: tr.find('.pk').val(),
+                    pickup2: tr.find('.pk2').val(),
                     pickup_number: tr.find('.pk_number').val(),
                     pickup_zipcode: tr.find('.pk_zipcode').val(),
                     pickup_lat: tr.find('.pk_lat').val(),
                     pickup_lng: tr.find('.pk_lng').val(),
                     drop: tr.find('.dp').val(),
+                    drop2: tr.find('.dp2').val(),
                     drop_number: tr.find('.dp_number').val(),
                     drop_zipcode: tr.find('.dp_zipcode').val(),
                     drop_lat: tr.find('.dp_lat').val(),

@@ -546,11 +546,13 @@ class load extends MY_Controller {
                         'ts_load_idts_load' => $load_id,
                         'ts_customer_idts_customer' => $shipments[$i]->customer,
                         'pickup_address' => $shipments[$i]->pickup,
+                        'pickup_address2' => $shipments[$i]->pickup2,
                         'pickup_number' => $shipments[$i]->pickup_number,
                         'pickup_zipcode' => $shipments[$i]->pickup_zipcode,
                         'pickup_lat' => $shipments[$i]->pickup_lat,
                         'pickup_lng' => $shipments[$i]->pickup_lng,
                         'drop_address' => $shipments[$i]->drop,
+                        'drop_address2' => $shipments[$i]->drop2,
                         'drop_number' => $shipments[$i]->drop_number,
                         'drop_zipcode' => $shipments[$i]->drop_zipcode,
                         'drop_lat' => $shipments[$i]->drop_lat,
@@ -639,6 +641,7 @@ class load extends MY_Controller {
     }
 
     function do_upload2($load_id) {
+        return false;
         $load_num = $this->input->post('load_number');
 
         date_default_timezone_set("America/New_York");
@@ -724,11 +727,13 @@ class load extends MY_Controller {
                     $shipment_data = array(
                         'ts_customer_idts_customer' => $shipments[$i]->customer,
                         'pickup_address' => $shipments[$i]->pickup,
+                        'pickup_address2' => $shipments[$i]->pickup2,
                         'pickup_number' => $shipments[$i]->pickup_number,
                         'pickup_zipcode' => $shipments[$i]->pickup_zipcode,
                         'pickup_lat' => $shipments[$i]->pickup_lat,
                         'pickup_lng' => $shipments[$i]->pickup_lng,
                         'drop_address' => $shipments[$i]->drop,
+                        'drop_address2' => $shipments[$i]->drop2,
                         'drop_number' => $shipments[$i]->drop_number,
                         'drop_zipcode' => $shipments[$i]->drop_zipcode,
                         'drop_lat' => $shipments[$i]->drop_lat,
@@ -920,12 +925,12 @@ class load extends MY_Controller {
 //            echo 'file route: ' . $file_route;
             $num = $this->count_pages($file_route);
             $this->pages_number = $num;
-            $image = new Imagick();
-            $image->setResolution(200, 200);
-            for ($j = 0; $j < $num; $j++) {
-                $image->readImage($file_route . "[" . $j . "]");
-                $image->writeImage($path . $file_name_not_ext . "-" . $j . ".jpg");
-            }
+//            $image = new Imagick();
+//            $image->setResolution(200, 200);
+//            for ($j = 0; $j < $num; $j++) {
+//                $image->readImage($file_route . "[" . $j . "]");
+//                $image->writeImage($path . $file_name_not_ext . "-" . $j . ".jpg");
+//            }
         } else {
             echo 'not copied';
         }

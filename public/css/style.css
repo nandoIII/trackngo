@@ -217,3 +217,11 @@ table tbody tr td{
 .control-group {
     margin-bottom: 20px;
 }
+
+select, input[type="file"] {
+    height: 35px;
+}
+
+.modal.fade.in {
+    top: 5%;
+}
