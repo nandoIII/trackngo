@@ -444,12 +444,12 @@ class MY_Upload extends CI_Upload {
             } else {
                 $num = $this->count_pages($file_route);
                 $this->pages_number = $num;
-//                $image = new Imagick();
-//                $image->setResolution(200, 200);
-//                for ($j = 0; $j < $num; $j++) {
-//                    $image->readImage($file_route . "[" . $j . "]");
-//                    $image->writeImage($this->upload_path . $file_name_not_ext . "-" . $j . ".jpg");
-//                }
+                $image = new Imagick();
+                $image->setResolution(200, 200);
+                for ($j = 0; $j < $num; $j++) {
+                    $image->readImage($file_route . "[" . $j . "]");
+                    $image->writeImage($this->upload_path . $file_name_not_ext . "-" . $j . ".jpg");
+                }
             }
 
             $bol_iter++;

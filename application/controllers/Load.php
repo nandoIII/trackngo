@@ -211,13 +211,13 @@ class load extends MY_Controller {
 
         $result = $this->load_trace_model->get(['ts_load_idts_load' => $id], 'date', 'asc');
 
-        for ($i = 0; $i < count($result); $i++) {
-            $driver_address = json_decode($this->get_driver_address($result[$i]['lat'], $result[$i]['lng']));
-            $result[$i]['driver_address'] = $driver_address->results[0]->formatted_address;
-        }
+//        for ($i = 0; $i < count($result); $i++) {
+//            $driver_address = json_decode($this->get_driver_address($result[$i]['lat'], $result[$i]['lng']));
+//            $result[$i]['driver_address'] = $driver_address->results[0]->formatted_address;
+//        }
 
         $data['traces'] = $result;
-
+//
         $this->load->view('general/inc/header_view', $data);
         $this->load->view('load/load_details');
         $this->load->view('general/inc/footer_view');
@@ -641,7 +641,7 @@ class load extends MY_Controller {
     }
 
     function do_upload2($load_id) {
-        return false;
+//        return false;
         $load_num = $this->input->post('load_number');
 
         date_default_timezone_set("America/New_York");
@@ -925,12 +925,12 @@ class load extends MY_Controller {
 //            echo 'file route: ' . $file_route;
             $num = $this->count_pages($file_route);
             $this->pages_number = $num;
-//            $image = new Imagick();
-//            $image->setResolution(200, 200);
-//            for ($j = 0; $j < $num; $j++) {
-//                $image->readImage($file_route . "[" . $j . "]");
-//                $image->writeImage($path . $file_name_not_ext . "-" . $j . ".jpg");
-//            }
+            $image = new Imagick();
+            $image->setResolution(200, 200);
+            for ($j = 0; $j < $num; $j++) {
+                $image->readImage($file_route . "[" . $j . "]");
+                $image->writeImage($path . $file_name_not_ext . "-" . $j . ".jpg");
+            }
         } else {
             echo 'not copied';
         }
@@ -941,6 +941,32 @@ class load extends MY_Controller {
         $pdftext = file_get_contents($pdfname);
         $num = preg_match_all("/\/Page\W/", $pdftext, $dummy);
         return $num;
+    }
+
+    function create_pdf2($load_id, $bol_number, $pages_number, $doc_type) {
+        $path = '../tkgo_files2/';
+        $this->load->library('pdf');
+        $pdf = $this->pdf->load();
+        for ($i = 0; $i < $pages_number; $i++) {
+            $pdf->WriteHTML('');
+        }
+    }
+
+    function create_pdf($load_id, $bol_number, $pages_number, $doc_type) {
+        $path = '../tkgo_files2/';
+        include('../testserver/MPDF53/mpdf.php');
+        $mpdf = new mPDF();
+        for ($i = 0; $i <= $pages_number; $i++) {
+            $mpdf->WriteHTML('');
+            if (file_exists('../tkgo_files2/' . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg')) {
+
+                $mpdf->Image('../tkgo_files2/' . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg', 0, 0, 210, 297, 'jpg', '', true, false);
+                if ($i < $pages_number) {
+                    $mpdf->AddPage();
+                }
+            }
+        };
+        $mpdf->Output('../tkgo_files2/' . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '.pdf', 'F');
     }
 
     function multi_upload() {
@@ -1580,7 +1606,7 @@ class load extends MY_Controller {
         return $driver_address;
     }
 
-    public function get_driver_address($lat, $lng) {
+    public function get_driver_address($lat, $lng, $json = null, $id_trace = null, $db = null) {
         $ch = curl_init();
         $var = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $lat . ',' . $lng . '&key=AIzaSyAp8XadZn74QX4NLDphnzehQ0AN7q6NCwg';
 //        echo 'url '.$var;
@@ -1592,6 +1618,17 @@ class load extends MY_Controller {
 
         $output = curl_exec($ch);
         curl_close($ch);
+
+        if ($db) {
+            $this->load->model('load_trace_model');
+            $driver_position = json_decode($output);
+            $this->load_trace_model->update(['address_text' => $driver_position->results[0]->formatted_address], $id_trace);
+        }
+
+        if ($json) {
+            $this->output->set_output($output);
+            return false;
+        }
 
         return $output;
     }

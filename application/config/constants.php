@@ -9,6 +9,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 define('SALT','lssmith');
+define('VIEW_FILE_PATH','../../../tkgo_files/');
+
 /*
 |--------------------------------------------------------------------------
 | File and Directory Modes

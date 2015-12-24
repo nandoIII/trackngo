@@ -81,7 +81,7 @@
                                             echo'<td class="bol_header">Documents</td>';
                                             echo'</tr>';
 
-                                            $shp = $row['origin_sign'] == 1 ? '<div><a href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
+                                            $shp = $row['origin_sign'] == 1 ? '<div><a href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
                                             $pod = $row['destination_sign'] == 1 ? '<a href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" target="_blank">' . $row['drop_doc'] . '</a>' : '';
                                             $status = 'test';
                                             if ($load['tender'] == 0) {
@@ -178,12 +178,20 @@
                                                         $date = explode(' ', $row['date']);
                                                         $date_formated_temp = explode('-', $date[0]);
                                                         $date_formated = $date_formated_temp[1] . '/' . $date_formated_temp[0] . '/' . $date_formated_temp[2];
+                                                        $lat = $row['lat'];
+                                                        $lng = $row['lng'];
+
+                                                        if ($row['address_text']) {
+                                                            $driver_pos = '<td style="text-align: center;">' . $row['address_text'] . '</td>';
+                                                        } else {
+                                                            $driver_pos = '<td style="text-align: center;"><a class="get_position" style="cursor:pointer" data-id="' . $row['idts_load_trace'] . '" data-lat="' . $lat . '" data-lng="' . $lng . '" title="Popover Header">View Position</a></td>';
+                                                        }
 
                                                         if ($row['date']) {
                                                             echo'<tr>'
                                                             . '<td style="text-align: center; width:90px">' . $date_formated . '</td>'
                                                             . '<td style="text-align: center; width:90px">' . $date[1] . '</td>'
-                                                            . '<td style="text-align: center;">' . $row['driver_address'] . '</td>'
+                                                            . $driver_pos
                                                             . '</tr>';
                                                         }
                                                     }
@@ -428,50 +436,77 @@
 
 <!----------------------- Map, Distance , Time ------------------------------->
 <script>
-    $('#createmap').click(function () {
-        $("#div1").animate({scrollTop: $(".grid").height()}, 1000);
-        $("#map").html('');
+            $('.get_position').popover();
+            $('body').on('click', '.get_position', function (evt) {
+    evt.preventDefault();
+            var geo = $(this);
+            $('.get_position').not(geo).popover('hide');
+            $('.popover-title').html('<span>Driver address</span>');
+            $('.popover-content').css({'background': 'url(' + '<?php echo base_url() ?>' + '/public/img/images/ajax-loader.gif)', 'background-repeat': 'no-repeat', 'background-position': 'center'});
+            console.log('this is latitud: ' + geo.data('lat'));
+//        $('[data-toggle=popover]').not(this).popover('hide');
+//        $('.popover-title').html('<span>Driver address</span>');
+            $.ajax({
+            type: "POST",
+                    url: '<?php echo site_url('load/get_driver_address') ?>/' + geo.data('lat') + '/' + geo.data('lng') + '/1/' + geo.data('id') + '/1',
+                    async: true,
+                    data: {
+                    lat: geo.data('lat'),
+                            lng: geo.data('lng')
+                    },
+                    dataType: "json",
+                    success: function (o) {
+
+                    var addrress = o.results[0].formatted_address;
+                            geo.parent().html(addrress);
+                            $('.popover-content').html('<ul><li>' + addrress + '</li></ul>');
+                            $('.popover-content').css('background', 'url(' + 'none');
+                            geo.popover('show');
+                            $('.popover-title').html('<span>Driver address</span>');
+                    }
+            });
+    });
+            $('#createmap').click(function () {
+    $("#div1").animate({scrollTop: $(".grid").height()}, 1000);
+            $("#map").html('');
 //        setTimeout(function () {
 //
 //            initMap1();
 //        }, 500);
-        refreshDriverPosition();
-
+            refreshDriverPosition();
     });
-
-    function refreshDriverPosition() {
-        $.ajax({
+            function refreshDriverPosition() {
+            $.ajax({
             type: "POST",
-            url: '<?php echo site_url('load/get_driver_position/' . $driver['idts_driver'] . '/1') ?>',
-            async: true,
-            data: {
-                load_id: '<?php echo $load['idts_load'] ?>'
-            },
-            dataType: "json",
-            success: function (o) {
-                var address = o.results[0].formatted_address;
-                var lat = o.results[0].geometry.location.lat;
-                var lng = o.results[0].geometry.location.lng;
-                initMap2(o.trace, lat, lng);
-                $('#driver_loc').html(address)
-            }
+                    url: '<?php echo site_url('load/get_driver_position/' . $driver['idts_driver'] . '/1') ?>',
+                    async: true,
+                    data: {
+                    load_id: '<?php echo $load['idts_load'] ?>'
+                    },
+                    dataType: "json",
+                    success: function (o) {
+                    var address = o.results[0].formatted_address;
+                            var lat = o.results[0].geometry.location.lat;
+                            var lng = o.results[0].geometry.location.lng;
+                            initMap2(o.trace, lat, lng);
+                            $('#driver_loc').html(address)
+                    }
 
-        });
-    }
+            });
+            }
 
 
     function initMap1() {
 
 //        $().html()
-        var lat = parseFloat(<?php echo $driver['lat']; ?>);
-        var lng = parseFloat(<?php echo $driver['lng']; ?>);
-        var myLatlng = new google.maps.LatLng(lat, lng);
-        var mapOptions = {
+    var lat = parseFloat(<?php echo $driver['lat']; ?>);
+            var lng = parseFloat(<?php echo $driver['lng']; ?>);
+            var myLatlng = new google.maps.LatLng(lat, lng);
+            var mapOptions = {
             zoom: 13,
-            center: myLatlng
-        };
-        var map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
+                    center: myLatlng
+            };
+            var map = new google.maps.Map(document.getElementById('map'), mapOptions);
 <?php
 $count = count($traces);
 $i = 1;
@@ -482,70 +517,86 @@ if ($count >= 1) {
             $url = 'http://leanstaffing.com/testserver/map-marker-driver.png';
         }
         ?>
-                var marker = new google.maps.Marker({
-                    //            icon: 'map-marker-driver.png',
-                    position: new google.maps.LatLng(<?php echo $row['lat'] ?>, <?php echo $row['lng'] ?>),
+            var marker = new google.maps.Marker({
+            //            icon: 'map-marker-driver.png',
+            position: new google.maps.LatLng(<?php echo $row['lat'] ?>, <?php echo $row['lng'] ?>),
                     map: map,
                     icon: '<?php echo $url ?>',
                     title: '<?php echo $row['date'] ?>'
-                });
+            });
         <?php
         $i++;
     }
 } else {
     $url = 'http://leanstaffing.com/testserver/map-marker-driver.png';
     ?>
-            var marker = new google.maps.Marker({
-                //            icon: 'map-marker-driver.png',
-                position: new google.maps.LatLng(lat, lng),
+        var marker = new google.maps.Marker({
+        //            icon: 'map-marker-driver.png',
+        position: new google.maps.LatLng(lat, lng),
                 map: map,
                 icon: '<?php echo $url ?>',
                 title: '<?php echo $driver['name'] . ' ' . $driver['last_name'] ?>'
-            });
+        });
     <?php
 }
 ?>
 
-        google.maps.event.trigger(map, "resize");
+    google.maps.event.trigger(map, "resize");
     }
 
     function initMap2(trace, lat, lng) {
 
-        var lat = parseFloat(lat);
-        var lng = parseFloat(lng);
-        var myLatlng = new google.maps.LatLng(lat, lng);
-        var mapOptions = {
+    var lat = parseFloat(lat);
+            var lng = parseFloat(lng);
+            var myLatlng = new google.maps.LatLng(lat, lng);
+            var mapOptions = {
             zoom: 13,
-            center: myLatlng
-        };
-        var map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
-        if (trace.length >= 1) {
-            for (var i = 0; i < trace.length; i++) {
-                var url = 'http://maps.google.com/mapfiles/kml/paddle/blu-circle-lv.png';
-                if (i == trace.length - 1) {
-                    url = 'http://leanstaffing.com/testserver/map-marker-driver.png';
-                }
-                var marker = new google.maps.Marker({
-                    //            icon: 'map-marker-driver.png',
-                    position: new google.maps.LatLng(trace[i].lat, trace[i].lng),
+                    center: myLatlng
+            };
+            var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+            if (trace.length >= 1) {
+    for (var i = 0; i < trace.length; i++) {
+    var url = 'http://maps.google.com/mapfiles/kml/paddle/blu-circle-lv.png';
+            if (i == trace.length - 1) {
+    url = 'http://leanstaffing.com/testserver/map-marker-driver.png';
+    }
+    var marker = new google.maps.Marker({
+    //            icon: 'map-marker-driver.png',
+    position: new google.maps.LatLng(trace[i].lat, trace[i].lng),
+            map: map,
+            icon: url,
+            title: trace[i].date
+    });
+    }
+    } else {
+    var url = 'http://leanstaffing.com/testserver/map-marker-driver.png';
+            var marker = new google.maps.Marker({
+            //            icon: 'map-marker-driver.png',
+            position: new google.maps.LatLng(lat, lng),
                     map: map,
                     icon: url,
-                    title: trace[i].date
-                });
-
-            }
-        } else {
-            var url = 'http://leanstaffing.com/testserver/map-marker-driver.png';
-            var marker = new google.maps.Marker({
-                //            icon: 'map-marker-driver.png',
-                position: new google.maps.LatLng(lat, lng),
-                map: map,
-                icon: url,
-                title: 'Current Position'
+                    title: 'Current Position'
             })
-        }
-        google.maps.event.trigger(map, "resize");
+    }
+    google.maps.event.trigger(map, "resize");
+    }
+
+    function setDocPhoto(pop_doc) {
+    var id = pop_doc.data('id_customer');
+            var load_id = pop_doc.data('load_id');
+            var bol_number = pop_doc.data('bol_number');
+            var doc_type = pop_doc.data('doc_type');
+            var pages_number = pop_doc.data('pages_number');
+            var file = load_id + '_' + bol_number + '_' + doc_type + '-';
+            var output = '';
+            var con = 1;
+            for (var i = 0; i < pages_number; i++) {
+    var file_path += file + i + '.pdf';
+            output += '<div><a href="<?php echo VIEW_FILE_PATH ?>' + file'">Photo: ' + con + '</a></div>';
+            con++;
+    }
+
+    return output;
     }
 
 
@@ -567,190 +618,194 @@ if ($count >= 1) {
 </style>
 
 <script charset="UTF-8">
-    $(function () {
+            $(function () {
 
-        $('#commentForm').submit(function (evt) {
+            //Contacts popover
+            $('body').on('click', '.pop', function (evt) {
             evt.preventDefault();
-            if ($('input[name="sw_not_driver"]:checked').length > 0) {
-                sendPushNot();
+                    var pop_doc = $(this);
+                    pop_doc.popover({
+                    placement: 'right',
+                            trigger: 'manual',
+                            html: true,
+//                container: pop_doc,
+//                animation: true,
+                            title: 'Set Pages of doc',
+                            content: function () {
+                            return setDocPhoto(pop_doc);
+                            }
+                    }).popover('toggle');
+            });
+                    $('#commentForm').submit(function (evt) {
+            evt.preventDefault();
+                    if ($('input[name="sw_not_driver"]:checked').length > 0) {
+            sendPushNot();
             } else {
-                saveNotinDB();
+            saveNotinDB();
             }
-        });
-
+            });
 //------------- send the BOL by email --------------------------------
 
-        $('body').on('click', '#btn_send_bol', function (evt) {
+                    $('body').on('click', '#btn_send_bol', function (evt) {
             evt.preventDefault();
-            $.ajax({
-                type: "POST",
-                url: '<?php echo site_url('load/send_bol') ?>',
-                async: true,
-                data: {
-                    email: $('#email').val(),
-                    load_number: '<?php echo $load['load_number'] ?>'
-                },
-                dataType: "json",
-                success: function (o) {
+                    $.ajax({
+                    type: "POST",
+                            url: '<?php echo site_url('load/send_bol') ?>',
+                            async: true,
+                            data: {
+                            email: $('#email').val(),
+                                    load_number: '<?php echo $load['load_number'] ?>'
+                            },
+                            dataType: "json",
+                            success: function (o) {
 
-                }
+                            }
+                    });
             });
-        });
-
-
-        $(document).keypress(function (e) {
+                    $(document).keypress(function (e) {
             if (e.which == 13) {
-                $('#commentForm').submit(function (evt) {
-                    evt.preventDefault();
+            $('#commentForm').submit(function (evt) {
+            evt.preventDefault();
                     if ($('input[name="sw_not_driver"]:checked').length > 0) {
-                        sendPushNot();
-                    } else {
-                        saveNotinDB();
-                    }
-                });
+            sendPushNot();
+            } else {
+            saveNotinDB();
             }
-        });
+            });
+            }
+            });
+                    setInterval(getChat, 10000);
+                    function getChat() {
+                    var url = '<?php echo site_url('load/get_chat/' . $load['idts_load'] . '/1') ?>';
+                            var postData = {
+                            date: $('#last_date').val()
+                            };
+                            $.post(url, postData, function (o) {
+                            var output = '';
+                                    var name = '';
+                                    for (var i = 0; i < o.length; i++) {
+                            var msg = o[i];
+                                    if (msg.driver_sw == 0) {
+                            var ms_style = '#FFFFFF';
+                                    name = msg.user_login;
+                            } else {
+                            var ms_style = '#D8D8D8';
+                                    name = msg.driver_name + ' ' + msg.driver_last_name;
+                            }
 
-
-        setInterval(getChat, 10000);
-
-        function getChat() {
-            var url = '<?php echo site_url('load/get_chat/' . $load['idts_load'] . '/1') ?>';
-            var postData = {
-                date: $('#last_date').val()
-            };
-            $.post(url, postData, function (o) {
-                var output = '';
-                var name = '';
-                for (var i = 0; i < o.length; i++) {
-                    var msg = o[i];
-                    if (msg.driver_sw == 0) {
-                        var ms_style = '#FFFFFF';
-                        name = msg.user_login;
-                    } else {
-                        var ms_style = '#D8D8D8';
-                        name = msg.driver_name + ' ' + msg.driver_last_name;
-                    }
-
-                    var date = msg.date.split(' ');
-                    var ymd = date[0].split('-');
-
-                    output += '<tr style="background-color:' + ms_style + '"><td style="text-align: center; width:100px">' + ymd[1] + '/' + ymd[0] + '/' + ymd[2] + '</td><td style="text-align: center; width:100px">' + date[1] + '</td><td style="text-align: center;">' + msg.city + '</td><td style="text-align: center;">' + msg.state + '</td><td style="text-align: center; width:239px"><div class="notes">' + msg.comment + '</div></td><td style="text-align: center;">' + name + '</td></tr>';
-
-                }
-                $('#callcheck_table tbody').html('');
-                $('#callcheck_table tbody').append(output);
-                var chat = $('#chat_load');
-                chat.scrollTop();
+                            var date = msg.date.split(' ');
+                                    var ymd = date[0].split('-');
+                                    output += '<tr style="background-color:' + ms_style + '"><td style="text-align: center; width:100px">' + ymd[1] + '/' + ymd[0] + '/' + ymd[2] + '</td><td style="text-align: center; width:100px">' + date[1] + '</td><td style="text-align: center;">' + msg.city + '</td><td style="text-align: center;">' + msg.state + '</td><td style="text-align: center; width:239px"><div class="notes">' + msg.comment + '</div></td><td style="text-align: center;">' + name + '</td></tr>';
+                            }
+                            $('#callcheck_table tbody').html('');
+                                    $('#callcheck_table tbody').append(output);
+                                    var chat = $('#chat_load');
+                                    chat.scrollTop();
 //                chat.animate({ scrollTop: chat[0].scrollHeight}, 1000);
 
 //                console.log('scrollTop: ' + chat.scrollTop());
 
-            }, 'json');
-        }
+                            }, 'json');
+                    }
 
-        //adds highlight when clicked
-        $('#list_load tbody tr').on('click', function (event) {
+            //adds highlight when clicked
+            $('#list_load tbody tr').on('click', function (event) {
             $(this).addClass('highlight').siblings().removeClass('highlight');
-        });
-        //Inicialize popover
-        $('body').on('click', '.po', function (evt) {
+            });
+                    //Inicialize popover
+                    $('body').on('click', '.po', function (evt) {
             evt.preventDefault();
-            var load_id = $(this).data('load_id');
-            var editHtml = '<ul><li data-load_edit="' + load_id + '">Edit</li></ul>';
+                    var load_id = $(this).data('load_id');
+                    var editHtml = '<ul><li data-load_edit="' + load_id + '">Edit</li></ul>';
 //            $('#abc').append(editHtml);
-            var popover = $(this).attr('id');
-            $('#popover_content ul li a.editLink').attr('href', 'load/update/' + popover)
+                    var popover = $(this).attr('id');
+                    $('#popover_content ul li a.editLink').attr('href', 'load/update/' + popover)
 
-            $(this).popover({
-                "trigger": "manual",
-                "html": "true",
-                "title": 'Load Options # ' + $(this).html() + '<span style="margin-left:15px;" class="pull-right"><a href="#" onclick="$(&quot;#' + popover + '&quot;).popover(&quot;toggle&quot;);" class="text-danger popover-close" data-bypass="true" title="Close"><i class="fa fa-close"></i>X</a></span>',
-                "content": $('#popover_content').html()
+                    $(this).popover({
+            "trigger": "manual",
+                    "html": "true",
+                    "title": 'Load Options # ' + $(this).html() + '<span style="margin-left:15px;" class="pull-right"><a href="#" onclick="$(&quot;#' + popover + '&quot;).popover(&quot;toggle&quot;);" class="text-danger popover-close" data-bypass="true" title="Close"><i class="fa fa-close"></i>X</a></span>',
+                    "content": $('#popover_content').html()
 //                "content":'<ul><li><a data-id="4" title="Edit this Load" href="load/update/'+popover+'"><i class="icon-pencil"></i> Edit</a> </li></ul>'
             });
-            $(this).popover('toggle');
-        });
-    });
-
-    function sendPushNot() {
-        $.ajax({
+                    $(this).popover('toggle');
+            });
+            });
+            function sendPushNot() {
+            $.ajax({
             type: "POST",
-            url: '<?php echo site_url('load/send_push_not') ?>',
-            async: true,
-            data: {
-                title: $('#subject').val(),
-                app_id: '<?php echo $driver['app_id'] ?>',
-                apns_number: '<?php echo $driver['apns_number'] ?>',
-                load_id: '<?php echo $load['idts_load']; ?>',
-                driver_latitud: '<?php echo $load['driver_latitud']; ?>',
-                driver_loingitude: '<?php echo $load['driver_longitud']; ?>',
-                driver_mail: '<?php echo $driver['email']; ?>',
-                load_number: '<?php echo $load['load_number']; ?>',
-                msg: $('textarea#styled_message').val()
-            },
-            dataType: "json",
-            success: function (data) {
-                var o = data['dbresult'];
-                saveMsg(o.date, o.time, o.city, o.state, o.comment, o.entered_by);
-                $('#styled_message').val('');
+                    url: '<?php echo site_url('load/send_push_not') ?>',
+                    async: true,
+                    data: {
+                    title: $('#subject').val(),
+                            app_id: '<?php echo $driver['app_id'] ?>',
+                            apns_number: '<?php echo $driver['apns_number'] ?>',
+                            load_id: '<?php echo $load['idts_load']; ?>',
+                            driver_latitud: '<?php echo $load['driver_latitud']; ?>',
+                            driver_loingitude: '<?php echo $load['driver_longitud']; ?>',
+                            driver_mail: '<?php echo $driver['email']; ?>',
+                            load_number: '<?php echo $load['load_number']; ?>',
+                            msg: $('textarea#styled_message').val()
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                    var o = data['dbresult'];
+                            saveMsg(o.date, o.time, o.city, o.state, o.comment, o.entered_by);
+                            $('#styled_message').val('');
+                    }
+            });
             }
-        });
-    }
 
     function saveNotinDB() {
-        var user_id = '<?php echo $user_id; ?>';
-        var load_id = '<?php echo $load['idts_load']; ?>';
-        var type = '1';
-        var driver = '0';
-        var notify_driver = '0';
-        if ($('input[name="sw_not_driver"]:checked').length > 0) {
-            notify_driver = '1';
-        }
+    var user_id = '<?php echo $user_id; ?>';
+            var load_id = '<?php echo $load['idts_load']; ?>';
+            var type = '1';
+            var driver = '0';
+            var notify_driver = '0';
+            if ($('input[name="sw_not_driver"]:checked').length > 0) {
+    notify_driver = '1';
+    }
 
-        $.ajax({
-            type: "POST",
+    $.ajax({
+    type: "POST",
             url: '<?php echo site_url('load/save_callcheck') ?>/' + user_id + '/' + load_id + '/1/0',
             async: true,
             data: {
-                comment: $('textarea#styled_message').val(),
-                driver_latitud: '<?php echo $load['driver_latitud']; ?>',
-                driver_loingitude: '<?php echo $load['driver_longitud']; ?>',
-                notify_driver: notify_driver,
-                driver_email: '<?php echo $driver['email']; ?>',
-                load_number: '<?php echo $load['load_number']; ?>',
+            comment: $('textarea#styled_message').val(),
+                    driver_latitud: '<?php echo $load['driver_latitud']; ?>',
+                    driver_loingitude: '<?php echo $load['driver_longitud']; ?>',
+                    notify_driver: notify_driver,
+                    driver_email: '<?php echo $driver['email']; ?>',
+                    load_number: '<?php echo $load['load_number']; ?>',
             },
             dataType: "json",
             success: function (o) {
-                $("#saletbl tr:last-child").focus()
-                saveMsg(o.date, o.time, o.city, o.state, o.comment, o.entered_by);
-                $('textarea').val('');
+            $("#saletbl tr:last-child").focus()
+                    saveMsg(o.date, o.time, o.city, o.state, o.comment, o.entered_by);
+                    $('textarea').val('');
             }
 
-        });
+    });
     }
 
     function saveMsg(date, time, city, state, comment, user) {
-        var subject = $('#subject').val();
-        var msg = $('textarea#styled_message').val();
-        var user = '<?php echo $login; ?>';
+    var subject = $('#subject').val();
+            var msg = $('textarea#styled_message').val();
+            var user = '<?php echo $login; ?>';
 //        var output = '<div><b class="subject">' + user + ':</b><br>' + msg + '</div>';
-        var output = '<tr><td style="text-align: center; width:100px">' + date + '</td><td style="text-align: center; width:100px">' + time + '</td><td style="text-align: center;">' + city + '</td><td style="text-align: center;">' + state + '</td><td style="text-align: center; width:100px">' + comment + '</td><td style="text-align: center; width:100px">' + user + '</td></tr>';
-
-        $('#callcheck_table tbody').append(output);
-
-        //clear form
+            var output = '<tr><td style="text-align: center; width:100px">' + date + '</td><td style="text-align: center; width:100px">' + time + '</td><td style="text-align: center;">' + city + '</td><td style="text-align: center;">' + state + '</td><td style="text-align: center; width:100px">' + comment + '</td><td style="text-align: center; width:100px">' + user + '</td></tr>';
+            $('#callcheck_table tbody').append(output);
+            //clear form
 //            $('#subject').val('');
 //            $('textarea#styled_message').val('');
-        $("#div1").animate({scrollTop: $('#div1')[0].scrollHeight}, 1000);
-
+            $("#div1").animate({scrollTop: $('#div1')[0].scrollHeight}, 1000);
     }
 
     function reloadBol(evt) {
 //        evt.preventDefault();
 //        $('#if_bol').contentDocument.location.reload(true);
-        console.log(document.getElementById('if_bol').src);
-        document.getElementById('if_bol').src = document.getElementById('if_bol').src;
+    console.log(document.getElementById('if_bol').src);
+            document.getElementById('if_bol').src = document.getElementById('if_bol').src;
     }
 
 </script>

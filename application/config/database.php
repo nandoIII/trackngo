@@ -73,7 +73,7 @@ $database ='lss_trackngo2';
 
 // development server
 $user ='root';
-$pass = 'root';
+$pass = '';
 $database ='tkng2';
 
 $active_group = 'default';
