@@ -225,3 +225,8 @@ select, input[type="file"] {
 .modal.fade.in {
     top: 5%;
 }
+
+#register_form_success{
+    border: 1px solid;
+    padding: 5px;
+}

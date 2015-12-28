@@ -616,6 +616,46 @@ class load extends MY_Controller {
         $this->output->set_output(json_encode(['status' => 1, 'msg' => 'Load Succesfully created.']));
     }
 
+    function get_shipment_photos($shp_url, $pages_number, $json = null) {
+        if (!$shp_url) {
+            $shp_url = $this->input->post('shp_url');
+        }
+
+        if (!$pages_number) {
+            $pages_number = $this->input->post('pages_number');
+        }
+
+        $shp_photo = [];
+        for ($i = 0; $i <= $pages_number; $i++) {
+            if (file_exists('../tkgo_files2/' . $shp_url . $i . '.jpg')) {
+                $shp_photo[$i]['url'] = $shp_url . $i . '.jpg';
+            }
+        }
+        if ($json) {
+            $this->output->set_output(json_encode(['data' => $shp_photo]));
+            return false;
+        }
+
+        return $shp_photo;
+    }
+
+    function delete_photo($path, $json = null) {
+        if (!$path) {
+            $path = $this->input->post('path');
+        }
+
+        $this->load->helper('file');
+        $result = unlink('../tkgo_files2/' . $path);
+        if ($json) {
+            if ($result) {
+                $this->output->set_output(json_encode(['status' => 1, 'msg' => 'File deleted.']));
+            } else {
+                $this->output->set_output(json_encode(['status' => 0, 'msg' => 'File could not be deleted.']));
+            }
+        }
+        return $result;
+    }
+
     function send_ship_contact_email($email) {
         $this->load->library('email');
         $this->email->clear(true);
@@ -653,7 +693,7 @@ class load extends MY_Controller {
 //            echo $_FILES["uploadfile"]["name"][$i];
 //        }
 
-        $status = 1;
+        $status = $this->input->post('status');
 
         $this->form_validation->set_rules('carrier', 'Carrier', 'required');
         $this->form_validation->set_rules('driver', 'Driver', 'required');
@@ -822,12 +862,12 @@ class load extends MY_Controller {
             }
         }
 
-        $msg = '';
-        if ($status == 1) {
-            $msg = 'Load successfully uploadted.';
-        } else {
-            $msg = 'Failed uploading file.';
-        }
+//        $msg = '';
+//        if ($status == 1) {
+//            $msg = 'Load successfully uploadted.';
+//        } else {
+//            $msg = 'Failed uploading file.';
+//        }
 
 
         //send push notification
@@ -838,7 +878,7 @@ class load extends MY_Controller {
             $this->push_not_custom_msg_load($load_num, $driver['app_id'], $driver['apns_number'], 'check Load #' . $load_num, 'Load Updated', 0, $driver['email'], $load_id);
         }
 
-        $this->output->set_output(json_encode(['status' => $status, 'msg' => $msg]));
+        $this->output->set_output(json_encode(['status' => 1, 'msg' => 'Load successfully updated.']));
 
 //        $this->output->enable_profiler(TRUE);
 
@@ -952,21 +992,42 @@ class load extends MY_Controller {
         }
     }
 
-    function create_pdf($load_id, $bol_number, $pages_number, $doc_type) {
-        $path = '../tkgo_files2/';
+    function create_pdf($load_id, $bol_number, $pages_number, $doc_type, $json = null) {
+
+        if (!$load_id) {
+            $load_id = $this->input->post('load_id');
+        }
+
+        if (!$bol_number) {
+            $bol_number = $this->input->post('bol_number');
+        }
+
+        if (!$pages_number) {
+            $pages_number = $this->input->post('pages_number');
+        }
+
+        if (!$doc_type) {
+            $doc_type = $this->input->post('doc_type');
+        }
+
         include('../testserver/MPDF53/mpdf.php');
         $mpdf = new mPDF();
-        for ($i = 0; $i <= $pages_number; $i++) {
+        for ($i = 0; $i < $pages_number; $i++) {
             $mpdf->WriteHTML('');
-            if (file_exists('../tkgo_files2/' . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg')) {
+            if (file_exists(CONT_FILE_PATH . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg')) {
 
-                $mpdf->Image('../tkgo_files2/' . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg', 0, 0, 210, 297, 'jpg', '', true, false);
+                $mpdf->Image(CONT_FILE_PATH . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg', 0, 0, 210, 297, 'jpg', '', true, false);
                 if ($i < $pages_number) {
                     $mpdf->AddPage();
                 }
             }
-        };
-        $mpdf->Output('../tkgo_files2/' . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '.pdf', 'F');
+        }
+        $url = CONT_FILE_PATH . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '.pdf';
+        $url_view = VIEW_FILE_PATH . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '.pdf';
+        $mpdf->Output($url, 'F');
+        if ($json) {
+            $this->output->set_output(json_encode(['status' => 1, 'url' => $url_view]));
+        }
     }
 
     function multi_upload() {

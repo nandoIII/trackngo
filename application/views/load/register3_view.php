@@ -265,10 +265,6 @@
         border: 1px solid;
         padding: 5px;
     }
-    #register_form_success{
-        border: 1px solid;
-        padding: 5px;
-    }
 
     .loading{
         text-align: center;
@@ -308,6 +304,9 @@
         padding: 0;
     }  
 
+    .modal.fade.in{
+        top: 5%;
+    }
 </style>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAp8XadZn74QX4NLDphnzehQ0AN7q6NCwg"></script>
 <script>

@@ -357,15 +357,15 @@
 
                             $('#customer_list').hide();
                             //Enable tender to driver
-                            $('body').on('click', '#savensend_btn', function (evt) {
-                                $('#status').val(1);
-                            });
+//                            $('body').on('click', '#savensend_btn', function (evt) {
+//                                $('#status').val(1);
+//                            });
 
                             //Enable tender to driver
-                            $('body').on('click', '#save_btn', function (evt) {
-                                $('#status').val(0);
-
-                            });
+//                            $('body').on('click', '#save_btn', function (evt) {
+//                                $('#status').val(0);
+//
+//                            });
                             //Enable tender to driver
                             $('body').on('click', '#btn_cancel', function (evt) {
                                 location.href = '<?php echo site_url('/load') ?>';
