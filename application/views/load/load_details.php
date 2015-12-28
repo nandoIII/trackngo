@@ -82,7 +82,7 @@
                                             echo'</tr>';
 
                                             $shp = $row['origin_sign'] == 1 ? '<div class="shp_document"><a href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
-                                            $pod = $row['destination_sign'] == 1 ? '<div class="csn_document"><a href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="cs" data-pages_number="' . $row['drop_doc_pages'] . '" target="_blank">' . $row['drop_doc'] . '</a></div>' : '';
+                                            $pod = $row['destination_sign'] == 1 ? '<div class="csn_document"><a href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" class="pop_cs" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="cs" data-pages_number="' . $row['drop_doc_pages'] . '" target="_blank">' . $row['drop_doc'] . '</a></div>' : '';
                                             $status = 'test';
                                             if ($load['tender'] == 0) {
                                                 $status = 'Not tendered';
@@ -349,7 +349,7 @@
 
     #bol-table{
         width: 900px;
-        table-layout: fixed;
+        /*table-layout: fixed;*/
     }
     #bol-table td{
         border: 1px solid #DCD8D8;
@@ -622,7 +622,7 @@ if ($count >= 1) {
                 var cont = 1;
                 for (var i = 0; i < pages_number; i++) {
                     if (data[i]) {
-                        output += '<div id="cont_' + load_id + bol_number + i + '"><a href="../../../tkgo_files2/' + data[i].url + '" target="_blank">Photo: ' + cont + '</a><span class="del_photo" id="' + load_id + bol_number + i + '" data-url="' + data[i].url + '" > delete </span></div>';
+                        output += '<div id="cont_' + load_id + bol_number + i + '"><a href="../../../tkgo_files2/' + data[i].url + '" target="_blank">Photo: ' + cont + '</a><span class="del_photo" id="' + load_id + bol_number + i + '" data-url="' + data[i].url + '" style="cursor:pointer; color: red"> Trash </span></div>';
                     }
 
                     cont++;
@@ -692,7 +692,25 @@ if ($count >= 1) {
                 html: true,
 //                container: pop_doc,
 //                animation: true,
-                title: 'Edit Document',
+                title: 'Edit Shipment Documents',
+                content: function () {
+                    return getShpPhotos(pop_doc);
+                }
+            }).popover('toggle');
+        });
+        
+        
+        //Contacts popover
+        $('body').on('click', '.pop_cs', function (evt) {
+            evt.preventDefault();
+            var pop_doc = $(this);
+            pop_doc.popover({
+                placement: 'right',
+                trigger: 'manual',
+                html: true,
+//                container: pop_doc,
+//                animation: true,
+                title: 'Edit Consignee Documents',
                 content: function () {
                     return getShpPhotos(pop_doc);
                 }
@@ -862,6 +880,7 @@ if ($count >= 1) {
             async: true,
             data: {
                 title: $('#subject').val(),
+                driver_id: '<?php echo $driver['idts_driver'] ?>',
                 app_id: '<?php echo $driver['app_id'] ?>',
                 apns_number: '<?php echo $driver['apns_number'] ?>',
                 load_id: '<?php echo $load['idts_load']; ?>',

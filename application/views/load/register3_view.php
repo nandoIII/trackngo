@@ -137,8 +137,8 @@
                                 <fieldset>
 
                                     <!-- Form Name -->
-                                    <legend>Check Address</legend>
-                                    <table>
+                                    <legend style="margin:10px 0px">Check Address</legend>
+                                    <table id="tbl-shp-view">
                                         <tr>
                                             <td>Address:</td>
                                             <td><input type="text" id="mpk_address" name="drop_number" style="width:250px;"/></td>
@@ -180,8 +180,8 @@
                             </div>
                             <div class="modal-body">
                                 <fieldset>
-                                    <legend>Check Address in Map</legend>
-                                    <table>
+                                    <legend style="margin:10px 0px">Check Address in Map</legend>
+                                    <table id="tbl-csn-view">
                                         <tr>
                                             <td>Address:</td>
                                             <td><input type="text" id="mdp_address" class="mdp_address" name="drop_number" style="width:250px;"></td>
@@ -295,14 +295,7 @@
     .modal-body{
         height: auto;
         min-height: 460px;
-    }
-
-    #map-canvas,  #map-canvas2{
-        height: 300px;
-        width: 520px;
-        margin: 0;
-        padding: 0;
-    }  
+    } 
 
     .modal.fade.in{
         top: 5%;
@@ -418,7 +411,7 @@
                         state = data.results[0].address_components[4].short_name;
                     }
 
-                    $('#pk_' + id).val(address);
+                    $('#pk_' + id).val($('#mpk_address').val());
                     $('#pk2_' + id).val($('#mpk_address2').val());
                     $('#pk_' + id).removeAttr("readonly");
                     $('#pk_zipcode_' + id).val($('.mpk_zipcode_' + id).val());
@@ -472,7 +465,7 @@
                         state = data.results[0].address_components[4].short_name;
                     }
 
-                    $('#dp_' + id).val(address);
+                    $('#dp_' + id).val($('.mdp_address_' + id).val());
                     $('#dp_' + id).removeAttr("readonly");
                     $('#dp2_' + id).val($('#mdp_address2').val());
                     $('#dp_zipcode_' + id).val($('.mdp_zipcode_' + id).val());

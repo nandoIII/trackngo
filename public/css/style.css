@@ -212,6 +212,17 @@ table tbody tr td{
     float: left;
 }
 
+#tbl-shp-view tbody tr, #tbl-csn-view tbody tr{
+    height: 50px;
+}
+
+#map-canvas, #map-canvas2{
+    height: 205px;
+    width: 550px;
+    margin: 0;
+    padding: 0;
+} 
+
 /*************** Boostrap custom styles *****************/
 
 .control-group {
@@ -229,4 +240,11 @@ select, input[type="file"] {
 #register_form_success{
     border: 1px solid;
     padding: 5px;
+    margin: 20px 0px;
+}
+
+#register_form_error{
+    border: 1px solid;
+    padding: 5px;
+    margin: 20px 0px;    
 }

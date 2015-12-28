@@ -199,10 +199,14 @@ class load extends MY_Controller {
             $shipments[$i]['documents'] = $this->get_shipment_documents($shipments[$i]['idshipment']);
 
             $pickup_format_address = json_decode($this->get_google_address($shipments[$i]['pickup_address'], $shipments[$i]['pickup_zipcode']));
-            $shipments[$i]['pickup_format_address'] = $pickup_format_address->results[0]->formatted_address;
+            $address_array = explode(',', $pickup_format_address->results[0]->formatted_address);
+            $formated_adrress = $address_array[0] . ' - ' . $shipments[$i]['pickup_address2'] . ', ' . $address_array[1] . ', ' . $address_array[2] . ', ' . $address_array[3];
+            $shipments[$i]['pickup_format_address'] = $formated_adrress;
 
             $drop_format_address = json_decode($this->get_google_address($shipments[$i]['drop_address'], $shipments[$i]['drop_zipcode']));
-            $shipments[$i]['drop_format_address'] = $drop_format_address->results[0]->formatted_address;
+            $address_drop_array = explode(',', $drop_format_address->results[0]->formatted_address);
+            $formated_drop_adrress = $address_drop_array[0] . ' - ' . $shipments[$i]['drop_address2'] . ', ' . $address_drop_array[1] . ', ' . $address_drop_array[2] . ', ' . $address_drop_array[3];
+            $shipments[$i]['drop_format_address'] = $formated_drop_adrress;
         }
         $data['shipments'] = $shipments;
 
@@ -597,7 +601,7 @@ class load extends MY_Controller {
                 $drivers = $this->driver_model->get($this->input->post('driver'));
                 $driver = $drivers[0];
 //                $this->push_not_new_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number']);
-                $this->push_not_custom_msg_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number'], 'New Load #' . $this->input->post('load_number'), 'New Load', 1, $driver['email'], $load_id);
+                $this->push_not_custom_msg_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number'], '', 'New Load', 1, $driver['email'], $load_id);
             }
 
             $this->output->set_output(json_encode(['result' => 1, 'msg' => 'Load created.']));
@@ -681,6 +685,7 @@ class load extends MY_Controller {
     }
 
     function do_upload2($load_id) {
+
 //        return false;
         $load_num = $this->input->post('load_number');
 
@@ -693,7 +698,6 @@ class load extends MY_Controller {
 //            echo $_FILES["uploadfile"]["name"][$i];
 //        }
 
-        $status = $this->input->post('status');
 
         $this->form_validation->set_rules('carrier', 'Carrier', 'required');
         $this->form_validation->set_rules('driver', 'Driver', 'required');
@@ -731,9 +735,10 @@ class load extends MY_Controller {
 //            return false;
 //        }
 
+
         $carrier = $this->input->post('carrier');
         $driver = $this->input->post('driver');
-        $tender = $this->input->post('status') ? $this->input->post('status') : 0;
+        $tender = $this->input->post('status_tender') == 1 ? $this->input->post('status_tender') : 0;
 
         //Update load part
         if ($tender == 1) {
@@ -868,14 +873,12 @@ class load extends MY_Controller {
 //        } else {
 //            $msg = 'Failed uploading file.';
 //        }
-
-
         //send push notification
-        if ($status == 1) {
+        if ($tender == 1) {
             $this->load->model('driver_model');
             $drivers = $this->driver_model->get($this->input->post('driver'));
             $driver = $drivers[0];
-            $this->push_not_custom_msg_load($load_num, $driver['app_id'], $driver['apns_number'], 'check Load #' . $load_num, 'Load Updated', 0, $driver['email'], $load_id);
+            $this->push_not_custom_msg_load($load_num, $driver['app_id'], $driver['apns_number'], 'Changes in Load #' . $load_num, 'Load Updated', 0, $driver['email'], $load_id);
         }
 
         $this->output->set_output(json_encode(['status' => 1, 'msg' => 'Load successfully updated.']));
@@ -1017,7 +1020,7 @@ class load extends MY_Controller {
             if (file_exists(CONT_FILE_PATH . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg')) {
 
                 $mpdf->Image(CONT_FILE_PATH . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg', 0, 0, 210, 297, 'jpg', '', true, false);
-                if ($i < $pages_number) {
+                if ($i < ($pages_number - 1)) {
                     $mpdf->AddPage();
                 }
             }
@@ -1406,8 +1409,6 @@ class load extends MY_Controller {
             'dp_lat' => $dp_lat,
             'dp_lng' => $dp_lng,
                 ], $load_id);
-
-
 
 
         $items_affected = $this->update_load_items($load_id, json_decode($items));
@@ -1801,6 +1802,13 @@ class load extends MY_Controller {
         $this->output->set_output(json_encode($result));
     }
 
+    public function app_get_docs_by_shipment($shipment_id) {
+        header('Access-Control-Allow-Origin: *');
+        $this->load->model('shipment_document');
+        $result = $this->shipment_document->get(['shipment_idshipment' => $shipment_id]);
+        $this->output->set_output(json_encode($result));
+    }
+
     public function insertItemsLoad($id, $items) {
         $this->load->model('item_model');
         $i = 0;
@@ -1987,13 +1995,20 @@ class load extends MY_Controller {
 
     //generic php function to send GCM push notification
     public function send_push_not() {
+        date_default_timezone_set("America/New_York");
 
-        $driver_lat = $this->input->post('driver_latitud');
-        $driver_lng = $this->input->post('driver_longitud');
-        $driver_mail = $this->input->post('driver_mail');
         $load_number = $this->input->post('load_number');
-        $apns_number = $this->input->post('apns_number');
-        $app_id = $this->input->post('app_id');
+
+        $this->load->model('driver_model');
+        $drivers = $this->driver_model->get($this->input->post('driver_id'));
+        $driver = $drivers[0];
+
+        $driver_lat = $driver['lat'];
+        $driver_lng = $driver['lng'];
+        $driver_mail = $driver['email'];
+        $apns_number = $driver['apns_number'];
+        $app_id = $driver['app_id'];
+
 
 //         $registatoin_ids[0] = $this->input->post('status');
         $title = $this->input->post('title');
@@ -2226,14 +2241,14 @@ class load extends MY_Controller {
 // Put your device token here (without spaces):
         $deviceToken = $app_id; //'5ed672addefa254d8e0d054c8acb1658bde5ef8a1b49c75c838ed56b037eb3fa';//
 // Put your private key's passphrase here:
-//        $passphrase = 'staffing';  //development        
-        $passphrase = 'Staffing1a'; //production
+        $passphrase = 'staffing';  //development        
+//        $passphrase = 'Staffing1a'; //production
 // Put your alert message here:
 //        $message = 'It works, this piece of art works!';
 //        
 // Enviroment
-//        $ck = 'ck_bk.pem'; //Development
-        $ck = 'ck.pem'; //production
+        $ck = 'ck_bk.pem'; //Development
+//        $ck = 'ck.pem'; //production
 ////////////////////////////////////////////////////////////////////////////////
 
         $ctx = stream_context_create();
@@ -2241,8 +2256,8 @@ class load extends MY_Controller {
         stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
 
 // Open a connection to the APNS server
-        $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT |
-//        $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT |
+//        $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | //production
+        $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | //development
 // REMOVE sandbox when app is in appstore
                 STREAM_CLIENT_PERSISTENT, $ctx);
 
@@ -2355,7 +2370,6 @@ class load extends MY_Controller {
                 'timestamp' => date('Y-m-d h:i:s'),
             ),
         );
-
 
         // Google Cloud Messaging GCM API Key
         define("GOOGLE_API_KEY", "AIzaSyDuQEwlOLK55nXfmdevqvXGg_IAgVG4NxQ");
