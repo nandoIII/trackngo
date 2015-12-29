@@ -18,24 +18,27 @@
             <input type="hidden" name="status" class="input-xlarge" value="1" />
             <input type="hidden" name="id" class="input-xlarge" value="<?php echo $user_edit['iduser'] ?>" />
 
-            <div class="control-group">
-                <label class="control-label">Reports to:</label>
-                <div class="controls">
-                    <select class="selectpicker" name="reports_to">
-                        <?php
-                        foreach ($users as $user => $row) {
-                            if ($row['iduser'] != $user_edit['iduser']) {
-                                $selected = '';
-                                if ($row['iduser'] == $user_edit['user_iduser']) {
-                                    $selected = 'selected="selected"';
+            <?php if ($user_edit['iduser'] != 1) { ?>
+
+                <div class="control-group">
+                    <label class="control-label">Reports to:</label>
+                    <div class="controls">
+                        <select class="selectpicker" name="reports_to">
+                            <?php
+                            foreach ($users as $user => $row) {
+                                if ($row['iduser'] != $user_edit['iduser']) {
+                                    $selected = '';
+                                    if ($row['iduser'] == $user_edit['user_iduser']) {
+                                        $selected = 'selected="selected"';
+                                    }
+                                    echo '<option ' . $selected . ' value="' . $row['iduser'] . '">' . $row['name'] . '</option>';
                                 }
-                                echo '<option ' . $selected . ' value="' . $row['iduser'] . '">' . $row['name'] . '</option>';
                             }
-                        }
-                        ?>
-                    </select>
-                </div>
-            </div>              
+                            ?>
+                        </select>
+                    </div>
+                </div>    
+            <?php } ?>
 
             <div class="control-group">
                 <label class="control-label">Name</label>

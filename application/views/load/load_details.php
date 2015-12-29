@@ -94,12 +94,12 @@
                                                 $status = 'Delivered';
                                             }
                                             echo'<tr data-status="' . $status . '">'
-                                            . '<td style="text-align: center; width:90px">' . $row['customer_name'] . '</td>'
-                                            . '<td style="text-align: center; width:90px">' . $row['pickup_format_address'] . '</td>'
-                                            . '<td style="text-align: center; width:90px">' . $row['pickup_number'] . '</td>'
-                                            . '<td style="text-align: center; width:90px">' . $row['drop_format_address'] . '</td>'
-                                            . '<td style="text-align: center; width:90px">' . $row['drop_number'] . '</td>'
-                                            . '<td class="status color" style="text-align: center; width:90px">' . $status . '</td>'
+                                            . '<td style="text-align: center; width:14%">' . $row['customer_name'] . '</td>'
+                                            . '<td style="text-align: center; width:20%">' . $row['pickup_format_address'] . '</td>'
+                                            . '<td style="text-align: center; width:7%">' . $row['pickup_number'] . '</td>'
+                                            . '<td style="text-align: center; width:20%">' . $row['drop_format_address'] . '</td>'
+                                            . '<td style="text-align: center; width:7%">' . $row['drop_number'] . '</td>'
+                                            . '<td class="status color" style="text-align: center;width:12%"">' . $status . '</td>'
                                             . '<td style="text-align: center;">'
                                             . '<a href="../../../tkgo_files2/' . $row['url_bol'] . '" target="_blank">Original Document</a>'
                                             . $shp
@@ -271,7 +271,7 @@
                                                                             . '<td style="text-align: center;">' . $row['city'] . '</td>'
                                                                             . '<td style="text-align: center;">' . $row['state'] . '</td>'
 //                                                                            . '<td style="text-align: center;width:239px"><div class="notes" style="float:left">' . $row['comment'] . '</div><a class="exp-call" data-comment="' . $row['comment'] . '" style="float:left;">exp</a></td>'
-                                                                            . '<td style="text-align: center;width:239px"><div class="notes" style="float:left">' . $row['comment'] . '</div></td>'
+                                                                            . '<td style="text-align: center;width:239px"><div class="notes" style="float:left">' . $row['comment'] . '</div><a class="set-callcheck" data-note="' . $row['comment'] . '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#callcheckViewModal">view</a></td>'
                                                                             . '<td style="text-align: center;">' . $sub . '</td>'
                                                                             . '</tr>';
                                                                             $last_date = $row['date'];
@@ -325,6 +325,27 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" id="btn_send_bol" data-dismiss="modal">Send</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>  
+            <div class="modal fade" id="callcheckViewModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">View Callcheck</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="control-group">
+                                <label class="control-label">Note:</label>
+                                <div class="controls">
+                                    <div id="callcheck_note"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
                     </div>
@@ -404,7 +425,8 @@
 
     .notes{
         overflow: hidden;
-        width: 216px;
+        width: 205px;
+        padding: 0px 10px;
     }
 
     .modal {
@@ -444,6 +466,39 @@
     #callcheck_table .popover-title{
         font-size: 18px!important;
     }
+
+    #callcheck_table tr{
+        height: 20px;
+    }
+
+    #callcheck_table td{
+        vertical-align: middle;
+    }     
+
+    #callcheckViewModal{
+        width: 630px;
+        height: 315px;
+    }
+
+    .notes .gradient, button {
+        height: 20px;
+        line-height: 20px;
+        padding: 0 4px;
+        font-size: 14px;
+        float: right;
+    }
+
+    #callcheckViewModal .control-label {
+        font-weight: 900;
+    }    
+
+    #callcheck_note{
+        width: 547px;
+        overflow-wrap: break-word; 
+        margin: 10px 0px;
+    }
+
+
 </style>
 <!-- Hidden content -->
 
@@ -479,6 +534,13 @@
                 $('.popover-title').html('<span>Driver address</span>');
             }
         });
+    });
+
+    $('body').on('click', '.set-callcheck', function (evt) {
+        evt.preventDefault();
+        var callcheck = $(this);
+        $("#callcheck_note").html(callcheck.data('note'));
+
     });
 
     $('#createmap').click(function () {
@@ -625,7 +687,7 @@ if ($count >= 1) {
             success: function (o) {
                 var data = o['data'];
                 var cont = 1;
-                for (var i = 0; i < pages_number; i++) {
+                for (var i = 1; i <= pages_number; i++) {
                     if (data[i]) {
                         output += '<div id="cont_' + load_id + bol_number + i + '"><a href="../../../tkgo_files2/' + data[i].url + '" target="_blank">Photo: ' + cont + '</a><span class="del_photo" id="' + load_id + bol_number + i + '" data-url="' + data[i].url + '" style="cursor:pointer; color: red"> Trash </span></div>';
                     }
@@ -639,7 +701,7 @@ if ($count >= 1) {
         output += '<div>&nbsp</div>';
         output += '<div>&nbsp</div>';
         output += '<div><a class="dw_pdf" data-load_id="' + load_id + '" data-bol_number="' + bol_number + '" data-pages_number="' + pages_number + '" data-doc_type="' + doc_type + '">Get pdf</a></div>';
-
+        console.log('load id: '+load_id+' bol #'+bol_number+' pages # '+pages_number+' doc type: '+doc_type);
         return output;
     }
 
@@ -824,10 +886,10 @@ if ($count >= 1) {
                 },
                 dataType: "json",
                 success: function (o) {
-
                 }
             });
         });
+
         $(document).keypress(function (e) {
             if (e.which == 13) {
                 $('#commentForm').submit(function (evt) {
@@ -861,7 +923,7 @@ if ($count >= 1) {
 
                     var date = msg.date.split(' ');
                     var ymd = date[0].split('-');
-                    output += '<tr style="background-color:' + ms_style + '"><td style="text-align: center; width:100px">' + ymd[1] + '/' + ymd[0] + '/' + ymd[2] + '</td><td style="text-align: center; width:100px">' + date[1] + '</td><td style="text-align: center;">' + msg.city + '</td><td style="text-align: center;">' + msg.state + '</td><td style="text-align: center; width:239px"><div class="notes">' + msg.comment + '</div></td><td style="text-align: center;">' + name + '</td></tr>';
+                    output += '<tr style="background-color:' + ms_style + '"><td style="text-align: center; width:100px">' + ymd[1] + '/' + ymd[0] + '/' + ymd[2] + '</td><td style="text-align: center; width:100px">' + date[1] + '</td><td style="text-align: center;">' + msg.city + '</td><td style="text-align: center;">' + msg.state + '</td><td style="text-align: center; width:239px"><div class="notes" style="float:left">' + msg.comment + '</div><a class="set-callcheck" data-note="' + msg.comment + '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#callcheckViewModal">view</a></td><td style="text-align: center;">' + name + '</td></tr>';
                 }
                 $('#callcheck_table tbody').html('');
                 $('#callcheck_table tbody').append(output);
@@ -960,7 +1022,7 @@ if ($count >= 1) {
         var msg = $('textarea#styled_message').val();
         var user = '<?php echo $login; ?>';
 //        var output = '<div><b class="subject">' + user + ':</b><br>' + msg + '</div>';
-        var output = '<tr><td style="text-align: center; width:100px">' + date + '</td><td style="text-align: center; width:100px">' + time + '</td><td style="text-align: center;">' + city + '</td><td style="text-align: center;">' + state + '</td><td style="text-align: center; width:100px">' + comment + '</td><td style="text-align: center; width:100px">' + user + '</td></tr>';
+        var output = '<tr><td style="text-align: center; width:100px">' + date + '</td><td style="text-align: center; width:100px">' + time + '</td><td style="text-align: center;">' + city + '</td><td style="text-align: center;">' + state + '</td><td style="text-align: center; width:100px"><div class="notes" style="float:left">' + comment + '</div><a class="set-callcheck" data-note="' + comment + '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#callcheckViewModal">view</a></td><td style="text-align: center; width:100px">' + user + '</td></tr>';
         $('#callcheck_table tbody').append(output);
         //clear form
 //            $('#subject').val('');

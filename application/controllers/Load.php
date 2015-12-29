@@ -601,7 +601,7 @@ class load extends MY_Controller {
                 $drivers = $this->driver_model->get($this->input->post('driver'));
                 $driver = $drivers[0];
 //                $this->push_not_new_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number']);
-                $this->push_not_custom_msg_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number'], '', 'New Load', 1, $driver['email'], $load_id);
+                $this->push_not_custom_msg_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number'], 'Check new load assigned to you.', 'New Load', 1, $driver['email'], $load_id);
             }
 
             $this->output->set_output(json_encode(['result' => 1, 'msg' => 'Load created.']));
@@ -630,7 +630,7 @@ class load extends MY_Controller {
         }
 
         $shp_photo = [];
-        for ($i = 0; $i <= $pages_number; $i++) {
+        for ($i = 1; $i <= $pages_number; $i++) {
             if (file_exists('../tkgo_files2/' . $shp_url . $i . '.jpg')) {
                 $shp_photo[$i]['url'] = $shp_url . $i . '.jpg';
             }
@@ -806,7 +806,6 @@ class load extends MY_Controller {
                         $file_index++;
                     }
                 } else {
-
 
                     $file = $_FILES['uploadfile']["tmp_name"][$file_index];
                     $file_name = $load_id . '_bol_' . $shipments[$i]->bol_number . '.pdf';
@@ -1015,12 +1014,12 @@ class load extends MY_Controller {
 
         include('../testserver/MPDF53/mpdf.php');
         $mpdf = new mPDF();
-        for ($i = 0; $i < $pages_number; $i++) {
+        for ($i = 1; $i <= $pages_number; $i++) {
             $mpdf->WriteHTML('');
             if (file_exists(CONT_FILE_PATH . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg')) {
 
                 $mpdf->Image(CONT_FILE_PATH . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg', 0, 0, 210, 297, 'jpg', '', true, false);
-                if ($i < ($pages_number - 1)) {
+                if ($i < ($pages_number)) {
                     $mpdf->AddPage();
                 }
             }
