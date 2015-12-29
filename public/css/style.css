@@ -248,3 +248,7 @@ select, input[type="file"] {
     padding: 5px;
     margin: 20px 0px;    
 }
+
+.popover-title{
+    font-size: 18px;
+}

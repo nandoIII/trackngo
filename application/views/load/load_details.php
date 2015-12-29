@@ -270,7 +270,8 @@
                                                                             . '<td style="text-align: center; width:100px">' . $date[1] . '</td>'
                                                                             . '<td style="text-align: center;">' . $row['city'] . '</td>'
                                                                             . '<td style="text-align: center;">' . $row['state'] . '</td>'
-                                                                            . '<td style="text-align: center;width:239px"><div class="notes">' . $row['comment'] . '</div></td>'
+//                                                                            . '<td style="text-align: center;width:239px"><div class="notes" style="float:left">' . $row['comment'] . '</div><a class="exp-call" data-comment="' . $row['comment'] . '" style="float:left;">exp</a></td>'
+                                                                            . '<td style="text-align: center;width:239px"><div class="notes" style="float:left">' . $row['comment'] . '</div></td>'
                                                                             . '<td style="text-align: center;">' . $sub . '</td>'
                                                                             . '</tr>';
                                                                             $last_date = $row['date'];
@@ -402,7 +403,7 @@
     }
 
     .notes{
-        overflow-x: hidden;
+        overflow: hidden;
         width: 216px;
     }
 
@@ -439,6 +440,10 @@
         font-size: large;
     }
 
+
+    #callcheck_table .popover-title{
+        font-size: 18px!important;
+    }
 </style>
 <!-- Hidden content -->
 
@@ -682,6 +687,25 @@ if ($count >= 1) {
 <script charset="UTF-8">
     $(function () {
 
+        $('body').on('click', '.exp-call', function (evt) {
+//            evt.preventDefault();
+//            $('.exp-call').not(this).popover('hide');
+            var pop_contact = $(this);
+            pop_contact.not(this).popover('hide');
+            pop_contact.popover({
+                placement: 'right',
+                trigger: 'manual',
+                html: true,
+//                container: pop_contact,
+//                animation: true,
+                title: 'Callcheck Text',
+                content: function () {
+                    return pop_contact.data('comment');
+                }
+            }).popover('toggle');
+        });
+
+
         //Contacts popover
         $('body').on('click', '.pop', function (evt) {
             evt.preventDefault();
@@ -698,8 +722,8 @@ if ($count >= 1) {
                 }
             }).popover('toggle');
         });
-        
-        
+
+
         //Contacts popover
         $('body').on('click', '.pop_cs', function (evt) {
             evt.preventDefault();
