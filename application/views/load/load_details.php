@@ -68,7 +68,7 @@
 //                                            $date_formated_temp = explode('-', $date[0]);
 //                                            $date_formated = $date_formated_temp[1] . '/' . $date_formated_temp[0] . '/' . $date_formated_temp[2];
                                             echo'<tr>';
-                                            echo'<td colspan="7" style="background-color: #EBEBEB; font-size: 14px;font-weight: bolder;">BOL #' . $row['bol_number'] . '<div style="float: right;"><span onclick="location.reload();" style="cursor:pointer">Refresh</span>&nbsp;&nbsp<span>S' . $i . '</span></div></td>';
+                                            echo'<td colspan="7" style="background-color: #EBEBEB; font-size: 14px;font-weight: bolder;">BOL #' . $row['bol_number'] . '<div style="float: right;"><button id="refresh" onclick="location.reload();" class="btn btn-red btn-small" hidefocus="true" name="submit" style="outline: medium none;float: left;position: relative;bottom: 3px;right: 5px;"><span class="gradient">Refresh</span></button>&nbsp;&nbsp<span style="float:right" >S' . $i . '</span></div></td>';
                                             echo'</tr>';
 
                                             echo'<tr>';
@@ -101,7 +101,7 @@
                                             . '<td style="text-align: center; width:7%">' . $row['drop_number'] . '</td>'
                                             . '<td class="status color" style="text-align: center;width:12%"">' . $status . '</td>'
                                             . '<td style="text-align: center;">'
-                                            . '<a href="../../../tkgo_files2/' . $row['url_bol'] . '" target="_blank">Original Document</a>'
+                                            . '<div class="or_document"><a href="../../../tkgo_files2/' . $row['url_bol'] . '" class="pop_or" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '"  target="_blank">Original Document</a></div>'
                                             . $shp
                                             . $pod
                                             . ' </td>'
@@ -320,6 +320,8 @@
                                 <label class="control-label">Email</label>
                                 <div class="controls">
                                     <input type="text" name="email" id="email" class="input-xlarge" placeholder=""/>
+                                    <input type="hidden" name="bol_number_mail" id="bol_number_mail"/>
+                                    <input type="hidden" name="doc_type" id="doc_type"/>
                                 </div>
                             </div>
                         </div>
@@ -454,11 +456,11 @@
         margin: 20px 0px;
     } 
 
-    .shp_document .popover, .csn_document .popover{
+    .shp_document .popover, .csn_document .popover, .or_document .popover{
         width: 200px;
     }
 
-    .shp_document .popover .popover-title, .csn_document .popover .popover-title{
+    .shp_document .popover .popover-title, .csn_document .popover .popover-title, .or_document .popover .popover-title{
         font-size: large;
     }
 
@@ -496,6 +498,11 @@
         width: 547px;
         overflow-wrap: break-word; 
         margin: 10px 0px;
+    }
+
+    #destinationAddressModal{
+        width: 630px;
+        height: 315px;        
     }
 
 
@@ -540,6 +547,37 @@
         evt.preventDefault();
         var callcheck = $(this);
         $("#callcheck_note").html(callcheck.data('note'));
+
+    });
+
+    $('body').on('click', '.send_email', function (evt) {
+        evt.preventDefault();
+        var pdf = $(this);
+        $("#bol_number_mail").val(pdf.data('bol_number'));
+        $("#doc_type").val(pdf.data('doc_type'));
+
+        var pdf = $(this);
+        $.ajax({
+            type: "POST",
+            url: '<?php echo site_url('load/create_pdf/0/0/0/0/1') ?>',
+            async: true,
+            data: {
+                load_id: pdf.data('load_id'),
+                bol_number: pdf.data('bol_number'),
+                pages_number: pdf.data('pages_number'),
+                doc_type: pdf.data('doc_type')
+            },
+            dataType: "json",
+            success: function (o) {
+                var status = o.status;
+                if (status == 1) {
+                    console.log('PDF created');
+                } else {
+                    console.log('PDF not created');
+                }
+            }
+
+        });
 
     });
 
@@ -659,6 +697,18 @@ if ($count >= 1) {
         google.maps.event.trigger(map, "resize");
     }
 
+    function getOriginalShpOptions(pop_doc) {
+        var load_id = pop_doc.data('load_id');
+        var bol_number = pop_doc.data('bol_number');
+
+        var output = '';
+        output += '<div><a href="../../../tkgo_files2/' + load_id + '_bol_' + bol_number + '.pdf" target="_blank">Get pdf</a></div>';
+        output += '<div><a class="send_email" data-target="#destinationAddressModal" data-toggle="modal" data-load_id="' + load_id + '" data-bol_number="' + bol_number + '" data-pages_number="" data-doc_type="">Send by email</a></div>';
+
+        return output;
+
+    }
+
     function getShpPhotos(pop_doc) {
         var id = pop_doc.data('id_customer');
         var load_id = pop_doc.data('load_id');
@@ -689,9 +739,8 @@ if ($count >= 1) {
                 var cont = 1;
                 for (var i = 1; i <= pages_number; i++) {
                     if (data[i]) {
-                        output += '<div id="cont_' + load_id + bol_number + i + '"><a href="../../../tkgo_files2/' + data[i].url + '" target="_blank">Photo: ' + cont + '</a><span class="del_photo" id="' + load_id + bol_number + i + '" data-url="' + data[i].url + '" style="cursor:pointer; color: red"> Trash </span></div>';
+                        output += '<div id="cont_' + load_id + bol_number + i + '"><a href="../../../tkgo_files2/' + data[i].url + '" target="_blank">Photo: ' + cont + '</a><span class="del_photo" id="' + load_id + bol_number + i + '" data-type="' + doc_type + '" data-bol_number="' + bol_number + '" data-url="' + data[i].url + '" style="cursor:pointer; color: red"> Trash </span></div>';
                     }
-
                     cont++;
                 }
             }
@@ -701,7 +750,7 @@ if ($count >= 1) {
         output += '<div>&nbsp</div>';
         output += '<div>&nbsp</div>';
         output += '<div><a class="dw_pdf" data-load_id="' + load_id + '" data-bol_number="' + bol_number + '" data-pages_number="' + pages_number + '" data-doc_type="' + doc_type + '">Get pdf</a></div>';
-        console.log('load id: '+load_id+' bol #'+bol_number+' pages # '+pages_number+' doc type: '+doc_type);
+        output += '<div><a class="send_email" data-target="#destinationAddressModal" data-toggle="modal" data-load_id="' + load_id + '" data-bol_number="' + bol_number + '" data-pages_number="' + pages_number + '" data-doc_type="' + doc_type + '">Send by email</a></div>';
         return output;
     }
 
@@ -768,6 +817,22 @@ if ($count >= 1) {
         });
 
 
+        //Contacts popover
+        $('body').on('click', '.pop_or', function (evt) {
+            evt.preventDefault();
+            var pop_doc = $(this);
+            pop_doc.popover({
+                placement: 'right',
+                trigger: 'manual',
+                html: true,
+//                container: pop_doc,
+//                animation: true,
+                title: 'Original Documents',
+                content: function () {
+                    return getOriginalShpOptions(pop_doc);
+                }
+            }).popover('toggle');
+        });
         //Contacts popover
         $('body').on('click', '.pop', function (evt) {
             evt.preventDefault();
@@ -882,7 +947,12 @@ if ($count >= 1) {
                 async: true,
                 data: {
                     email: $('#email').val(),
-                    load_number: '<?php echo $load['load_number'] ?>'
+                    load_number: '<?php echo $load['load_number'] ?>',
+                    load_id: '<?php echo $load['idts_load'] ?>',
+                    bol_number: $('#bol_number_mail').val(),
+                    doc_type: $('#doc_type').val()
+
+
                 },
                 dataType: "json",
                 success: function (o) {

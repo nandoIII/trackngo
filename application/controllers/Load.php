@@ -1790,6 +1790,15 @@ class load extends MY_Controller {
         $this->output->set_output(json_encode($result_array));
     }
 
+    public function app_get_shipments_by_id($id) {
+        $this->load->model('shipment_model');
+        header('Access-Control-Allow-Origin: *');
+
+        $result = $this->shipment_model->get($id);
+
+        $this->output->set_output(json_encode($result));
+    }
+
     public function app_get_shipments_by_load($load_id) {
         $this->load->model('shipment_model');
         header('Access-Control-Allow-Origin: *');
@@ -2393,11 +2402,28 @@ class load extends MY_Controller {
         return $result;
     }
 
-    public function send_bol($load_number = null) {
+    public function send_bol($load_number = null, $load_id = null, $bol_number = null, $doc_type = null) {
         $this->load->library('email');
+
+        if (!$load_id) {
+            $load_id = $this->input->post('load_id');
+        }
 
         if (!$load_number) {
             $load_number = $this->input->post('load_number');
+        }
+
+        if (!$bol_number) {
+            $bol_number = $this->input->post('bol_number');
+        }
+
+        if (!$doc_type) {
+            $doc_type = $this->input->post('doc_type');
+        }
+
+        $url_doc = $load_id . '_bol_' . $bol_number;
+        if ($doc_type != '') {
+            $url_doc.= '_' . $doc_type;
         }
 
         $email = $this->input->post('email');
@@ -2407,9 +2433,9 @@ class load extends MY_Controller {
         $this->email->cc('another@another-example.com');
         $this->email->bcc('them@their-example.com');
 
-        $this->email->subject('BOL #' . $load_number);
+        $this->email->subject('Load #' . $load_number . ', BOL #' . $bol_number);
         $this->email->message('Attach is the BOL');
-        $this->email->attach('../tkgo_files2/' . $load_number . '.pdf');
+        $this->email->attach('../tkgo_files2/' . $url_doc . '.pdf');
 
         if (!$this->email->send()) {
             $this->output->set_output(json_encode(['result' => 0, 'error' => $this->form_validation->error_array()]));

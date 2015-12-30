@@ -356,6 +356,7 @@
 //                            });
                         //Enable tender to driver
                         $('body').on('click', '#btn_cancel', function (evt) {
+                            evt.preventDefault();
                             location.href = '<?php echo site_url('/load') ?>';
 
                         });
