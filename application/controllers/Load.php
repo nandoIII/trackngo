@@ -643,10 +643,37 @@ class load extends MY_Controller {
         return $shp_photo;
     }
 
-    function delete_photo($path, $json = null) {
+    function delete_photo($path = null, $json = null, $bol_number = null, $doc_type = null) {
+
+        $this->load->model('shipment_model');
         if (!$path) {
             $path = $this->input->post('path');
         }
+        if (!$bol_number) {
+            $bol_number = $this->input->post('bol_number');
+        }
+        if (!$doc_type) {
+            $doc_type = $this->input->post('doc_type');
+        }
+
+        $field = '';
+        $update_query = '';
+        if ($doc_type == 'sp') {
+            $field = 'pickup_doc_pages';
+            $update_query = $field . ' - 1';
+        }
+
+        if ($doc_type == 'cs') {
+            $field = 'drop_doc_pages';
+            $update_query = $field . ' - 1';
+        }
+
+        //UPDATE `shipment` SET `drop_doc_pages`= `drop_doc_pages`+1  WHERE `idshipment` = 1
+//        $affected_rows = $this->shipment_model->update([$field => $update_query], ['bol_number' => $bol_number]);
+//        $this->db->where('bol_number', $bol_number);
+//        $this->db->set($field, $update_query, FALSE);
+//        $this->db->update('shipment');
+//        $this->output->enable_profiler(TRUE);
 
         $this->load->helper('file');
         $result = unlink('../tkgo_files2/' . $path);
@@ -995,7 +1022,7 @@ class load extends MY_Controller {
     }
 
     function create_pdf($load_id, $bol_number, $pages_number, $doc_type, $json = null) {
-
+        $this->load->model('shipment_model');
         if (!$load_id) {
             $load_id = $this->input->post('load_id');
         }
@@ -1012,12 +1039,22 @@ class load extends MY_Controller {
             $doc_type = $this->input->post('doc_type');
         }
 
+        $shipments = $this->shipment_model->get(['bol_number' => $bol_number]);
+        $shipment = $shipments[0];
+
+        if ($doc_type == 'sp') {
+            $pages_number = $shipment['pickup_doc_pages'];
+        }
+
+        if ($doc_type == 'cs') {
+            $pages_number = $shipment['drop_doc_pages'];
+        }
+
         include('../testserver/MPDF53/mpdf.php');
         $mpdf = new mPDF();
         for ($i = 1; $i <= $pages_number; $i++) {
             $mpdf->WriteHTML('');
             if (file_exists(CONT_FILE_PATH . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg')) {
-
                 $mpdf->Image(CONT_FILE_PATH . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-' . $i . '.jpg', 0, 0, 210, 297, 'jpg', '', true, false);
                 if ($i < ($pages_number)) {
                     $mpdf->AddPage();

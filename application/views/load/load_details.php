@@ -876,10 +876,12 @@ if ($count >= 1) {
             if (confirm("Confirm delete?")) {
                 $.ajax({
                     type: "POST",
-                    url: '<?php echo site_url('load/delete_photo/0/1') ?>',
+                    url: '<?php echo site_url('load/delete_photo/0/1/0/0') ?>',
                     async: true,
                     data: {
-                        path: del_file.data('url')
+                        path: del_file.data('url'),
+                        bol_number: del_file.data('bol_number'),
+                        doc_type: del_file.data('type')
                     },
                     dataType: "json",
                     success: function (o) {
