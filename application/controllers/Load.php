@@ -643,15 +643,21 @@ class load extends MY_Controller {
         return $shp_photo;
     }
 
-    function delete_photo($path = null, $json = null, $bol_number = null, $doc_type = null) {
+    function delete_photo($path = null, $json = null, $load_id = null, $bol_number = null, $doc_type = null) {
 
         $this->load->model('shipment_model');
         if (!$path) {
             $path = $this->input->post('path');
         }
+
+        if (!$load_id) {
+            $load_id = $this->input->post('load_id');
+        }
+
         if (!$bol_number) {
             $bol_number = $this->input->post('bol_number');
         }
+
         if (!$doc_type) {
             $doc_type = $this->input->post('doc_type');
         }
@@ -668,21 +674,45 @@ class load extends MY_Controller {
             $update_query = $field . ' - 1';
         }
 
-        //UPDATE `shipment` SET `drop_doc_pages`= `drop_doc_pages`+1  WHERE `idshipment` = 1
-//        $affected_rows = $this->shipment_model->update([$field => $update_query], ['bol_number' => $bol_number]);
-//        $this->db->where('bol_number', $bol_number);
-//        $this->db->set($field, $update_query, FALSE);
-//        $this->db->update('shipment');
-//        $this->output->enable_profiler(TRUE);
 
         $this->load->helper('file');
         $result = unlink('../tkgo_files2/' . $path);
+
+        $shipments = $this->shipment_model->get(['bol_number' => $bol_number]);
+        $shipment = $shipments[0];
+
+        $total_photos = 0;
+        if ($doc_type == 'sp') {
+            $total_photos = $shipment['pickup_doc_pages'];
+        } else {
+            $total_photos = $shipment['drop_doc_pages'];
+        }
+
+        $cont = 1;
+        $base_url = CONT_FILE_PATH . $load_id . '_bol_' . $bol_number . '_' . $doc_type . '-';
+
+        for ($i = 1; $i <= $total_photos; $i++) {
+            if (file_exists($base_url . $i . '.jpg')) {
+                rename($base_url . $i . '.jpg', $base_url . $cont . '.jpg');
+                $cont++;
+            }
+        }
+
+        //UPDATE `shipment` SET `drop_doc_pages`= `drop_doc_pages`+1  WHERE `idshipment` = 1
+//        $affected_rows = $this->shipment_model->update([$field => $update_query], ['bol_number' => $bol_number]);
+        $this->db->where('bol_number', $bol_number);
+        $this->db->set($field, $update_query, FALSE);
+        $this->db->update('shipment');
+//        $this->output->enable_profiler(TRUE);        
+
+
         if ($json) {
             if ($result) {
                 $this->output->set_output(json_encode(['status' => 1, 'msg' => 'File deleted.']));
             } else {
                 $this->output->set_output(json_encode(['status' => 0, 'msg' => 'File could not be deleted.']));
             }
+            return false;
         }
         return $result;
     }

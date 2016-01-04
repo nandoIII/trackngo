@@ -739,7 +739,7 @@ if ($count >= 1) {
                 var cont = 1;
                 for (var i = 1; i <= pages_number; i++) {
                     if (data[i]) {
-                        output += '<div id="cont_' + load_id + bol_number + i + '"><a href="../../../tkgo_files2/' + data[i].url + '" target="_blank">Photo: ' + cont + '</a><span class="del_photo" id="' + load_id + bol_number + i + '" data-type="' + doc_type + '" data-bol_number="' + bol_number + '" data-url="' + data[i].url + '" style="cursor:pointer; color: red"> Trash </span></div>';
+                        output += '<div id="cont_' + load_id + bol_number + i + '"><a href="../../../tkgo_files2/' + data[i].url + '" target="_blank">Photo: ' + cont + '</a><span class="del_photo" id="' + load_id + bol_number + i + '" data-load_id="'+load_id+'" data-type="' + doc_type + '" data-bol_number="' + bol_number + '" data-url="' + data[i].url + '" style="cursor:pointer; color: red"> Trash </span></div>';
                     }
                     cont++;
                 }
@@ -881,6 +881,7 @@ if ($count >= 1) {
                     data: {
                         path: del_file.data('url'),
                         bol_number: del_file.data('bol_number'),
+                        load_id: del_file.data('load_id'),
                         doc_type: del_file.data('type')
                     },
                     dataType: "json",
