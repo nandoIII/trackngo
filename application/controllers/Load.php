@@ -2332,14 +2332,14 @@ class load extends MY_Controller {
 // Put your device token here (without spaces):
         $deviceToken = $app_id; //'5ed672addefa254d8e0d054c8acb1658bde5ef8a1b49c75c838ed56b037eb3fa';//
 // Put your private key's passphrase here:
-        $passphrase = 'staffing';  //development        
-//        $passphrase = 'Staffing1a'; //production
+//        $passphrase = 'staffing';  //development        
+        $passphrase = 'Staffing1a'; //production
 // Put your alert message here:
 //        $message = 'It works, this piece of art works!';
 //        
 // Enviroment
-        $ck = 'ck_bk.pem'; //Development
-//        $ck = 'ck.pem'; //production
+//        $ck = 'ck_bk.pem'; //Development
+        $ck = 'ck.pem'; //production
 ////////////////////////////////////////////////////////////////////////////////
 
         $ctx = stream_context_create();
@@ -2347,8 +2347,8 @@ class load extends MY_Controller {
         stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
 
 // Open a connection to the APNS server
-//        $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | //production
-        $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | //development
+        $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | //production
+//        $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | //development
 // REMOVE sandbox when app is in appstore
                 STREAM_CLIENT_PERSISTENT, $ctx);
 

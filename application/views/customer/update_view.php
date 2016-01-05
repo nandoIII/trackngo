@@ -77,13 +77,18 @@
                 </div>
             </div>
 
-            <table id="contact-table">
+            <table id="contact-table" class="table table-hover table-striped">
                 <thead>
-                <td>Name</td>
-                <td>Phone</td>
-                <td>Email</td>
-                <td>Default</td>
-                <td>Actions</td>
+                    <tr>
+                        <td colspan="6" style="background-color: #EBEBEB; font-size: 14px;font-weight: bolder;">Customer Contacts</td>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>Phone</td>
+                        <td>Email</td>
+                        <td>Default</td>
+                        <td>Actions</td>
+                    </tr>
                 </thead>
                 <tbody>
                     <?php
@@ -123,6 +128,10 @@
 <style>
     input[type="text"]{
         background-color: #fff;
+    }
+    
+    #contact-table{
+        margin: 40px 20px;
     }
 </style>
 <script>

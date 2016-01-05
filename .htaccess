@@ -5,7 +5,7 @@
 # then Save File As ".htaccess"
 
 RewriteEngine On
-RewriteBase /trackngo2
+RewriteBase /trackngo
 
 RewriteCond %{REQUEST_URI} ^system.*
 RewriteRule ^(.*)$ /index.php?/$1 [L]

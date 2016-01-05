@@ -93,7 +93,7 @@
 //                        echo in_array('load/update2', $roles) ? '<a class="edit" data-id="' . $row['idts_load'] . '" href="' . site_url('load/update2/' . $row['idts_load']) . '"> Edit </a>' : '';                       
                         echo in_array('load/update2', $roles) ? '<a class="edit" data-id="' . $row['idts_load'] . '" > Edit </a>' : '';
                         echo in_array('load/load_details', $roles) ? '<a class="view" data-id="' . $row['idts_load'] . '"> View </a>' : '';
-                        echo in_array('load/trash', $roles) ? '<a class="trash" id="' . $row['idts_load'] . '"> Trash </a>' : '';
+                        echo in_array('load/trash', $roles) ? '<a class="trash" data-id="' . $row['idts_load'] . '"> Trash </a>' : '';
                         echo in_array('load/tender', $roles) ? $tender : '';
                         echo in_array('load/update2', $roles) || in_array('load/trash', $roles) ? '</td>' : '';
                         echo '</tr>';
@@ -541,13 +541,14 @@
         $('body').on('click', '.trash', function (evt) {
             evt.preventDefault();
             var load = $(this);
-            var id = load.attr('id');
+            var id = load.data('id');
+            var site_url = '<?php echo site_url() ?>';
             var r = confirm("Confirm trashing load?");
 
             if (r == true) {
                 $.ajax({
                     type: "POST",
-                    url: 'load/change_status/' + id + '/' + 0,
+                    url: site_url + 'load/change_status/' + id + '/' + 0,
                     async: true,
                     dataType: "json",
                     beforeSend: function () {

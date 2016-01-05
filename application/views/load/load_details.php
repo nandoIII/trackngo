@@ -262,7 +262,7 @@
                                                                         }
                                                                         $date = explode(' ', $row['date']);
                                                                         $date_formated_temp = explode('-', $date[0]);
-                                                                        $date_formated = $date_formated_temp[1] . '/' . $date_formated_temp[0] . '/' . $date_formated_temp[2];
+                                                                        $date_formated = $date_formated_temp[1] . '/' . $date_formated_temp[2] . '/' . $date_formated_temp[0];
 
                                                                         if ($row['date']) {
                                                                             echo'<tr style="background-color: ' . $ms_style . '">'
@@ -286,7 +286,10 @@
 
                                                 <input type="hidden" id="last_date" value="<?php echo $last_date ?>"/>
                                                 <div class="clear"></div>
-                                                <div class="field_text field_textarea">
+                                                <div class="loading" style="display:none">
+                                                    <div class="loading-bg"></div>
+                                                </div>
+                                                <div class="field_text field_textarea" style="margin: 20px 0px;">
                                                     <label for="styled_message" class="label_title">Message</label>
                                                     <textarea cols="30" rows="10" name="styled_message" id="styled_message" placeholder="Leave your message here" class="textarea textarea_middle required" hidefocus="true" style="outline: none;height:70px;"></textarea>
                                                 </div>
@@ -457,7 +460,7 @@
     } 
 
     .shp_document .popover, .csn_document .popover, .or_document .popover{
-        width: 200px;
+        width: 230px;
     }
 
     .shp_document .popover .popover-title, .csn_document .popover .popover-title, .or_document .popover .popover-title{
@@ -504,6 +507,21 @@
         width: 630px;
         height: 315px;        
     }
+
+    .loading{
+        text-align: center;
+        margin: 20px;
+    }
+
+    .loading-bg{
+        width: 100px;
+        height: 25px;
+        background-image: url("/trackngo/public/img/ajax-loader-squares.gif");
+        background-size: 50px 25px;
+        background-repeat: no-repeat;
+        margin-left: 46%;
+        margin: 20px 46%;      
+    }    
 
 
 </style>
@@ -937,9 +955,6 @@ if ($count >= 1) {
         });
 
 
-
-
-
         $('#commentForm').submit(function (evt) {
             evt.preventDefault();
             if ($('input[name="sw_not_driver"]:checked').length > 0) {
@@ -962,8 +977,6 @@ if ($count >= 1) {
                     load_id: '<?php echo $load['idts_load'] ?>',
                     bol_number: $('#bol_number_mail').val(),
                     doc_type: $('#doc_type').val()
-
-
                 },
                 dataType: "json",
                 success: function (o) {
@@ -971,17 +984,16 @@ if ($count >= 1) {
             });
         });
 
-        $(document).keypress(function (e) {
-            if (e.which == 13) {
-                $('#commentForm').submit(function (evt) {
-                    evt.preventDefault();
-                    if ($('input[name="sw_not_driver"]:checked').length > 0) {
-                        sendPushNot();
-                    } else {
-                        saveNotinDB();
-                    }
-                });
+        $('#styled_message').keydown(function (evt) {
+
+            if (evt.keyCode == 13) {
+                if ($('input[name="sw_not_driver"]:checked').length > 0) {
+                    sendPushNot();
+                } else {
+                    saveNotinDB();
+                }
             }
+
         });
         setInterval(getChat, 10000);
         function getChat() {
@@ -1004,7 +1016,7 @@ if ($count >= 1) {
 
                     var date = msg.date.split(' ');
                     var ymd = date[0].split('-');
-                    output += '<tr style="background-color:' + ms_style + '"><td style="text-align: center; width:100px">' + ymd[1] + '/' + ymd[0] + '/' + ymd[2] + '</td><td style="text-align: center; width:100px">' + date[1] + '</td><td style="text-align: center;">' + msg.city + '</td><td style="text-align: center;">' + msg.state + '</td><td style="text-align: center; width:239px"><div class="notes" style="float:left">' + msg.comment + '</div><a class="set-callcheck" data-note="' + msg.comment + '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#callcheckViewModal">view</a></td><td style="text-align: center;">' + name + '</td></tr>';
+                    output += '<tr style="background-color:' + ms_style + '"><td style="text-align: center; width:100px">' + ymd[1] + '/' + ymd[2] + '/' + ymd[0] + '</td><td style="text-align: center; width:100px">' + date[1] + '</td><td style="text-align: center;">' + msg.city + '</td><td style="text-align: center;">' + msg.state + '</td><td style="text-align: center; width:239px"><div class="notes" style="float:left">' + msg.comment + '</div><a class="set-callcheck" data-note="' + msg.comment + '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#callcheckViewModal">view</a></td><td style="text-align: center;">' + name + '</td></tr>';
                 }
                 $('#callcheck_table tbody').html('');
                 $('#callcheck_table tbody').append(output);
@@ -1045,6 +1057,9 @@ if ($count >= 1) {
             type: "POST",
             url: '<?php echo site_url('load/send_push_not') ?>',
             async: true,
+            beforeSend: function () {
+                $('.loading').show();
+            },
             data: {
                 title: $('#subject').val(),
                 driver_id: '<?php echo $driver['idts_driver'] ?>',
@@ -1059,6 +1074,7 @@ if ($count >= 1) {
             },
             dataType: "json",
             success: function (data) {
+                $('.loading').hide();
                 var o = data['dbresult'];
                 saveMsg(o.date, o.time, o.city, o.state, o.comment, o.entered_by);
                 $('#styled_message').val('');

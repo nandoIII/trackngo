@@ -310,7 +310,7 @@
     .loading-bg{
         width: 100px;
         height: 100px;
-        background-image: url("/trackngo2/public/img/loading.gif");
+        background-image: url("/trackngo/public/img/loading.gif");
         background-size: 100px 100px;
         background-repeat: no-repeat;
         margin-left: 35%;
