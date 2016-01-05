@@ -81,8 +81,8 @@
                                             echo'<td class="bol_header">Documents</td>';
                                             echo'</tr>';
 
-                                            $shp = $row['origin_sign'] == 1 ? '<div class="shp_document"><a id="shp_pop_' . $row['bol_number'] . '" href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
-                                            $pod = $row['destination_sign'] == 1 ? '<div class="csn_document"><a href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" class="pop_cs" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="cs" data-pages_number="' . $row['drop_doc_pages'] . '" target="_blank">' . $row['drop_doc'] . '</a></div>' : '';
+                                            $shp = $row['origin_sign'] == 1 ? '<div class="shp_document"><a id="sp_pop_' . $row['bol_number'] . '" href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
+                                            $pod = $row['destination_sign'] == 1 ? '<div class="csn_document"><a id="cs_pop_' . $row['bol_number'] . '" href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" class="pop_cs" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="cs" data-pages_number="' . $row['drop_doc_pages'] . '" target="_blank">' . $row['drop_doc'] . '</a></div>' : '';
                                             $status = 'test';
                                             if ($load['tender'] == 0) {
                                                 $status = 'Not tendered';
@@ -101,7 +101,7 @@
                                             . '<td style="text-align: center; width:7%">' . $row['drop_number'] . '</td>'
                                             . '<td class="status color" style="text-align: center;width:12%"">' . $status . '</td>'
                                             . '<td style="text-align: center;">'
-                                            . '<div class="or_document"><a href="../../../tkgo_files2/' . $row['url_bol'] . '" class="pop_or" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '"  target="_blank">Original Document</a></div>'
+                                            . '<div class="or_document"><a id="or_pop_' . $row['bol_number'] . '" href="../../../tkgo_files2/' . $row['url_bol'] . '" class="pop_or" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '"  target="_blank">Original Document</a></div>'
                                             . $shp
                                             . $pod
                                             . ' </td>'
@@ -777,10 +777,10 @@ if ($count >= 1) {
         return output;
     }
 
-    function hidePopover(bol_number) {
-        console.log(bol_number);
+    function hidePopover(id) {
+        console.log(id);
 //        var bol_number = cur_pop.data('bol_number');
-        $('#shp_pop_' + bol_number).popover('hide')
+        $('#' + id).popover('hide');
 
 //            popover.('hide');
     }
@@ -836,7 +836,7 @@ if ($count >= 1) {
                 html: true,
 //                container: pop_doc,
 //                animation: true,
-                title: 'Original Documents',
+                title: 'Original Documents <button type="button" id="close" class="close" onclick="hidePopover(&quot;' + pop_doc.attr('id') + '&quot;)">&times;</button>',
                 content: function () {
                     return getOriginalShpOptions(pop_doc);
                 }
@@ -852,7 +852,7 @@ if ($count >= 1) {
                 html: true,
 //                container: pop_doc,
 //                animation: true,
-                title: 'Edit Shipment Documents<button type="button" id="close" class="close" onclick="hidePopover(&quot;'+pop_doc.data('bol_number')+'&quot;)">&times;</button>',
+                title: 'Edit Shipment Documents<button type="button" id="close" class="close" onclick="hidePopover(&quot;' + pop_doc.attr('id') + '&quot;)">&times;</button>',
                 content: function () {
                     return getShpPhotos(pop_doc);
                 }
@@ -869,7 +869,7 @@ if ($count >= 1) {
                 html: true,
 //                container: pop_doc,
 //                animation: true,
-                title: 'Edit Consignee Documents',
+                title: 'Edit Consignee Documents<button type="button" id="close" class="close" onclick="hidePopover(&quot;' + pop_doc.attr('id') + '&quot;)">&times;</button>',
                 content: function () {
                     return getShpPhotos(pop_doc);
                 }
