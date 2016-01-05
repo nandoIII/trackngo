@@ -138,6 +138,7 @@
 
                                     <!-- Form Name -->
                                     <legend style="margin:10px 0px">Check Address</legend>
+                                    <div id="pickup_form_error" class="alert alert-error" style="display:none"><!-- Dynamic --></div>
                                     <table id="tbl-shp-view">
                                         <tr>
                                             <td>Address:</td>
@@ -222,7 +223,8 @@
         </div>
     </div>
 </div>
-<style>
+<style> 
+
     select{
         width: 180px;
     }
@@ -261,9 +263,13 @@
         cursor: pointer;
     }
 
-    #register_form_error{
+    #register_form_error, #pickup_form_error{
         border: 1px solid;
         padding: 5px;
+    }
+
+    #pickup_form_error{
+        margin: 5px 0px 20px 0px;
     }
 
     .loading{
@@ -349,6 +355,7 @@
             $('#mpk_address2').val('');
             $('#mpk_zipcode').val('');
             $("#map_pickup").html("");
+            $('#pickup_form_error').hide();
         });
 
         //Set drop model vars
@@ -398,6 +405,12 @@
                     $('#result_destination').show();
                 },
                 success: function (data) {
+
+                    if (data.status == 'ZERO_RESULTS') {
+                        $('#pickup_form_error').html('Address and/or zipcode not found google map.');
+                        $('#pickup_form_error').show();
+                        return false;
+                    }
                     var city = '';
                     var state = '';
 
