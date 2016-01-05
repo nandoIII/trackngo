@@ -42,9 +42,26 @@ class load extends MY_Controller {
 
         //pagination
         $config['base_url'] = site_url('load/index');
-        $config['per_page'] = 10;
+        $config['per_page'] = 5;
         $config['num_links'] = 5;
         $config['total_rows'] = count($this->get_load_view('x', 0, 1));
+
+        $config['full_tag_open'] = "<ul class='pagination'>";
+        $config['full_tag_close'] = "</ul>";
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
+        $config['cur_tag_open'] = "<li class='disabled'><li class='active'><a href='#'>";
+        $config['cur_tag_close'] = "<span class='sr-only'></span></a></li>";
+        $config['next_tag_open'] = "<li>";
+        $config['next_tagl_close'] = "</li>";
+        $config['prev_tag_open'] = "<li>";
+        $config['prev_tagl_close'] = "</li>";
+        $config['first_tag_open'] = "<li>";
+        $config['first_tagl_close'] = "</li>";
+        $config['last_tag_open'] = "<li>";
+        $config['last_tagl_close'] = "</li>";
+
+
         $this->pagination->initialize($config);
 
         $this->load->model('driver_model');
@@ -55,6 +72,7 @@ class load extends MY_Controller {
         $this->load->model('customer_model');
         $data['customers'] = $this->customer_model->get();
         $data['drivers'] = $this->driver_model->get();
+        $data['total_loads'] = $config['total_rows'];
 
         $data['loads'] = $this->get_load_view('x', 0, 1, 'date_created', 'desc', $config['per_page'], $this->uri->segment(3));
 //        print_r($data['loads']);
@@ -63,7 +81,6 @@ class load extends MY_Controller {
 //        $this->output->enable_profiler(TRUE);
 
         $config['num_rows'] = count($data['loads']);
-        $this->pagination->initialize($config);
 
         $this->load->view('general/inc/header_view', $data);
         $this->load->view('load/load_view2');
@@ -934,7 +951,7 @@ class load extends MY_Controller {
             $this->load->model('driver_model');
             $drivers = $this->driver_model->get($this->input->post('driver'));
             $driver = $drivers[0];
-            $this->push_not_custom_msg_load($load_num, $driver['app_id'], $driver['apns_number'], 'Changes in Load #' . $load_num, 'Load Updated', 0, $driver['email'], $load_id);
+            $this->push_not_custom_msg_load($load_num, $driver['app_id'], $driver['apns_number'], 'Changes in load #' . $load_num, 'Load Updated', 0, $driver['email'], $load_id);
         }
 
         $this->output->set_output(json_encode(['status' => 1, 'msg' => 'Load successfully updated.']));
@@ -1602,7 +1619,7 @@ class load extends MY_Controller {
      * This function is for the app
      * @param type $id
      */
-    public function get_load_view($where = null, $json = null, $sw = null, $order_by = null, $order = null, $limit = null, $start = null) {
+    public function get_load_view($where = null, $json = null, $sw = null, $order_by = null, $order = null, $limit = null, $start = null, $total = null) {
         $this->_required_login();
         $this->load->model('item_model');
 
@@ -1644,7 +1661,6 @@ class load extends MY_Controller {
             //add current user to the array
             array_push($childs, $user_id);
         }
-
 
         $result = $this->load_model->get_load_view($where, $childs, $sw, $order_by, $order, $limit, $start);
         if ($limit) {

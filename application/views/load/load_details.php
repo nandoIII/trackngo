@@ -81,7 +81,7 @@
                                             echo'<td class="bol_header">Documents</td>';
                                             echo'</tr>';
 
-                                            $shp = $row['origin_sign'] == 1 ? '<div class="shp_document"><a href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
+                                            $shp = $row['origin_sign'] == 1 ? '<div class="shp_document"><a id="shp_pop_' . $row['bol_number'] . '" href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
                                             $pod = $row['destination_sign'] == 1 ? '<div class="csn_document"><a href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" class="pop_cs" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="cs" data-pages_number="' . $row['drop_doc_pages'] . '" target="_blank">' . $row['drop_doc'] . '</a></div>' : '';
                                             $status = 'test';
                                             if ($load['tender'] == 0) {
@@ -739,7 +739,7 @@ if ($count >= 1) {
                 var cont = 1;
                 for (var i = 1; i <= pages_number; i++) {
                     if (data[i]) {
-                        output += '<div id="cont_' + load_id + bol_number + i + '"><a href="../../../tkgo_files2/' + data[i].url + '" target="_blank">Photo: ' + cont + '</a><span class="del_photo" id="' + load_id + bol_number + i + '" data-load_id="'+load_id+'" data-type="' + doc_type + '" data-bol_number="' + bol_number + '" data-url="' + data[i].url + '" style="cursor:pointer; color: red"> Trash </span></div>';
+                        output += '<div id="cont_' + load_id + bol_number + i + '"><a href="../../../tkgo_files2/' + data[i].url + '" target="_blank">Photo: ' + cont + '</a><span class="del_photo" id="' + load_id + bol_number + i + '" data-load_id="' + load_id + '" data-type="' + doc_type + '" data-bol_number="' + bol_number + '" data-url="' + data[i].url + '" style="cursor:pointer; color: red"> Trash </span></div>';
                     }
                     cont++;
                 }
@@ -777,6 +777,14 @@ if ($count >= 1) {
         return output;
     }
 
+    function hidePopover(bol_number) {
+        console.log(bol_number);
+//        var bol_number = cur_pop.data('bol_number');
+        $('#shp_pop_' + bol_number).popover('hide')
+
+//            popover.('hide');
+    }
+
 
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?signed_in=true&callback=initMap1" async defer></script>
@@ -796,6 +804,7 @@ if ($count >= 1) {
 </style>
 
 <script charset="UTF-8">
+    var cur_pop;
     $(function () {
 
         $('body').on('click', '.exp-call', function (evt) {
@@ -843,13 +852,12 @@ if ($count >= 1) {
                 html: true,
 //                container: pop_doc,
 //                animation: true,
-                title: 'Edit Shipment Documents',
+                title: 'Edit Shipment Documents<button type="button" id="close" class="close" onclick="hidePopover(&quot;'+pop_doc.data('bol_number')+'&quot;)">&times;</button>',
                 content: function () {
                     return getShpPhotos(pop_doc);
                 }
             }).popover('toggle');
         });
-
 
         //Contacts popover
         $('body').on('click', '.pop_cs', function (evt) {

@@ -26,28 +26,30 @@
                 <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/add2'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-add-bt-45w.png" width="45" height="70" alt="Add a Load"></a></div>
             <?php } ?>            
             <div id="category-button"></div>
-            <div id="category-search" class="search-customer">
-                <select class="selectpicker" name="customer" id="search_customer">
-                    <option value="0">-- Select Customer --</option>
-                    <?php
-                    foreach ($customers as $customer => $row) {
-                        echo '<option value="' . $row['idts_customer'] . '">' . $row['name'] . '</option>';
-                    }
-                    ?>
-                </select>
+            <!--            <div id="category-search" class="search-customer">
+                            <select class="selectpicker" name="customer" id="search_customer">
+                                <option value="0">-- Select Customer --</option>
+            <?php
+            foreach ($customers as $customer => $row) {
+                echo '<option value="' . $row['idts_customer'] . '">' . $row['name'] . '</option>';
+            }
+            ?>
+                            </select>
+                        </div>-->
+            <div style="float: right;">
+                <div id="category-search" class="search-carrier">
+                    <select class="selectpicker" name="carrier" id="search_carrier">
+                        <option value="0">-- Select Carrier --</option>
+                        <?php
+                        foreach ($carriers as $carrier => $row) {
+                            echo '<option value="' . $row['idts_carrier'] . '">' . $row['name'] . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div id="category-search" class="search-loads"><input type="text" name="search_load_number" id="search_load_number" /></div>            
+                <div id="category-search" class="search-loads" style="width: 50px;"><button type="button" class="btn btn-red btn-small" id="load_search" style="position: relative;top: 5px"><span class="gradient">Search</span></button></div>
             </div>
-            <div id="category-search" class="search-carrier">
-                <select class="selectpicker" name="carrier" id="search_carrier">
-                    <option value="0">-- Select Carrier --</option>
-                    <?php
-                    foreach ($carriers as $carrier => $row) {
-                        echo '<option value="' . $row['idts_carrier'] . '">' . $row['name'] . '</option>';
-                    }
-                    ?>
-                </select>
-            </div>
-            <div id="category-search" class="search-loads"><input type="text" name="search_load_number" id="search_load_number" /></div>
-            <div id="category-search" class="search-loads" style="width: 50px;margin-left: 10px;"><a class="btn" id="load_search" >Search</a></div>
         </div>
 
         <div class="table-responsive" style="margin-top:40px;">
@@ -70,7 +72,7 @@
                     $j = 0;
                     foreach ($loads as $load => $row) {
 
-                        //                        print_r($row['shipments'][0]['url_bol']);
+                        //     print_r($row['shipments'][0]['url_bol']);
 
                         $driver_address = explode(',', $row['driver_address'], 2);
                         $date = explode(' ', $row['date_created']);
@@ -88,8 +90,9 @@
                         echo '<td style="width: 250px;">' . $driver_address[0] . '<br>' . $driver_address[1] . ' <span class="map_view" style="cursor:pointer"  data-toggle="modal" data-target="#destinationAddressModal" data-driver_lat="' . $row['driver_latitud'] . '" data-driver_lng="' . $row['driver_longitud'] . '" id="view_destination"><strong>[map]</strong></span></td>';
                         echo '<td class="status color"   style="font-weight: 800;color: #666;">' . $row['status'] . '</td>';
                         echo in_array('load/update2', $roles) || in_array('load/trash', $roles) ? '<td>' : '';
-                        echo in_array('load/update2', $roles) ? '<a class="edit" data-id="' . $row['idts_load'] . '" href="' . site_url('load/update2/' . $row['idts_load']) . '"> Edit </a>' : '';
-                        echo in_array('load/load_details', $roles) ? '<a class="view" data-id="' . $row['idts_load'] . '" href="' . site_url('load/load_details/' . $row['idts_load']) . '"> View </a>' : '';
+//                        echo in_array('load/update2', $roles) ? '<a class="edit" data-id="' . $row['idts_load'] . '" href="' . site_url('load/update2/' . $row['idts_load']) . '"> Edit </a>' : '';                       
+                        echo in_array('load/update2', $roles) ? '<a class="edit" data-id="' . $row['idts_load'] . '" > Edit </a>' : '';
+                        echo in_array('load/load_details', $roles) ? '<a class="view" data-id="' . $row['idts_load'] . '"> View </a>' : '';
                         echo in_array('load/trash', $roles) ? '<a class="trash" id="' . $row['idts_load'] . '"> Trash </a>' : '';
                         echo in_array('load/tender', $roles) ? $tender : '';
                         echo in_array('load/update2', $roles) || in_array('load/trash', $roles) ? '</td>' : '';
@@ -100,7 +103,12 @@
                 </tbody>
 
             </table>
-            <?php echo $this->pagination->create_links() ?>
+
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <?php echo $this->pagination->create_links() ?>
+                </div>
+            </div>            
         </div>
 
         <!-- Hidden values -->
@@ -363,7 +371,7 @@
     }
 
     input[type="text"], input[type="password"] {
-        height: 30px;
+        height: 34px;
         background-color: #fff;
     }
 
@@ -379,7 +387,15 @@
 
     #tenderModal .modal-body{
         max-height: 320px;
-    }    
+    }
+
+    .pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus{
+        background-color: #ED1A3B;
+        border-color: #ED1A3B;        
+    }
+    .pagination > li > a, .pagination > li > span{
+        color: #ED1A3B;
+    }
 
 </style>
 
@@ -401,6 +417,13 @@
         console.log('datos de load: ' + load.data('load_id'));
     });
     $(function () {
+        var wage = document.getElementById("search_load_number");
+        wage.addEventListener("keydown", function (e) {
+            if (e.keyCode === 13) {
+                searchLoad();
+            }
+        });
+
         $('#save').click(function () {
             alert($('#mytable').find('input[type="checkbox"]:checked').length + ' checked');
         });
@@ -444,41 +467,7 @@
         // Get loads filtered
         $('body').on('click', '#load_search', function (evt) {
             evt.preventDefault();
-            $.ajax({
-                type: "POST",
-                url: '<?php echo site_url('load/get_load_view/0/1/1/date_created/desc') ?>',
-                data: {
-                    search_customer: $("#search_customer").val(),
-                    search_carrier: $("#search_carrier").val(),
-                    search_load_number: $("#search_load_number").val()
-                },
-                async: true,
-                dataType: "json",
-                beforeSend: function () {
-                    $('#result_destination').html('Loading...');
-                    $('#result_destination').show();
-                },
-                success: function (data) {
-                    $('#list_load tbody').empty();
-                    var output = '';
-                    for (var i = 0; i < data.length; i++) {
-                        var status = data[i].status;
-                        
-                        var data_format = data[i].date_created.split(" ");
-                        var myd = data_format[0].split("-");
-                        output += '<tr data-status="' + status + '" id="load_' + data[i].idts_load + '" data-load_id="' + data[i].idts_load + '" data-toggle="popover" class="po">';
-                        output += '<td>' + data[i].load_number + '</td>';
-                        output += '<td>' + myd[1] + '/' + myd[2] + '/' + myd[0] + ' ' + data_format[1] + '</td>';
-                        output += '<td>' + data[i].carrier_name + '</td>';
-                        output += '<td>' + data[i].driver_name + ' ' + data[i].driver_last_name + '</td>';
-                        output += '<td>' + data[i].address + '</td>';
-                        output += '<td class="color" style="font-weight: 800;color: #666;">' + status + '</td>';
-                        output += '<td><a href=" <?php echo site_url('load/update2') ?>' + '/' + data[i].idts_load + '"> Edit </a><a href=" <?php echo site_url('load/load_details') ?>' + '/' + data[i].idts_load + '"> View </a><a class="trash" data-id="' + data[i].idts_load + '" href="<?php echo site_url('load/trash') ?>' + '/' + data[i].idts_load + '"> Trash </a></td>';
-                        output += '</tr>';
-                    }
-                    $('#list_load tbody').append(output);
-                }
-            });
+            searchLoad();
         });
 
         //adds highlight when clicked
@@ -508,15 +497,15 @@
         $('body').on('click', '.edit', function (evt) {
             evt.preventDefault();
             var load = $(this).data('id');
-            ;
-            location.href = 'load/update2/' + load;
+            var site_url = '<?php echo site_url() ?>';
+            location.href = site_url + 'load/update2/' + load;
         });
 
         $('body').on('click', '.view', function (evt) {
             evt.preventDefault();
             var load = $(this).data('id');
-            ;
-            location.href = 'load/load_details/' + load;
+            var site_url = '<?php echo site_url() ?>';
+            location.href = site_url + 'load/load_details/' + load;
         });
 
         // trash load
@@ -759,6 +748,45 @@
 
         $('#myModal').on('shown', function () {
             google.maps.event.trigger(map, "resize");
+        });
+    }
+
+    function searchLoad() {
+        var total_loads = '<?php echo $total_loads ?>';
+        $.ajax({
+            type: "POST",
+            url: '<?php echo site_url('load/get_load_view/0/1/1/date_created/desc') ?>' + '/' + total_loads,
+            data: {
+                search_customer: $("#search_customer").val(),
+                search_carrier: $("#search_carrier").val(),
+                search_load_number: $("#search_load_number").val()
+            },
+            async: true,
+            dataType: "json",
+            beforeSend: function () {
+                $('#result_destination').html('Loading...');
+                $('#result_destination').show();
+            },
+            success: function (data) {
+                $('#list_load tbody').empty();
+                var output = '';
+                for (var i = 0; i < data.length; i++) {
+                    var status = data[i].status;
+
+                    var data_format = data[i].date_created.split(" ");
+                    var myd = data_format[0].split("-");
+                    output += '<tr data-status="' + status + '" id="load_' + data[i].idts_load + '" data-load_id="' + data[i].idts_load + '" data-toggle="popover" class="po">';
+                    output += '<td>' + data[i].load_number + '</td>';
+                    output += '<td>' + myd[1] + '/' + myd[2] + '/' + myd[0] + ' ' + data_format[1] + '</td>';
+                    output += '<td>' + data[i].carrier_name + '</td>';
+                    output += '<td>' + data[i].driver_name + ' ' + data[i].driver_last_name + '</td>';
+                    output += '<td>' + data[i].address + '</td>';
+                    output += '<td class="color" style="font-weight: 800;color: #666;">' + status + '</td>';
+                    output += '<td><a class="edit" href=" <?php echo site_url('load/update2') ?>' + '/' + data[i].idts_load + '" data-id="' + data[i].idts_load + '"> Edit </a><a class="view" href=" <?php echo site_url('load/load_details') ?>' + '/' + data[i].idts_load + '" data-id="' + data[i].idts_load + '"> View </a><a class="trash" data-id="' + data[i].idts_load + '" href="<?php echo site_url('load/trash') ?>' + '/' + data[i].idts_load + '"> Trash </a></td>';
+                    output += '</tr>';
+                }
+                $('#list_load tbody').append(output);
+            }
         });
     }
 
