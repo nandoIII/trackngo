@@ -32,7 +32,7 @@
     <div id="category-actions">
         <div class="loads-title" id="category-title"><img src="<?php echo base_url() ?>/public/img/images/loads-title.png" width="100" height="70" alt="Loads Category"></div>
         <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-list-bt-45w.png" width="45" height="70" alt="View All Loads"></a></div>
-        <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/add2'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-add-bt-45w.png" width="45" height="70" alt="Add a Load"></a></div>
+        <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/add'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-add-bt-45w.png" width="45" height="70" alt="Add a Load"></a></div>
     </div>    
     <!--<div class="text-left"><h1>Load Details #<?php echo $load['load_number'] ?></h1></div>-->
     <h2>Details Load #<?php echo $load['load_number'] ?></h2>
@@ -290,6 +290,7 @@
                                                     <div class="loading-bg"></div>
                                                 </div>
                                                 <div class="field_text field_textarea" style="margin: 20px 0px;">
+                                                    <div id="register_form_error" class="alert alert-error" style="display:none"><!-- Dynamic --></div>
                                                     <label for="styled_message" class="label_title">Message</label>
                                                     <textarea cols="30" rows="10" name="styled_message" id="styled_message" placeholder="Leave your message here" class="textarea textarea_middle required" hidefocus="true" style="outline: none;height:70px;"></textarea>
                                                 </div>
@@ -1055,13 +1056,13 @@ if ($count >= 1) {
     function sendPushNot() {
         $.ajax({
             type: "POST",
-            url: '<?php echo site_url('load/send_push_not') ?>',
+            url: '<?php echo site_url('load/push_not_custom_msg_load') ?>',
             async: true,
             beforeSend: function () {
                 $('.loading').show();
             },
             data: {
-                title: $('#subject').val(),
+                android_title: "Smith Track'n Go",
                 driver_id: '<?php echo $driver['idts_driver'] ?>',
                 app_id: '<?php echo $driver['app_id'] ?>',
                 apns_number: '<?php echo $driver['apns_number'] ?>',
@@ -1075,9 +1076,17 @@ if ($count >= 1) {
             dataType: "json",
             success: function (data) {
                 $('.loading').hide();
-                var o = data['dbresult'];
-                saveMsg(o.date, o.time, o.city, o.state, o.comment, o.entered_by);
-                $('#styled_message').val('');
+                if (data['status'] == 1) {
+                    $('#register_form_error').hide();
+                    var o = data['dbresult'];
+                    saveMsg(o.date, o.time, o.city, o.state, o.comment, o.entered_by);
+                    $('#styled_message').val('');
+                } else {
+                    $('#register_form_error').html(data['msg']);
+                    $('#register_form_error').show();
+                    $('#styled_message').val('');
+                }
+
             }
         });
     }

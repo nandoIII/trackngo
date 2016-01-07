@@ -360,7 +360,7 @@ class load extends MY_Controller {
         mail($to, $subject, $message, $headers);
     }
 
-    public function add() {
+    public function addx() {
         $this->_required_login();
         $data = $this->get_session_user_data();
         $this->load->model('carrier_model');
@@ -378,7 +378,7 @@ class load extends MY_Controller {
         $this->load->view('general/inc/footer_view');
     }
 
-    public function add2() {
+    public function add() {
         $this->_required_login($this->router->fetch_class(), $this->router->fetch_method());
 
         $data = $this->get_session_user_data();
@@ -408,7 +408,7 @@ class load extends MY_Controller {
         $data['error'] = '';
 
         $this->load->view('general/inc/header_view', $data);
-        $this->load->view('load/register3_view');
+        $this->load->view('load/register_view');
         $this->load->view('general/inc/footer_view');
     }
 
@@ -618,7 +618,7 @@ class load extends MY_Controller {
                 $drivers = $this->driver_model->get($this->input->post('driver'));
                 $driver = $drivers[0];
 //                $this->push_not_new_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number']);
-                $this->push_not_custom_msg_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number'], 'Check new load assigned to you.', 'New Load', 1, $driver['email'], $load_id);
+                $this->push_not_custom_msg_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number'], 'Check new load assigned to you.', "Smith Track'n Go", 1, $driver['email'], $load_id);
             }
 
             $this->output->set_output(json_encode(['result' => 1, 'msg' => 'Load created.']));
@@ -951,7 +951,7 @@ class load extends MY_Controller {
             $this->load->model('driver_model');
             $drivers = $this->driver_model->get($this->input->post('driver'));
             $driver = $drivers[0];
-            $this->push_not_custom_msg_load($load_num, $driver['app_id'], $driver['apns_number'], 'Changes in load #' . $load_num, 'Load Updated', 0, $driver['email'], $load_id);
+            $this->push_not_custom_msg_load($load_num, $driver['app_id'], $driver['apns_number'], 'Changes in load #' . $load_num, "Smith Track'n Go", 0, $driver['email'], $load_id);
         }
 
         $this->output->set_output(json_encode(['status' => 1, 'msg' => 'Load successfully updated.']));
@@ -1982,6 +1982,8 @@ class load extends MY_Controller {
     //-------------------- Call Checks ---------------------
 
     public function save_callcheck($user_id = null, $load_id = null, $type = null, $driver = null, $comment = null, $driver_lat = null, $driver_lng = null, $notify_driver = null, $driver_email = null, $load_number = null, $sw = null) {
+        date_default_timezone_set("America/New_York");
+
         if (!$comment) {
             $comment = $this->input->post('comment');
         }
@@ -2174,10 +2176,7 @@ class load extends MY_Controller {
         }
     }
 
-    public function push_not_custom_msg_load($load_number = null, $app_id = null, $apns_number = null, $msg = null, $android_title = null, $tender = null, $email = null, $load_id = null) {
-
-        $android_msg = $msg;
-        $apple_msg = $msg;
+    public function push_not_custom_msg_load($load_number = null, $app_id = null, $apns_number = null, $msg = null, $android_title = null, $tender = null, $email = null, $load_id = null, $driver_id = null) {
 
         if (!$load_number) {
             $load_number = $this->input->post('load_number');
@@ -2185,6 +2184,10 @@ class load extends MY_Controller {
 
         if (!$load_id) {
             $load_id = $this->input->post('load_id');
+        }
+
+        if (!$driver_id) {
+            $driver_id = $this->input->post('driver_id');
         }
 
         if (!$app_id) {
@@ -2198,6 +2201,9 @@ class load extends MY_Controller {
         if (!$msg) {
             $msg = $this->input->post('msg');
         }
+
+        $android_msg = $msg;
+        $apple_msg = $msg;
 
         if (!$android_title) {
             $android_title = $this->input->post('android_title');
@@ -2215,6 +2221,14 @@ class load extends MY_Controller {
         if (!$email) {
             $email = $this->input->post('email');
         }
+
+
+        $this->load->model('driver_model');
+        $drivers = $this->driver_model->get($driver_id);
+        $driver = $drivers[0];
+        $apns_number = $driver['apns_number'];
+        $app_id = $driver['app_id'];
+        $driver_phone = $driver['phone'];
 
         $registatoin_ids[0] = $app_id;
 
@@ -2236,10 +2250,11 @@ class load extends MY_Controller {
                 //change load status              
             }
 
-            $this->save_callcheck($this->session->userdata('user_id'), $load_id, 1, 0, $msg, 26.13778000, -80.33429800, 1, $email, $load_number, 1);
-            $this->output->set_output(json_encode(['status' => 1]));
+            $ck = $this->save_callcheck($this->session->userdata('user_id'), $load_id, 1, 0, $msg, 26.13778000, -80.33429800, 1, $email, $load_number, 1);
+            $result = array("status" => "1", "dbresult" => $ck);
+            $this->output->set_output(json_encode($result));
         } else {
-            return $this->output->set_output(json_encode(['status' => 0, 'msg' => 'Apple or Android id not found']));
+            return $this->output->set_output(json_encode(['status' => 0, 'msg' => 'Driver has not login or install the application. Contact driver phone: ' . $driver_phone]));
         }
         return $result;
     }

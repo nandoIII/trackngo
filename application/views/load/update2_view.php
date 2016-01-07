@@ -1,7 +1,7 @@
 <div id="category-actions">
     <div class="loads-title" id="category-title"><img src="<?php echo base_url() ?>/public/img/images/loads-title.png" width="100" height="70" alt="Loads Category"></div>
     <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-list-bt-45w.png" width="45" height="70" alt="View All Loads"></a></div>
-    <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/add2'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-add-bt-45w.png" width="45" height="70" alt="Add a Load"></a></div>
+    <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/add'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-add-bt-45w.png" width="45" height="70" alt="Add a Load"></a></div>
 </div>  
 <div class="container">
     <div class="row">
@@ -190,6 +190,7 @@
 
                                 <!-- Form Name -->
                                 <legend style="margin:10px 0px">Check Address</legend>
+                                <div id="pickup_form_error" class="alert alert-error" style="display:none"><!-- Dynamic --></div>
                                 <table id="tbl-shp-view">
                                     <tr>
                                         <td>Address:</td>
@@ -213,7 +214,8 @@
                             </fieldset>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+                            <button data-dismiss="modal" style="border-radius: 16%; height: 25px;">Close</button>
                             <!--<button type="button" id="confirm_origin" class="btn btn-primary">Ok</button>-->
                             <button id="set_pickup" class="btn btn-red btn-small" hidefocus="true" name="submit" style="outline: medium none;"><span class="gradient">Set</span></button>
                         </div>
@@ -233,6 +235,7 @@
                         <div class="modal-body">
                             <fieldset>
                                 <legend style="margin:10px 0px">Check Address in Map</legend>
+                                <div id="drop_form_error" class="alert alert-error" style="display:none"><!-- Dynamic --></div>
                                 <table id="tbl-csn-view">
                                     <tr>
                                         <td>Address:</td>
@@ -256,7 +259,8 @@
                             </fieldset>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>                                
+                            <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+                            <button data-dismiss="modal" style="border-radius: 16%; height: 25px;">Close</button>
                             <button id="set_drop" class="btn btn-red btn-small" hidefocus="true" name="submit" style="outline: medium none;"><span class="gradient">Set</span></button>
                         </div>
                     </div>
@@ -291,16 +295,26 @@
         cursor: pointer;
     }
 
+    #register_form_error, #pickup_form_error, #drop_form_error{
+        border: 1px solid;
+        padding: 5px;
+    }
+
+    #pickup_form_error, #drop_form_error{
+        margin: 5px 0px 20px 0px;
+    }    
+
     .modal{
         width: 620px;
         overflow: auto;
-        height: 660px;
+        height: 490px;
     }
 
     .modal-body{
         height: auto;
-        min-height: 460px;
-    }
+        min-height: 305px;
+        max-height: 525px;
+    } 
 
     .loading{
         text-align: center;
@@ -699,6 +713,8 @@
                             $('#mpk_address2').val($('#pk2_' + pickup.data('shp_id')).val());
                             $('#mpk_zipcode').val($('#pk_zipcode_' + pickup.data('shp_id')).val());
                             $("#map_pickup").html("");
+                            $('.modal').css('height', '490px');
+                            $('#pickup_form_error').hide();
                         });
 
                         //view pickup address
@@ -718,9 +734,17 @@
 
                             var pickup = $(this);
                             var id = global_pickup;
-                            console.log('shipment id: ' + id);
+
+                            var addr = $('#mpk_address').val();
+                            var zip = $('#mpk_zipcode').val();
                             var address = $('#mpk_address').val() + ', ' + $('#mpk_zipcode').val();
                             var url_address = address.split(' ').join('+');
+
+                            if (addr == '' || zip == '') {
+                                $('#pickup_form_error').html('address and/or zipcode can not be empty.');
+                                $('#pickup_form_error').show();
+                                return false;
+                            }
 
                             $.ajax({
                                 type: "POST",
@@ -732,35 +756,43 @@
                                     $('#result_destination').show();
                                 },
                                 success: function (data) {
-                                    var city = '';
-                                    var state = '';
 
-                                    var lat = data.results[0].geometry.location.lat;
-                                    var lng = data.results[0].geometry.location.lng;
-                                    if (data.results[0].address_components[2].long_name) {
-                                        city = data.results[0].address_components[2].long_name;
-                                    }
+                                    if (data.status == 'ZERO_RESULTS') {
+                                        $('#pickup_form_error').html('Address and/or zipcode not found, Please check.');
+                                        $('#pickup_form_error').show();
+                                        return false;
+                                    } else {
 
-                                    if (data.results[0].address_components[4].short_name) {
-                                        state = data.results[0].address_components[4].short_name;
-                                    }
+                                        var city = '';
+                                        var state = '';
 
-                                    $('#pk_' + id).val($('#mpk_address').val());
-                                    $('#pk2_' + id).val($('#mpk_address2').val());
-                                    $('#pk_' + id).removeAttr("readonly");
-                                    $('#pk_zipcode_' + id).val($('.mpk_zipcode_' + id).val());
-                                    $('#pk_lat_' + id).val(lat);
-                                    $('#pk_lng_' + id).val(lng);
+                                        var lat = data.results[0].geometry.location.lat;
+                                        var lng = data.results[0].geometry.location.lng;
+                                        if (data.results[0].address_components[2].long_name) {
+                                            city = data.results[0].address_components[2].long_name;
+                                        }
 
-                                    $('#or_city').val(city);
-                                    $('#or_state').val(state);
-                                    $('#or_city').removeAttr("readonly");
-                                    $('#or_state').removeAttr("readonly");
+                                        if (data.results[0].address_components[4].short_name) {
+                                            state = data.results[0].address_components[4].short_name;
+                                        }
 
-                                    $('#originAddressModal').modal('toggle');
+                                        $('#pk_' + id).val($('#mpk_address').val());
+                                        $('#pk2_' + id).val($('#mpk_address2').val());
+                                        $('#pk_' + id).removeAttr("readonly");
+                                        $('#pk_zipcode_' + id).val($('.mpk_zipcode_' + id).val());
+                                        $('#pk_lat_' + id).val(lat);
+                                        $('#pk_lng_' + id).val(lng);
+
+                                        $('#or_city').val(city);
+                                        $('#or_state').val(state);
+                                        $('#or_city').removeAttr("readonly");
+                                        $('#or_state').removeAttr("readonly");
+
+                                        $('#originAddressModal').modal('toggle');
 
 //                  console.log('state: ' + state + ', lat: ' + lat + ', lng: ' + lng + ', zipcode: ' + zipcode);
 //                $('#result_destination').show();
+                                    }
                                 }
                             });
                         });
@@ -779,6 +811,8 @@
                             $('#mdp_address2').val($('#dp2_' + drop.data('shp_id')).val());
                             $('#mdp_zipcode').val($('#dp_zipcode_' + drop.data('shp_id')).val());
                             $("#map_drop").html("");
+                            $('.modal').css('height', '490px')
+                            $('#drop_form_error').hide();
 
                         });
 
@@ -790,9 +824,17 @@
 
                             var drop = $(this);
                             var id = global_drop;
-                            console.log('shipment id: ' + id);
+
+                            var addr = $('#mdp_address').val();
+                            var zip = $('#mdp_zipcode').val();
                             var address = $('.mdp_address_' + id).val() + ', ' + $('#mdp_zipcode').val();
                             var url_address = address.split(' ').join('+');
+
+                            if (addr == '' || zip == '') {
+                                $('#drop_form_error').html('address and/or zipcode can not be empty.');
+                                $('#drop_form_error').show();
+                                return false;
+                            }
 
                             $.ajax({
                                 type: "POST",
@@ -844,9 +886,16 @@
 
                             var drop = $(this);
                             var id = drop.data('shp_id');
-                            console.log(id);
+                            var addr = $('#mdp_address').val();
+                            var zip = $('#mdp_zipcode').val();
                             var address = $('#mdp_address').val() + ', ' + $('#mdp_zipcode').val();
                             var url_address = address.split(' ').join('+');
+
+                            if (addr == '' || zip == '') {
+                                $('#drop_form_error').html('address and/or zipcode can not be empty.');
+                                $('#drop_form_error').show();
+                                return false;
+                            }
 
                             $.ajax({
                                 type: "POST",
@@ -865,7 +914,11 @@
                                     var lng = data.results[0].geometry.location.lng;
 
                                     initialize2(lat, lng, 'map-canvas2');
+                                    $('#drop_form_error').hide();
                                     $('#map-canvas2').css('display', 'block');
+                                    $('.modal').animate({
+                                        height: "664px"
+                                    });
 
 
 //                  console.log('state: ' + state + ', lat: ' + lat + ', lng: ' + lng + ', zipcode: ' + zipcode);
@@ -1249,9 +1302,16 @@
 
                     function getPickupMap(pickup) {
                         var id = pickup.data('shp_id');
-                        console.log(id);
+                        var addr = $('#mpk_address').val();
+                        var zip = $('#mpk_zipcode').val();
                         var address = $('#mpk_address').val() + ', ' + $('#mpk_zipcode').val();
                         var url_address = address.split(' ').join('+');
+
+                        if (addr == '' || zip == '') {
+                            $('#pickup_form_error').html('address and/or zipcode can not be empty.');
+                            $('#pickup_form_error').show();
+                            return false;
+                        }
 
                         $.ajax({
                             type: "POST",
@@ -1263,18 +1323,31 @@
                                 $('#result_destination').show();
                             },
                             success: function (data) {
-                                var city = '';
-                                var state = '';
 
-                                var lat = data.results[0].geometry.location.lat;
-                                var lng = data.results[0].geometry.location.lng;
+                                if (data.status == 'ZERO_RESULTS') {
+                                    $('#pickup_form_error').html('Address and/or zipcode not found, Please check.');
+                                    $('#pickup_form_error').show();
+                                    return false;
+                                } else {
 
-                                initialize(lat, lng, 'map-canvas');
-                                $('#map-canvas').css('display', 'block');
+                                    var city = '';
+                                    var state = '';
 
+                                    var lat = data.results[0].geometry.location.lat;
+                                    var lng = data.results[0].geometry.location.lng;
+
+                                    initialize(lat, lng, 'map-canvas');
+                                    $('#pickup_form_error').hide();
+                                    $('#map-canvas').css('display', 'block');
+                                    $('#map-canvas').css('display', 'block');
+                                    $('.modal').animate({
+                                        height: "664px"
+                                    });
 
 //                  console.log('state: ' + state + ', lat: ' + lat + ', lng: ' + lng + ', zipcode: ' + zipcode);
 //                $('#result_destination').show();
+                                }
+
                             }
                         });
                     }
