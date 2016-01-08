@@ -223,6 +223,28 @@ table tbody tr td{
     padding: 0;
 } 
 
+
+#register_form_error, #pickup_form_error, #drop_form_error{
+    border: 1px solid;
+    padding: 5px;
+}
+
+#pickup_form_error, #drop_form_error{
+    margin: 5px 0px 20px 0px;
+}    
+
+.modal{
+    width: 620px;
+    overflow: auto;
+    height: 490px;
+}
+
+.modal-body{
+    height: auto;
+    min-height: 305px;
+    max-height: 525px;
+} 
+
 /*************** Boostrap custom styles *****************/
 
 .control-group {
@@ -252,3 +274,4 @@ select, input[type="file"] {
 .popover-title{
     font-size: 18px;
 }
+

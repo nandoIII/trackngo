@@ -525,7 +525,7 @@ class load extends MY_Controller {
         if ($load_id) {
             //Insert Shipments
             if (count($shipments) > 0) {
-                $path = '../tkgo_files2/';
+                $path = CONT_FILE_PATH;
                 $this->load->library('upload');
 
                 $this->upload->initialize(array(
@@ -618,7 +618,7 @@ class load extends MY_Controller {
                 $drivers = $this->driver_model->get($this->input->post('driver'));
                 $driver = $drivers[0];
 //                $this->push_not_new_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number']);
-                $this->push_not_custom_msg_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number'], 'Check new load assigned to you.', "Smith Track'n Go", 1, $driver['email'], $load_id);
+                $this->push_not_custom_msg_load($this->input->post('load_number'), 'Check new load assigned to you.', "Smith Track'n Go", 1, $driver['email'], $load_id, $driver['idts_driver']);
             }
 
             $this->output->set_output(json_encode(['result' => 1, 'msg' => 'Load created.']));
@@ -648,7 +648,7 @@ class load extends MY_Controller {
 
         $shp_photo = [];
         for ($i = 1; $i <= $pages_number; $i++) {
-            if (file_exists('../tkgo_files2/' . $shp_url . $i . '.jpg')) {
+            if (file_exists(CONT_FILE_PATH . $shp_url . $i . '.jpg')) {
                 $shp_photo[$i]['url'] = $shp_url . $i . '.jpg';
             }
         }
@@ -693,7 +693,7 @@ class load extends MY_Controller {
 
 
         $this->load->helper('file');
-        $result = unlink('../tkgo_files2/' . $path);
+        $result = unlink(CONT_FILE_PATH . $path);
 
         $shipments = $this->shipment_model->get(['bol_number' => $bol_number]);
         $shipment = $shipments[0];
@@ -749,7 +749,7 @@ class load extends MY_Controller {
 
         $this->email->subject($subject);
         $this->email->message($msg);
-        $this->email->attach('../tkgo_files2/' . $email['load_id'] . '_bol_' . $email['bol'] . '.pdf');
+        $this->email->attach(CONT_FILE_PATH . $email['load_id'] . '_bol_' . $email['bol'] . '.pdf');
         $this->email->set_mailtype("html");
 
         if ($this->email->send()) {
@@ -777,7 +777,7 @@ class load extends MY_Controller {
         $this->form_validation->set_rules('driver', 'Driver', 'required');
 
         if ($this->form_validation->run() == FALSE) {
-            $this->output->set_output(json_encode(['result' => 0, 'error' => $this->form_validation->error_array()]));
+            $this->output->set_output(json_encode(['status' => 0, 'error' => $this->form_validation->error_array()]));
             return false;
         }
 
@@ -786,9 +786,10 @@ class load extends MY_Controller {
         $repeat_bol_number = '';
         $missing = '';
         $shipments = json_decode($this->input->post('shipments'));
+//        echo 'total ship: '.count($shipments);        
 
         if (count($shipments) == 0) {
-            $this->output->set_output(json_encode(['result' => 0, 'error' => 'At least 1 shipment must be added.']));
+            $this->output->set_output(json_encode(['status' => 0, 'error' => [1 => 'At least 1 shipment must be added.']]));
             return false;
         }
 
@@ -838,7 +839,7 @@ class load extends MY_Controller {
         //**************** Update n Insert Shipments in Database **************************
 
         $file_index = 0;
-        $path = '../tkgo_files2/';
+        $path = CONT_FILE_PATH;
         for ($i = 0; $i < count($shipments); $i++) {
             if (isset($shipments[$i]->type)) {
                 $shp_id = 0;
@@ -951,7 +952,7 @@ class load extends MY_Controller {
             $this->load->model('driver_model');
             $drivers = $this->driver_model->get($this->input->post('driver'));
             $driver = $drivers[0];
-            $this->push_not_custom_msg_load($load_num, $driver['app_id'], $driver['apns_number'], 'Changes in load #' . $load_num, "Smith Track'n Go", 0, $driver['email'], $load_id);
+            $this->push_not_custom_msg_load($load_num, 'Changes in load #' . $load_num, "Smith Track'n Go", 0, $driver['email'], $load_id, $driver['idts_driver']);
         }
 
         $this->output->set_output(json_encode(['status' => 1, 'msg' => 'Load successfully updated.']));
@@ -974,7 +975,7 @@ class load extends MY_Controller {
         //upload BOL documents
 
 
-        $path = '../tkgo_files2/';
+        $path = CONT_FILE_PATH;
         $this->load->library('upload');
 
         // Define file rules
@@ -1060,7 +1061,7 @@ class load extends MY_Controller {
     }
 
     function create_pdf2($load_id, $bol_number, $pages_number, $doc_type) {
-        $path = '../tkgo_files2/';
+        $path = CONT_FILE_PATH;
         $this->load->library('pdf');
         $pdf = $this->pdf->load();
         for ($i = 0; $i < $pages_number; $i++) {
@@ -1144,10 +1145,10 @@ class load extends MY_Controller {
     function pdf_image($load_number) {
         $imagick = new Imagick();
         $imagick->setResolution(200, 200);
-        $imagick->readImage('../tkgo_files2/' . $load_number . '.pdf');
+        $imagick->readImage(CONT_FILE_PATH . $load_number . '.pdf');
         $imagick->extentImage(1700, 2200, 0, 0);
         $imagick->setImageFormat('jpeg');
-        $imagick->writeImage('../tkgo_files2/' . $load_number . '.jpg');
+        $imagick->writeImage(CONT_FILE_PATH . $load_number . '.jpg');
     }
 
     function pdf() {
@@ -1572,7 +1573,7 @@ class load extends MY_Controller {
 //        $this->output->set_output(json_encode($data['shipments']));
 //        return false;
 
-        $data['file'] = file_exists('../tkgo_files2/' . $data['load']['load_number'] . '.pdf');
+        $data['file'] = file_exists(CONT_FILE_PATH . $data['load']['load_number'] . '.pdf');
 
         $data['error'] = '';
 
@@ -1592,8 +1593,8 @@ class load extends MY_Controller {
 
     public function delete_file($file) {
         $this->_required_login();
-        $result = unlink('../tkgo_files2/' . $file . '.pdf');
-        $result = unlink('../tkgo_files2/' . $file . '.jpg');
+        $result = unlink(CONT_FILE_PATH . $file . '.pdf');
+        $result = unlink(CONT_FILE_PATH . $file . '.jpg');
 
         if ($result) {
             $this->output->set_output(json_encode(['result' => 1]));
@@ -1961,8 +1962,8 @@ class load extends MY_Controller {
 
         $this->email->from('service@smith-cargo.com', 'Smith Transportation');
         $this->email->to($email);
-        $this->email->cc('another@another-example.com');
-        $this->email->bcc('them@their-example.com');
+//        $this->email->cc('another@another-example.com');
+//        $this->email->bcc('them@their-example.com');
 
         $this->email->subject('Load #' . $load_number);
         $this->email->message('<div><h1>Smith Transportation</h1></div>
@@ -1971,7 +1972,7 @@ class load extends MY_Controller {
                             <li>Customer: ' . $customer . '</li>
                         </ul>
                         <p>Check BOl attached.</p>');
-        $this->email->attach('../tkgo_files2/' . $load_number . '.pdf');
+        $this->email->attach(CONT_FILE_PATH . $load_number . '.pdf');
         $this->email->set_mailtype("html");
 
         if (!$this->email->send()) {
@@ -2061,8 +2062,8 @@ class load extends MY_Controller {
 
         $this->email->from('service@smith-cargo.com', 'Smith Transportation');
         $this->email->to($email);
-        $this->email->cc('another@another-example.com');
-        $this->email->bcc('them@their-example.com');
+//        $this->email->cc('another@another-example.com');
+//        $this->email->bcc('them@their-example.com');
 
         $this->email->subject('Callcheck in Load #' . $load_number);
         $this->email->message('<div><h1>Smith Transportation</h1></div>
@@ -2166,7 +2167,7 @@ class load extends MY_Controller {
                             <li>Please seek for load #: ' . $load_number . ' in your app.</li>
                         </ul>
                         <p>Check BOl attached.</p>');
-//        $this->email->attach('../tkgo_files2/' . $load_number . '.pdf');
+//        $this->email->attach(CONT_FILE_PATH . $load_number . '.pdf');
         $this->email->set_mailtype("html");
 
         if (!$this->email->send()) {
@@ -2176,8 +2177,7 @@ class load extends MY_Controller {
         }
     }
 
-    public function push_not_custom_msg_load($load_number = null, $app_id = null, $apns_number = null, $msg = null, $android_title = null, $tender = null, $email = null, $load_id = null, $driver_id = null) {
-
+    public function push_not_custom_msg_load($load_number = null, $msg = null, $android_title = null, $tender = null, $email = null, $load_id = null, $driver_id = null) {
         if (!$load_number) {
             $load_number = $this->input->post('load_number');
         }
@@ -2188,14 +2188,6 @@ class load extends MY_Controller {
 
         if (!$driver_id) {
             $driver_id = $this->input->post('driver_id');
-        }
-
-        if (!$app_id) {
-            $app_id = $this->input->post('app_id');
-        }
-
-        if (!$apns_number) {
-            $apns_number = $this->input->post('apns_number');
         }
 
         if (!$msg) {
@@ -2347,23 +2339,23 @@ class load extends MY_Controller {
 // Put your device token here (without spaces):
         $deviceToken = $app_id; //'5ed672addefa254d8e0d054c8acb1658bde5ef8a1b49c75c838ed56b037eb3fa';//
 // Put your private key's passphrase here:
-//        $passphrase = 'staffing';  //development        
-        $passphrase = 'Staffing1a'; //production
+        $passphrase = 'staffing';  //development        
+//        $passphrase = 'Staffing1a'; //production
 // Put your alert message here:
 //        $message = 'It works, this piece of art works!';
 //        
 // Enviroment
-//        $ck = 'ck_bk.pem'; //Development
-        $ck = 'ck.pem'; //production
+        $ck = 'ck_bk.pem'; //Development
+//        $ck = 'ck.pem'; //production
 ////////////////////////////////////////////////////////////////////////////////
 
         $ctx = stream_context_create();
-        stream_context_set_option($ctx, 'ssl', 'local_cert', '../testpush/' . $ck);
-        stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
+        stream_context_set_option($ctx, 'ssl', 'local_cert', '../testpush/' . CK_FILE);
+        stream_context_set_option($ctx, 'ssl', 'passphrase', PASS_PHRASE);
 
 // Open a connection to the APNS server
-        $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | //production
-//        $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | //development
+//        $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | //production
+        $fp = stream_socket_client(SSL_GATEWAY, $err, $errstr, 60, STREAM_CLIENT_CONNECT | //development
 // REMOVE sandbox when app is in appstore
                 STREAM_CLIENT_PERSISTENT, $ctx);
 
@@ -2528,12 +2520,12 @@ class load extends MY_Controller {
 
         $this->email->from('service@smith-cargo.com', 'Smith Transportation');
         $this->email->to($email);
-        $this->email->cc('another@another-example.com');
-        $this->email->bcc('them@their-example.com');
+//        $this->email->cc('another@another-example.com');
+//        $this->email->bcc('them@their-example.com');
 
         $this->email->subject('Load #' . $load_number . ', BOL #' . $bol_number);
         $this->email->message('Attach is the BOL');
-        $this->email->attach('../tkgo_files2/' . $url_doc . '.pdf');
+        $this->email->attach(CONT_FILE_PATH . $url_doc . '.pdf');
 
         if (!$this->email->send()) {
             $this->output->set_output(json_encode(['result' => 0, 'error' => $this->form_validation->error_array()]));

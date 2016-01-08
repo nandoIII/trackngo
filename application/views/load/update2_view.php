@@ -131,7 +131,7 @@
                         echo'</tr>';
                         echo'<tr class="shp_' . $i . '">';
                         echo'<td colspan="2">BOL #: <input type="text" data-iter="' . $i . '" id="bn_' . $i . '" class="bol-number" name="bol_number" value="' . $row['bol_number'] . '"/></td>';
-                        echo'<td colspan="3" style="text-align: center;"><div id="shp_file_' . $i . '"><a href="../../../tkgo_files2/' . $row['url_bol'] . '" target="_blank">BOL</a> <a href="" data-id="' . $row['idshipment'] . '" data-shp_id="' . $i . '" class="remove_file">Delete</a></div></td>';
+                        echo'<td colspan="3" style="text-align: center;"><div id="shp_file_' . $i . '"><a href="' . VIEW_FILE_PATH . $row['url_bol'] . '" target="_blank">BOL</a> <a href="" data-id="' . $row['idshipment'] . '" data-shp_id="' . $i . '" class="remove_file">Delete</a></div></td>';
                         echo'</tr>';
 
                         echo'<tr class="shp_' . $i . '">';
@@ -294,27 +294,6 @@
         float: right;
         cursor: pointer;
     }
-
-    #register_form_error, #pickup_form_error, #drop_form_error{
-        border: 1px solid;
-        padding: 5px;
-    }
-
-    #pickup_form_error, #drop_form_error{
-        margin: 5px 0px 20px 0px;
-    }    
-
-    .modal{
-        width: 620px;
-        overflow: auto;
-        height: 490px;
-    }
-
-    .modal-body{
-        height: auto;
-        min-height: 305px;
-        max-height: 525px;
-    } 
 
     .loading{
         text-align: center;
@@ -1225,8 +1204,8 @@
                         $('.loading').hide();
                         var output = '<ul>';
                         if (data.status == 0) {
+                            console.log('gor hete');
                             $.each(data.error, function (i, item) {
-                                console.log(data.error[i]);
                                 output += '<li>- ' + data.error[i] + '</li>';
                             });
                             output += '</ul>';

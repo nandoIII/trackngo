@@ -107,7 +107,7 @@
                         echo'<td><input type="checkbox" id="default_' . $i . '" class="default" name="default" ' . $checked . '/></td>';
                         echo'<td><input type="checkbox" id="default_mail_' . $i . '" class="default" name="default" ' . $checked_mail . '/></td>';
                         echo''
-                        . '<td style="text-align: center;"><a href="../../../tkgo_files2/' . $row['idts_customer_contact'] . '" target="_blank">View</a></td>'
+                        . '<td style="text-align: center;"><a href="' . VIEW_FILE_PATH . $row['idts_customer_contact'] . '" target="_blank">View</a></td>'
                         . '<td style="text-align: center;"><a href="" data-id="' . $row['idts_customer_contact'] . '" class="remove_contact">Delete</a></td>'
                         . '</tr>';
                         $i++;

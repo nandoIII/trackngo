@@ -61,7 +61,7 @@
                                 <table id="bol-table" class="table table-hover table-striped">
                                     <tbody>
                                         <?php
-                                        $file_path = '../../../tkgo_files2/';
+                                        $file_path = VIEW_FILE_PATH;
                                         $i = 1;
                                         foreach ($shipments as $shipment => $row) {
 //                                            $date = explode(' ', $row['date']);
@@ -81,8 +81,8 @@
                                             echo'<td class="bol_header">Documents</td>';
                                             echo'</tr>';
 
-                                            $shp = $row['origin_sign'] == 1 ? '<div class="shp_document"><a id="sp_pop_' . $row['bol_number'] . '" href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
-                                            $pod = $row['destination_sign'] == 1 ? '<div class="csn_document"><a id="cs_pop_' . $row['bol_number'] . '" href="../../../tkgo_files2/' . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" class="pop_cs" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="cs" data-pages_number="' . $row['drop_doc_pages'] . '" target="_blank">' . $row['drop_doc'] . '</a></div>' : '';
+                                            $shp = $row['origin_sign'] == 1 ? '<div class="shp_document"><a id="sp_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
+                                            $pod = $row['destination_sign'] == 1 ? '<div class="csn_document"><a id="cs_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" class="pop_cs" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="cs" data-pages_number="' . $row['drop_doc_pages'] . '" target="_blank">' . $row['drop_doc'] . '</a></div>' : '';
                                             $status = 'test';
                                             if ($load['tender'] == 0) {
                                                 $status = 'Not tendered';
@@ -101,7 +101,7 @@
                                             . '<td style="text-align: center; width:7%">' . $row['drop_number'] . '</td>'
                                             . '<td class="status color" style="text-align: center;width:12%"">' . $status . '</td>'
                                             . '<td style="text-align: center;">'
-                                            . '<div class="or_document"><a id="or_pop_' . $row['bol_number'] . '" href="../../../tkgo_files2/' . $row['url_bol'] . '" class="pop_or" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '"  target="_blank">Original Document</a></div>'
+                                            . '<div class="or_document"><a id="or_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $row['url_bol'] . '" class="pop_or" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '"  target="_blank">Original Document</a></div>'
                                             . $shp
                                             . $pod
                                             . ' </td>'
@@ -721,7 +721,7 @@ if ($count >= 1) {
         var bol_number = pop_doc.data('bol_number');
 
         var output = '';
-        output += '<div><a href="../../../tkgo_files2/' + load_id + '_bol_' + bol_number + '.pdf" target="_blank">Get pdf</a></div>';
+        output += '<div><a href="' + '<?php echo VIEW_FILE_PATH ?>'  + load_id + '_bol_' + bol_number + '.pdf" target="_blank">Get pdf</a></div>';
         output += '<div><a class="send_email" data-target="#destinationAddressModal" data-toggle="modal" data-load_id="' + load_id + '" data-bol_number="' + bol_number + '" data-pages_number="" data-doc_type="">Send by email</a></div>';
 
         return output;
@@ -758,7 +758,7 @@ if ($count >= 1) {
                 var cont = 1;
                 for (var i = 1; i <= pages_number; i++) {
                     if (data[i]) {
-                        output += '<div id="cont_' + load_id + bol_number + i + '"><a href="../../../tkgo_files2/' + data[i].url + '" target="_blank">Photo: ' + cont + '</a><span class="del_photo" id="' + load_id + bol_number + i + '" data-load_id="' + load_id + '" data-type="' + doc_type + '" data-bol_number="' + bol_number + '" data-url="' + data[i].url + '" style="cursor:pointer; color: red"> Trash </span></div>';
+                        output += '<div id="cont_' + load_id + bol_number + i + '"><a href="' + '<?php echo VIEW_FILE_PATH ?>' + data[i].url + '" target="_blank">Photo: ' + cont + '</a><span class="del_photo" id="' + load_id + bol_number + i + '" data-load_id="' + load_id + '" data-type="' + doc_type + '" data-bol_number="' + bol_number + '" data-url="' + data[i].url + '" style="cursor:pointer; color: red"> Trash </span></div>';
                     }
                     cont++;
                 }

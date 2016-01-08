@@ -80,7 +80,7 @@
                         $date_formated = $date_formated_temp[1] . '/' . $date_formated_temp[2] . '/' . $date_formated_temp[0];
 
                         //                        $tender = $row['tender'] == 0 ? '<a class="tenderx" data-id="' . $row['idts_load'] . '" href="' . site_url('load/tenderx/' . $row['load_number']) . '/' . $row['ts_driver_idts_driver'] . '" data-toggle="modal" data-target="#tenderModal"> Tender </a>' : '';
-                        $tender = $row['tender'] == 0 ? '<a class="set-tender-modal" id="tender_' . $row['idts_load'] . '" data-load_number="' . $row['load_number'] . '" data-email="' . $row['driver_email'] . '" data-apns_number="' . $row['driver_apns_number'] . '" data-app_id="' . $row['driver_app_id'] . '" data-bol_url="' . $row['shipments'][0]['url_bol'] . '" data-id="' . $row['idts_load'] . '" data-toggle="modal" data-target="#tenderModal" style="cursor:pointer"> Tender </a>' : '';
+                        $tender = $row['tender'] == 0 ? '<a class="set-tender-modal" id="tender_' . $row['idts_load'] . '" data-load_number="' . $row['load_number'] . '" data-driver_id="' . $row['ts_driver_idts_driver'] . '" data-email="' . $row['driver_email'] . '" data-apns_number="' . $row['driver_apns_number'] . '" data-app_id="' . $row['driver_app_id'] . '" data-bol_url="' . $row['shipments'][0]['url_bol'] . '" data-id="' . $row['idts_load'] . '" data-toggle="modal" data-target="#tenderModal" style="cursor:pointer"> Tender </a>' : '';
 
                         echo '<tr data-status="' . $row['status'] . '" id="load_' . $row['idts_load'] . '" data-load_id="' . $row['idts_load'] . '" data-toggle="popoverx" class="pox">';
                         echo '<td>' . $row['load_number'] . '</td>';
@@ -248,8 +248,7 @@
                                         <input type="text" id="title">
                                         <input type="hidden" id="tender_load_id">
                                         <input type="hidden" id="tender_load_number">
-                                        <input type="hidden" id="tender_app_id">
-                                        <input type="hidden" id="tender_apns_number">                                        
+                                        <input type="hidden" id="driver_id">
                                         <input type="hidden" id="email">
                                     </td>
                                 </tr>
@@ -257,17 +256,17 @@
                                     <td colspan="2">Special Instructions</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2"><textarea id="msg"></textarea></td>                                    
+                                    <td colspan="2"><textarea id="msg"></textarea></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2"><iframe id="tender_iframe" width="100%" height="600" id="if_bol" style="margin-top:15px" src="../../../tkgo_files/<?php echo $load['load_number'] ?>.pdf"></iframe></td>
+                                    <td colspan="2"><iframe id="tender_iframe" width="100%" height="600" id="if_bol" style="margin-top:15px"></iframe></td>
                                 </tr>
                             </table>
                         </fieldset>
                     </div>
                     <div class="modal-footer">
                         <button id="tender-load" class="btn btn-red btn-small" hidefocus="true" name="submit" style="outline: medium none;"><span class="gradient">Tender</span></button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button data-dismiss="modal" style="border-radius: 16%; height: 25px;">Close</button>
                     </div>
                 </div>
             </div>
@@ -575,10 +574,9 @@
             var load = $(this);
             $('#tender_load_id').val(load.data('id'));
             $('#tender_load_number').val(load.data('load_number'));
-            $('#tender_app_id').val(load.data('app_id'));
-            $('#tender_apns_number').val(load.data('apns_number'));
+            $('#driver_id').val(load.data('driver_id'));
             $('#email').val(load.data('email'));
-            $('#tender_iframe').attr('src', '../../../tkgo_files2/' + load.data('bol_url'));
+            $('#tender_iframe').attr('src', '<?php echo VIEW_FILE_PATH?>' + load.data('bol_url'));
         });
 
         //tender push not, set in callcheck and send email
@@ -593,12 +591,12 @@
                 data: {
                     title: $('#title').val(),
                     msg: $('textarea#msg').val(),
+                    android_title: $('#title').val(),
                     load_id: $('#tender_load_id').val(),
                     load_number: $('#tender_load_number').val(),
-                    app_id: $('#tender_app_id').val(),
-                    apns_number: $('#tender_apns_number').val(),
+                    driver_id: $('#driver_id').val(),
                     email: $('#email').val(),
-                    tender: 1,
+                    tender: 1
                 },
                 dataType: "json",
                 success: function (data) {

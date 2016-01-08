@@ -266,11 +266,6 @@
         float: right;
         cursor: pointer;
     }
-
-    #pickup_form_error, #drop_form_error{
-        margin: 5px 0px 20px 0px;
-    }
-
     .loading{
         text-align: center;
         margin: 20px;

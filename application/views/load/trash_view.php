@@ -87,7 +87,7 @@
                         echo '<td>' . $row['driver_name'] . ' ' . $row['driver_last_name'] . '</td>';
                         echo '<td style="width: 250px;">' . $driver_address[0] . '<br>' . $driver_address[1] . ' <span class="map_view" style="cursor:pointer"  data-toggle="modal" data-target="#destinationAddressModal" data-driver_lat="' . $row['driver_latitud'] . '" data-driver_lng="' . $row['driver_longitud'] . '" id="view_destination"><strong>[map]</strong></span></td>';
                         echo '<td class="status color"   style="font-weight: 800;color: #666;">' . $row['status'] . '</td>';
-                        echo in_array('load/update2', $roles) || in_array('load/trash', $roles) ? '<td>' : '';                                                
+                        echo in_array('load/update2', $roles) || in_array('load/trash', $roles) ? '<td>' : '';
                         echo in_array('load/trash', $roles) ? '<a class="enable" id="' . $row['idts_load'] . '"> Enable </a>' : '';
                         echo in_array('load/update2', $roles) || in_array('load/trash', $roles) ? '</td>' : '';
                         echo '</tr>';
@@ -249,7 +249,7 @@
                                     <td colspan="2"><textarea id="msg"></textarea></td>                                    
                                 </tr>
                                 <tr>
-                                    <td colspan="2"><iframe id="tender_iframe" width="100%" height="600" id="if_bol" style="margin-top:15px" src="../../../tkgo_files/<?php echo $load['load_number'] ?>.pdf"></iframe></td>
+                                    <td colspan="2"><iframe id="tender_iframe" width="100%" height="600" id="if_bol" style="margin-top:15px" src="<?php echo VIEW_FILE_PATH . $load['load_number'] ?>.pdf"></iframe></td>
                                 </tr>
                             </table>
                         </fieldset>
@@ -584,7 +584,7 @@
             $('#tender_app_id').val(load.data('app_id'));
             $('#tender_apns_number').val(load.data('apns_number'));
             $('#email').val(load.data('email'));
-            $('#tender_iframe').attr('src', '../../../tkgo_files2/' + load.data('bol_url'));
+            $('#tender_iframe').attr('src', '<?php echo VIEW_FILE_PATH ?>' + load.data('bol_url'));
         });
 
         //tender push not, set in callcheck and send email
