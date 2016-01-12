@@ -3,7 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/wamp/www/trackngo/application/views/load/load_view2.php</file>
+            <file>file:/C:/wamp/www/trackngo/application/controllers/Load.php</file>
+            <file>file:/C:/wamp/www/trackngo/application/config/constants.php</file>
         </group>
     </open-files>
 </project-private>

@@ -2273,6 +2273,10 @@ class load extends MY_Controller {
         return $result;
     }
 
+    public function info() {
+        phpinfo();
+    }
+
     //generic php function to send GCM push notification
     public function send_push_not2($load, $app_id, $apns_number) {
 
@@ -2323,7 +2327,7 @@ class load extends MY_Controller {
         return $result;
     }
 
-    public function send_apple_not($app_id, $load_number, $message) {
+    public function send_apple_not7($app_id, $load_number, $message) {
 
 //        echo 'apns number: '.$app_id.'<br>';
         if (!$app_id) {
@@ -2350,7 +2354,75 @@ class load extends MY_Controller {
 ////////////////////////////////////////////////////////////////////////////////
 
         $ctx = stream_context_create();
-        stream_context_set_option($ctx, 'ssl', 'local_cert', '../testpush/' . CK_FILE);
+        stream_context_set_option($ctx, 'ssl', 'local_cert', $ck);
+        stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
+        echo 'file exist: ' . file_exists('../testpush1/' . $ck);
+
+// Open a connection to the APNS server
+//        $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | //production
+        $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | //development
+// REMOVE sandbox when app is in appstore
+                STREAM_CLIENT_PERSISTENT, $ctx);
+
+        if (!$fp)
+            exit("Failed to connect: $err $errstr" . PHP_EOL);
+
+//        echo 'Connected to APNS' . PHP_EOL;
+// Create the payload body
+        $body['aps'] = array(
+            'alert' => $message,
+            'badge' => 1,
+            'sound' => 'oven.caf',
+        );
+
+// Encode the payload as JSON
+        $payload = json_encode($body);
+
+// Build the binary notification
+        $msg = chr(0) . pack('n', 32) . pack('H*', $deviceToken) . pack('n', strlen($payload)) . $payload;
+
+// Send it to the server
+        $result = fwrite($fp, $msg, strlen($msg));
+
+//        if (!$result)
+//            echo 'Message not delivered' . PHP_EOL;
+//        else
+//            echo 'Message successfully delivered' . PHP_EOL;
+//        echo '<br>';
+//        echo $app_id;
+//        echo 'testing';
+// Close the connection to the server
+        fclose($fp);
+        return $result;
+    }
+
+    public function send_apple_not($app_id, $load_number, $message) {
+
+//        echo 'apns number: '.$app_id.'<br>';
+        if (!$app_id) {
+            $app_id = $this->input->post('app_id');
+        }
+
+        if (!$message) {
+            $message = $this->input->post('message');
+        }
+
+//        $message = 'Msg load #' . $load_number . '-' . $message;
+//        echo $message;
+// Put your device token here (without spaces):
+        $deviceToken = $app_id; //'5ed672addefa254d8e0d054c8acb1658bde5ef8a1b49c75c838ed56b037eb3fa';//
+// Put your private key's passphrase here:
+        $passphrase = 'staffing';  //development        
+//        $passphrase = 'Staffing1a'; //production
+// Put your alert message here:
+//        $message = 'It works, this piece of art works!';
+//        
+// Enviroment
+        $ck = 'ck_bk.pem'; //Development
+//        $ck = 'ck.pem'; //production
+////////////////////////////////////////////////////////////////////////////////
+        $ctx = stream_context_create();
+        stream_context_set_option($ctx, 'ssl', 'local_cert', '../push/' . CK_FILE);
         stream_context_set_option($ctx, 'ssl', 'passphrase', PASS_PHRASE);
 
 // Open a connection to the APNS server
@@ -2389,6 +2461,65 @@ class load extends MY_Controller {
 // Close the connection to the server
         fclose($fp);
         return $result;
+    }
+
+    public function test_push() {
+
+// Put your device token here (without spaces):
+        $deviceToken = '9a4fe47499034c8e5ff91ada90f57d734eee924c98fffa0da44fcf9d9bc82d38';
+
+// Put your private key's passphrase here:
+        $passphrase = 'staffing';
+
+// Put your alert message here:
+        $message = 'It works, this piece of art works!';
+
+////////////////////////////////////////////////////////////////////////////////
+
+        $ctx = stream_context_create();
+        stream_context_set_option($ctx, 'ssl', 'local_cert', 'ck_bk.pem');
+        stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
+
+// Open a connection to the APNS server
+        $fp = stream_socket_client('ssl://gateway.sandbox.push.apple.com:2195', $err, $errstr, 60, STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT, $ctx);
+
+        if (!$fp)
+            exit("Failed to connect: $err $errstr" . PHP_EOL);
+
+        echo 'Connected to APNS' . PHP_EOL;
+
+// Create the payload body
+        /* $body['aps'] = array(
+          'alert' => array(
+          'body' => $message,
+          'action-loc-key' => 'Smith App',
+          ), */
+        $body['aps'] = array(
+            'alert' => $message,
+            'badge' => 1,
+            'sound' => 'oven.caf',
+        );
+
+// Encode the payload as JSON
+        $payload = json_encode($body);
+
+// Build the binary notification
+        $msg = chr(0) . pack('n', 32) . pack('H*', $deviceToken) . pack('n', strlen($payload)) . $payload;
+
+// Send it to the server
+        $result = fwrite($fp, $msg, strlen($msg));
+
+        if (!$result)
+            echo 'Message not delivered' . PHP_EOL;
+        else
+            echo 'Message successfully delivered' . PHP_EOL;
+        echo '<br>';
+        echo '5ed672addefa254d8e0d054c8acb1658bde5ef8a1b49c75c838ed56b037eb3fa';
+        echo 'testing';
+        echo $payload;
+
+// Close the connection to the server
+        fclose($fp);
     }
 
     public function send_apple_not2($load_number, $app_id) {

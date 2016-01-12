@@ -10,12 +10,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
   |
  */
 define('SALT', 'lssmith');
-define('VIEW_FILE_PATH', '../../../test_tkgo_files/');
-define('CONT_FILE_PATH', '../test_tkgo_files/');
+define('VIEW_FILE_PATH', '../../../tkgo_files/');
+define('CONT_FILE_PATH', '../tkgo_files/');
 
-define('PASS_PHRASE', 'staffing');
-define('CK_FILE', 'ck_bk.pem');
-define('SSL_GATEWAY', 'ssl://gateway.sandbox.push.apple.com:2195');
+define('PASS_PHRASE', 'Staffing1a');
+define('CK_FILE', 'ck.pem');
+define('SSL_GATEWAY', 'ssl://gateway.push.apple.com:2195');
 
 /*
   |--------------------------------------------------------------------------

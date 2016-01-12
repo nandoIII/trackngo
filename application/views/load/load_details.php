@@ -228,7 +228,6 @@
                                                 <!--style="width:100%;height: 150px;overflow-y: auto;border: 1px solid #ccc; margin-bottom: 15px;"-->
                                                 <!--                                                    <div id="chat_load" >-->
 
-
                                                 <!--</div>-->
 
                                                 <div class="grid">
@@ -317,7 +316,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="myModalLabel">Send BOL by e-mail</h4>
+                            <h4 class="modal-title" id="myModalLabel">Send BOL by e-mail</h4>                            
                         </div>
                         <div class="modal-body">
                             <div class="control-group">
@@ -330,12 +329,16 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" id="btn_send_bol" data-dismiss="modal">Send</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <!--<button type="button" class="btn btn-primary" id="btn_send_bol" data-dismiss="modal">Send</button>-->
+                            <button data-dismiss="modal" style="border-radius: 16%; height: 25px;float: none;">Close</button>&nbsp;
+                            <button id="btn_send_bol" class="btn btn-red btn-small" hidefocus="true" data-dismiss="modal" name="submit" style="outline: medium none;"><span class="gradient">Send</span></button>
+                            <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
                         </div>
                     </div>
                 </div>
-            </div>  
+            </div>
+
+            <!-- Callcheck modal -->
             <div class="modal fade" id="callcheckViewModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -352,7 +355,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+                            <button data-dismiss="modal" style="border-radius: 16%; height: 25px;">Close</button>
                         </div>
                     </div>
                 </div>
@@ -483,7 +487,7 @@
 
     #callcheckViewModal{
         width: 630px;
-        height: 315px;
+        height: 485px;
     }
 
     .notes .gradient, button {
@@ -507,6 +511,10 @@
     #destinationAddressModal{
         width: 630px;
         height: 315px;        
+    }
+
+    #destinationAddressModal .modal-body{
+        min-height: 135px;
     }
 
     .loading{
@@ -721,7 +729,7 @@ if ($count >= 1) {
         var bol_number = pop_doc.data('bol_number');
 
         var output = '';
-        output += '<div><a href="' + '<?php echo VIEW_FILE_PATH ?>'  + load_id + '_bol_' + bol_number + '.pdf" target="_blank">Get pdf</a></div>';
+        output += '<div><a href="' + '<?php echo VIEW_FILE_PATH ?>' + load_id + '_bol_' + bol_number + '.pdf" target="_blank">Get pdf</a></div>';
         output += '<div><a class="send_email" data-target="#destinationAddressModal" data-toggle="modal" data-load_id="' + load_id + '" data-bol_number="' + bol_number + '" data-pages_number="" data-doc_type="">Send by email</a></div>';
 
         return output;
@@ -1071,7 +1079,7 @@ if ($count >= 1) {
                 driver_loingitude: '<?php echo $load['driver_longitud']; ?>',
                 driver_mail: '<?php echo $driver['email']; ?>',
                 load_number: '<?php echo $load['load_number']; ?>',
-                msg: $('textarea#styled_message').val()
+                msg: 'Msg load #' + '<?php echo $load['load_number']; ?>' + '-' + $('textarea#styled_message').val()
             },
             dataType: "json",
             success: function (data) {
