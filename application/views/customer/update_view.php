@@ -9,7 +9,7 @@
     <div id="category-search" class="search-loads"></div>
 </div>
 <div class="row">
-    <div class="span6 offset2">
+    <div class="span9 offset1">
         <form id="register_form" class="form-horizontal" method="POST" action="<?php echo site_url('customer/update') ?>">
             <input type="hidden" name="id" class="input-xlarge" value="<?php echo $customer['idts_customer'] ?>"/>
             <input type="hidden" name="update_contact" id="update_contact"/>

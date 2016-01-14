@@ -63,7 +63,7 @@
                         <th style="width:11%">Driver</th>
                         <th style="width:29%">Driver Position</th>
                         <th style="width:7%; font-weight: 800;color: #666;">Status</th>
-                        <?php echo in_array('load/update2', $roles) || in_array('load/trash', $roles) ? '<th style="width:7%">Actions</th>' : ''; ?>
+                        <?php echo in_array('load/update2', $roles) || in_array('load/trash', $roles) || in_array('load/load_details', $roles) || in_array('load/tender', $roles) ? '<th style="width:7%">Actions</th>' : ''; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,13 +89,13 @@
                         echo '<td>' . $row['driver_name'] . ' ' . $row['driver_last_name'] . '</td>';
                         echo '<td style="width: 250px;">' . $driver_address[0] . '<br>' . $driver_address[1] . ' <span class="map_view" style="cursor:pointer"  data-toggle="modal" data-target="#destinationAddressModal" data-driver_lat="' . $row['driver_latitud'] . '" data-driver_lng="' . $row['driver_longitud'] . '" id="view_destination"><strong>[map]</strong></span></td>';
                         echo '<td class="status color"   style="font-weight: 800;color: #666;">' . $row['status'] . '</td>';
-                        echo in_array('load/update2', $roles) || in_array('load/trash', $roles) ? '<td>' : '';
+                        echo in_array('load/update2', $roles) || in_array('load/trash', $roles) || in_array('load/load_details', $roles) || in_array('load/tender', $roles)  ? '<td>' : '';
 //                        echo in_array('load/update2', $roles) ? '<a class="edit" data-id="' . $row['idts_load'] . '" href="' . site_url('load/update2/' . $row['idts_load']) . '"> Edit </a>' : '';                       
                         echo in_array('load/update2', $roles) ? '<a class="edit" data-id="' . $row['idts_load'] . '" > Edit </a>' : '';
                         echo in_array('load/load_details', $roles) ? '<a class="view" data-id="' . $row['idts_load'] . '"> View </a>' : '';
                         echo in_array('load/trash', $roles) ? '<a class="trash" data-id="' . $row['idts_load'] . '"> Trash </a>' : '';
                         echo in_array('load/tender', $roles) ? $tender : '';
-                        echo in_array('load/update2', $roles) || in_array('load/trash', $roles) ? '</td>' : '';
+                        echo in_array('load/update2', $roles) || in_array('load/trash', $roles) || in_array('load/load_details', $roles) || in_array('load/tender', $roles)  ? '</td>' : '';
                         echo '</tr>';
                         $j++;
                     }
@@ -576,7 +576,7 @@
             $('#tender_load_number').val(load.data('load_number'));
             $('#driver_id').val(load.data('driver_id'));
             $('#email').val(load.data('email'));
-            $('#tender_iframe').attr('src', '<?php echo VIEW_FILE_PATH?>' + load.data('bol_url'));
+            $('#tender_iframe').attr('src', '<?php echo VIEW_FILE_PATH ?>' + load.data('bol_url'));
         });
 
         //tender push not, set in callcheck and send email

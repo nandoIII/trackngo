@@ -32,7 +32,11 @@
     <div id="category-actions">
         <div class="loads-title" id="category-title"><img src="<?php echo base_url() ?>/public/img/images/loads-title.png" width="100" height="70" alt="Loads Category"></div>
         <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-list-bt-45w.png" width="45" height="70" alt="View All Loads"></a></div>
-        <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/add'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-add-bt-45w.png" width="45" height="70" alt="Add a Load"></a></div>
+        <?php
+        if (in_array("load/add", $roles)) {
+            ?>
+            <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/add'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-add-bt-45w.png" width="45" height="70" alt="Add a Load"></a></div>
+        <?php } ?>    
     </div>    
     <!--<div class="text-left"><h1>Load Details #<?php echo $load['load_number'] ?></h1></div>-->
     <h2>Details Load #<?php echo $load['load_number'] ?></h2>
@@ -147,7 +151,7 @@
                                 </div>
 
                                 <div class="widget-container widget_categories boxed">
-                                    <h4 class="widget-title">CURRENT DRIVER LOCATION</h4>
+                                    <h4 class="widget-title">CURRENT DRIVER LOCATION<span class="refresh-driver" style="float:right; cursor:pointer"><img src="<?php echo base_url() ?>/public/img/ic_refresh_white_24dp_1x.png" style="width:22px;" alt="Loads Category"></span></h4>
                                     <div style="padding-top: 5px; padding-bottom: 5px; padding-left: 5px">
                                         <div id="driver_loc"></div>
                                     </div>  
@@ -155,7 +159,7 @@
 
 
                                 <div class="widget-container widget_categories boxed">
-                                    <h4 class="widget-title">MAP</h4>
+                                    <h4 class="widget-title">MAP<span class="refresh-driver" style="float:right; cursor:pointer"><img src="<?php echo base_url() ?>/public/img/ic_refresh_white_24dp_1x.png" style="width:22px;" alt="Loads Category"></span></h4>
                                     <div id="map_wrapper">
                                         <div class="widget-container widget_categories boxed">
                                             <div id="map"></div>
@@ -163,7 +167,7 @@
                                     </div>
                                 </div>
                                 <div class="widget-container widget_categories boxed">
-                                    <h4 class="widget-title">LOCATION HISTORY</h4>
+                                    <h4 class="widget-title">LOCATION HISTORY<span class="refresh-driver" style="float:right; cursor:pointer"><img src="<?php echo base_url() ?>/public/img/ic_refresh_white_24dp_1x.png" style="width:22px;" alt="Loads Category"></span></h4>
                                     <div style="padding-top: 5px; padding-bottom: 5px; padding-left: 5px">
                                         <div id="history_loc">                                                                         
                                             <table id="trace_table" class="rows">
@@ -569,20 +573,16 @@
             }
         });
     });
-
     $('body').on('click', '.set-callcheck', function (evt) {
         evt.preventDefault();
         var callcheck = $(this);
         $("#callcheck_note").html(callcheck.data('note'));
-
     });
-
     $('body').on('click', '.send_email', function (evt) {
         evt.preventDefault();
         var pdf = $(this);
         $("#bol_number_mail").val(pdf.data('bol_number'));
         $("#doc_type").val(pdf.data('doc_type'));
-
         var pdf = $(this);
         $.ajax({
             type: "POST",
@@ -605,7 +605,10 @@
             }
 
         });
+    });
 
+    $('body').on('click', '.refresh-driver', function (evt) {
+        refreshDriverPosition();
     });
 
     $('#createmap').click(function () {
@@ -617,7 +620,6 @@
 //        }, 500);
         refreshDriverPosition();
     });
-
     function refreshDriverPosition() {
         $.ajax({
             type: "POST",
@@ -632,10 +634,30 @@
                 var lat = o.results[0].geometry.location.lat;
                 var lng = o.results[0].geometry.location.lng;
                 initMap2(o.trace, lat, lng);
-                $('#driver_loc').html(address)
+                $('#driver_loc').html(address);
+                setTraceTable(o.trace);
             }
 
         });
+    }
+
+    function setTraceTable(trace) {
+        var output = '';
+        for (var i = 0; i < trace.length; i++) {
+            var str_date = trace[i].date;
+            var full_date = str_date.split(" ");
+            var date = full_date[0].split("-");
+            output += '<tr>';
+            output += '<td style="text-align: center;">' + date[1] + '/' + date[2] + '/' + date[0] + '</td>';
+            output += '<td style="text-align: center;">' + full_date[1] + '</td>';
+            if (trace[i].address_text == null) {
+                output += '<td style="text-align: center;"><a class="get_position" style="cursor:pointer" data-id="' + trace[i].idts_load_trace + '" data-lat="' + trace[i].lat + '" data-lng="' + trace[i].lng + '" title="" data-original-title="Popover Header">View Position</a></td>';
+            } else {
+                output += '<td style="text-align: center;">' + trace[i].address_text + '</td>';
+            }
+            output += '</tr>';
+        }
+        $('#trace_table tbody').html(output);
     }
 
 
@@ -727,13 +749,10 @@ if ($count >= 1) {
     function getOriginalShpOptions(pop_doc) {
         var load_id = pop_doc.data('load_id');
         var bol_number = pop_doc.data('bol_number');
-
         var output = '';
         output += '<div><a href="' + '<?php echo VIEW_FILE_PATH ?>' + load_id + '_bol_' + bol_number + '.pdf" target="_blank">Get pdf</a></div>';
         output += '<div><a class="send_email" data-target="#destinationAddressModal" data-toggle="modal" data-load_id="' + load_id + '" data-bol_number="' + bol_number + '" data-pages_number="" data-doc_type="">Send by email</a></div>';
-
         return output;
-
     }
 
     function getShpPhotos(pop_doc) {
@@ -743,7 +762,6 @@ if ($count >= 1) {
         var doc_type = pop_doc.data('doc_type');
         var pages_number = pop_doc.data('pages_number');
         var file = load_id + '_bol_' + bol_number + '_' + doc_type + '-';
-
         if (doc_type == 'sp') {
             $('.shp_document .popover .popover-title').attr('data-original-title', 'Edit shipment Document');
         } else {
@@ -751,7 +769,6 @@ if ($count >= 1) {
         }
 
         var output = '';
-
         $.ajax({
             type: "POST",
             url: '<?php echo site_url('load/get_shipment_photos/0/0/1') ?>',
@@ -773,7 +790,6 @@ if ($count >= 1) {
             }
 
         });
-
         output += '<div>&nbsp</div>';
         output += '<div>&nbsp</div>';
         output += '<div><a class="dw_pdf" data-load_id="' + load_id + '" data-bol_number="' + bol_number + '" data-pages_number="' + pages_number + '" data-doc_type="' + doc_type + '">Get pdf</a></div>';
@@ -808,7 +824,6 @@ if ($count >= 1) {
         console.log(id);
 //        var bol_number = cur_pop.data('bol_number');
         $('#' + id).popover('hide');
-
 //            popover.('hide');
     }
 
@@ -851,8 +866,6 @@ if ($count >= 1) {
                 }
             }).popover('toggle');
         });
-
-
         //Contacts popover
         $('body').on('click', '.pop_or', function (evt) {
             evt.preventDefault();
@@ -885,7 +898,6 @@ if ($count >= 1) {
                 }
             }).popover('toggle');
         });
-
         //Contacts popover
         $('body').on('click', '.pop_cs', function (evt) {
             evt.preventDefault();
@@ -902,8 +914,6 @@ if ($count >= 1) {
                 }
             }).popover('toggle');
         });
-
-
         //Contacts popover
         $('body').on('click', '.del_photo', function (evt) {
             evt.preventDefault();
@@ -933,8 +943,6 @@ if ($count >= 1) {
                 });
             }
         });
-
-
         //Contacts popover
         $('body').on('click', '.dw_pdf', function (evt) {
             evt.preventDefault();
@@ -962,8 +970,6 @@ if ($count >= 1) {
 
             });
         });
-
-
         $('#commentForm').submit(function (evt) {
             evt.preventDefault();
             if ($('input[name="sw_not_driver"]:checked').length > 0) {
@@ -992,7 +998,6 @@ if ($count >= 1) {
                 }
             });
         });
-
         $('#styled_message').keydown(function (evt) {
 
             if (evt.keyCode == 13) {
@@ -1062,6 +1067,10 @@ if ($count >= 1) {
         });
     });
     function sendPushNot() {
+        if ($('textarea#styled_message').val() == '') {
+            alert('Message can not be null');
+            return false;
+        }
         $.ajax({
             type: "POST",
             url: '<?php echo site_url('load/push_not_custom_msg_load') ?>',
@@ -1079,7 +1088,7 @@ if ($count >= 1) {
                 driver_loingitude: '<?php echo $load['driver_longitud']; ?>',
                 driver_mail: '<?php echo $driver['email']; ?>',
                 load_number: '<?php echo $load['load_number']; ?>',
-                msg: 'Msg load #' + '<?php echo $load['load_number']; ?>' + '-' + $('textarea#styled_message').val()
+                msg: 'Msg load #' + '<?php echo $load['load_number']; ?>' + ' - ' + $('textarea#styled_message').val()
             },
             dataType: "json",
             success: function (data) {

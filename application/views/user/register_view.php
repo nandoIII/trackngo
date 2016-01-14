@@ -74,12 +74,13 @@
             </div>
 
             <div class="role_title">Roles</div>
-            <div class="control-group">
+            <div style="margin: 10px 0px;"><label><input type="checkbox" id="selecctall"> Select/Deselect All</label></div>
+            <div class="control-group">                
                 <?php
                 foreach ($all_roles as $all_role => $row) {
                     ?>
                     <div class="checkbox">
-                        <label><input type="checkbox" name="role[]"  value="<?php echo $row['idrole'] ?>"><?php echo $row['name'] ?></label>
+                        <label><input type="checkbox" name="role[]" class="checkbox1"  value="<?php echo $row['idrole'] ?>"><?php echo $row['name'] ?></label>
                     </div>                
                     <?php
                 }
@@ -133,5 +134,10 @@
                 }
             }, 'json');
         });
+
+        $("#selecctall").change(function () {
+            $(".checkbox1").prop('checked', $(this).prop("checked"));
+        });
+
     });
 </script>

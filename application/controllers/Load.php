@@ -266,7 +266,7 @@ class load extends MY_Controller {
 
     public function get_load_trace($load_id, $json = null) {
         $this->load->model('load_trace_model');
-        $result = $this->load_trace_model->get(['ts_load_idts_load' => $load_id], 'date', 'asc');
+        $result = $this->load_trace_model->get(['ts_load_idts_load' => $load_id], 'date', 'desc');
         if ($json) {
             $this->output->set_output(json_encode($result));
             return false;
@@ -618,7 +618,7 @@ class load extends MY_Controller {
                 $drivers = $this->driver_model->get($this->input->post('driver'));
                 $driver = $drivers[0];
 //                $this->push_not_new_load($this->input->post('load_number'), $driver['app_id'], $driver['apns_number']);
-                $this->push_not_custom_msg_load($this->input->post('load_number'), 'Check new load assigned to you.', "Smith Track'n Go", 1, $driver['email'], $load_id, $driver['idts_driver']);
+                $this->push_not_custom_msg_load($this->input->post('load_number'), ' Check new load assigned to you.', "Smith Track'n Go", 1, $driver['email'], $load_id, $driver['idts_driver']);
             }
 
             $this->output->set_output(json_encode(['result' => 1, 'msg' => 'Load created.']));
@@ -952,7 +952,7 @@ class load extends MY_Controller {
             $this->load->model('driver_model');
             $drivers = $this->driver_model->get($this->input->post('driver'));
             $driver = $drivers[0];
-            $this->push_not_custom_msg_load($load_num, 'Changes in load #' . $load_num, "Smith Track'n Go", 0, $driver['email'], $load_id, $driver['idts_driver']);
+            $this->push_not_custom_msg_load($load_num, ' Changes in load #' . $load_num, "Smith Track'n Go", 0, $driver['email'], $load_id, $driver['idts_driver']);
         }
 
         $this->output->set_output(json_encode(['status' => 1, 'msg' => 'Load successfully updated.']));
@@ -2051,27 +2051,27 @@ class load extends MY_Controller {
         return $result;
     }
 
+    public function email_callcheck_view() {
+        $this->load->view('load/callcheck_email_view');
+    }
+
     public function send_callcheck_mail($param) {
         $this->load->library('email');
 
-        $email = $param['email'];
-        $load_number = $param['load_number'];
-        $comment = $param['comment'];
+        $data['email'] = $param['email'];
+        $data['load_number'] = $param['load_number'];
+        $data['comment'] = $param['comment'];
         $user = $this->get_session_user_data();
+        $data['user'] = $user['user'];
 
-
+        $msg = $this->load->view('load/callcheck_email_view', $data, true);
         $this->email->from('service@smith-cargo.com', 'Smith Transportation');
-        $this->email->to($email);
+        $this->email->to($data['email']);
 //        $this->email->cc('another@another-example.com');
 //        $this->email->bcc('them@their-example.com');
 
-        $this->email->subject('Callcheck in Load #' . $load_number);
-        $this->email->message('<div><h1>Smith Transportation</h1></div>
-                        <p>Callcheck in Load #' . $load_number . '</p>
-                        <ul>
-                            <li>User: ' . $user['user'] . '</li>
-                            <li>Callcheck: ' . $comment . '</li>
-                        </ul>');
+        $this->email->subject('Callcheck in Load #' . $data['load_number']);
+        $this->email->message($msg);
         $this->email->set_mailtype("html");
 
         if (!$this->email->send()) {
@@ -2131,6 +2131,12 @@ class load extends MY_Controller {
 
 //        return $this->output->set_output(json_encode($ck));
         return $this->output->set_output(json_encode($result));
+    }
+
+    public function test($param) {
+        $data = $param;
+        $whatIWant = substr($data, strpos($data, "-") + 1);
+        echo $whatIWant;
     }
 
     public function tender($load_number, $driver_id, $push = null, $email = null) {
@@ -2206,8 +2212,8 @@ class load extends MY_Controller {
         }
 
         if ($tender) {
-            $android_msg = 'New load #' . $load_number . '-' . $msg;
-            $apple_msg = 'New load #' . $load_number . '-' . $msg;
+            $android_msg = 'New load #' . $load_number . ' - ' . $msg;
+            $apple_msg = 'New load #' . $load_number . ' - ' . $msg;
         }
 
         if (!$email) {
@@ -2221,6 +2227,7 @@ class load extends MY_Controller {
         $apns_number = $driver['apns_number'];
         $app_id = $driver['app_id'];
         $driver_phone = $driver['phone'];
+        $email = $driver['email'];
 
         $registatoin_ids[0] = $app_id;
 
@@ -2242,7 +2249,9 @@ class load extends MY_Controller {
                 //change load status              
             }
 
-            $ck = $this->save_callcheck($this->session->userdata('user_id'), $load_id, 1, 0, $msg, 26.13778000, -80.33429800, 1, $email, $load_number, 1);
+            $data = $msg;
+            $msg_split = substr($data, strpos($data, "-") + 1);
+            $ck = $this->save_callcheck($this->session->userdata('user_id'), $load_id, 1, 0, $msg_split, 26.13778000, -80.33429800, 1, $email, $load_number, 1);
             $result = array("status" => "1", "dbresult" => $ck);
             $this->output->set_output(json_encode($result));
         } else {

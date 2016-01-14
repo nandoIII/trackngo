@@ -21,8 +21,7 @@
 
         <div class="control-group">
             <div class="controls">
-                <input type="submit" value="Login" class="btn btn-primary" />
-                <a class="btn" href="<?php echo site_url('home/register')?>">Register</a>
+                <input type="submit" value="Login" class="btn btn-primary" style="float: right;"/>
             </div>
         </div>      
     </form>

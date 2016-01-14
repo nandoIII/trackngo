@@ -9,7 +9,7 @@
     <div id="category-search" class="search-loads"></div>
 </div>
 <div class="row">
-    <div class="span6 offset2">
+    <div class="span9 offset1">
         <div id="register_form_error" class="alert alert-error"><!-- Dynamic --></div>
         <form id="register_form" class="form-horizontal" method="POST" action="<?php echo site_url('customer/register') ?>">
             <input type="hidden" id="contacts" name="contacts" class="input-xlarge"/>

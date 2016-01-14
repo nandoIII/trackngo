@@ -78,7 +78,7 @@ class user extends MY_Controller {
         $data = $this->get_session_user_data();
         $data['roles'] = $GLOBALS['roles'];
         $data['users'] = $this->user_model->get();
-        $data['all_roles'] = $this->role_model->get();
+        $data['all_roles'] = $this->role_model->get(null, 'name', 'asc');
         $this->load->view('general/inc/header_view', $data);
         $this->load->view('user/register_view');
         $this->load->view('general/inc/footer_view');
@@ -124,44 +124,49 @@ class user extends MY_Controller {
         $phone = $this->input->post('phone');
         $login = $this->input->post('login');
         $email = $this->input->post('email');
+        $brother = $this->input->post('brother');
         $role = $this->input->post('role');
         $role_value = [];
+
+        if (!$brother) {
+            $brother = 0;
+        }
 
         $user_id = $this->user_model->update([
             'user_iduser' => $reports_to,
             'name' => $name,
             'phone' => $phone,
             'login' => $login,
-            'email' => $email
+            'email' => $email,
+            'brother' => $brother,
                 ], $id);
 
 
         $this->user_role_model->delete(['user_iduser' => $id]);
         $i = 0;
-        foreach ($role as $selected) {
-            $role_data = [
-                'user_iduser' => $id,
-                'role_idrole' => $selected
-            ];
 
-            $role_value[$i] = $role_data;
-            $i++;
+        if ($role) {
+            foreach ($role as $selected) {
+                $role_data = [
+                    'user_iduser' => $id,
+                    'role_idrole' => $selected
+                ];
+
+                $role_value[$i] = $role_data;
+                $i++;
+            }
+
+            $updated_roles = $this->user_role_model->insertBatch($role_value);
+            if ($updated_roles) {
+                $this->output->set_output(json_encode(['result' => 1]));
+                return false;
+            }
         }
 
-        $updated_roles = $this->user_role_model->insertBatch($role_value);
-        if ($updated_roles) {
-            $this->output->set_output(json_encode(['result' => 1]));
-            return false;
-        }
+//        $this->session->set_userdata(['user_id' => $user_id]);
 
-        $this->session->set_userdata(['user_id' => $user_id]);
-
-        if ($user_id) {
-            $this->output->set_output(json_encode(['result' => 1]));
-            return false;
-        }
-
-        $this->output->set_output(json_encode(['result' => 0, 'error' => 'User not updated.']));
+        $this->output->set_output(json_encode(['result' => 1]));
+        return false;
     }
 
     public function login() {
@@ -217,26 +222,29 @@ class user extends MY_Controller {
             return false;
         }
 
-        $company = $this->input->post('company');
         $reports_to = $this->input->post('reports_to');
         $name = $this->input->post('name');
         $phone = $this->input->post('phone');
         $login = $this->input->post('login');
         $email = $this->input->post('email');
+        $brother = $this->input->post('brother');
         $status = $this->input->post('status');
         $password = $this->input->post('password');
         $role = $this->input->post('role');
         $role_value = [];
 
+        if (!$brother) {
+            $brother = 0;
+        }
 
         $user_id = $this->user_model->insert([
-            'company_idcompany' => $company,
             'name' => $name,
             'user_iduser' => $reports_to,
             'phone' => $phone,
             'login' => $login,
             'email' => $email,
             'state' => $status,
+            'brother' => $brother,
             'password' => hash('sha256', $password . SALT),
             'date_added' => date("Y-m-d H:i:s"),
             'date_modified' => date("Y-m-d H:i:s")

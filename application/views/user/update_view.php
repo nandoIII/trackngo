@@ -67,8 +67,26 @@
                     <input type="text" name="email" class="input-xlarge" value="<?php echo $user_edit['email'] ?>"/>
                 </div>
             </div>
-            <div class="role_title">Roles</div>
 
+            <!--            <div class="control-group">
+                            <label class="control-label">View same lever user loads</label>
+                            <div class="controls">
+                                <select class="selectpicker" name="brother" style="width:80px">
+            <?php
+            $selected = 'selected="Selected"';
+            if ($user_edit['brother'] == 1) {
+                echo '<option value="1" ' . $selected . '>Yes</option>';
+                echo '<option value="0">No</option>';
+            } else {
+                echo '<option value="1">Yes</option>';
+                echo '<option value="0" ' . $selected . '>No</option>';
+            }
+            ?>
+                                </select>
+                            </div>
+                        </div>-->
+            <div class="role_title">Roles</div>
+            <div style="margin: 10px 0px;"><label><input type="checkbox" id="selecctall"> Select/Deselect All</label></div>
             <div class="control-group">
                 <?php
                 foreach ($all_roles as $all_role => $row) {
@@ -80,7 +98,7 @@
                     }
                     ?>
                     <div class="checkbox">
-                        <label><input type="checkbox" name="role[]" <?php echo $checked ?> value="<?php echo $row['idrole'] ?>"><?php echo $row['name'] ?></label>
+                        <label><input type="checkbox" class="checkbox1" name="role[]" <?php echo $checked ?> value="<?php echo $row['idrole'] ?>"><?php echo $row['name'] ?></label>
                     </div>                
                     <?php
                 }
@@ -130,5 +148,10 @@
                 }
             }, 'json');
         });
+
+        $("#selecctall").change(function () {
+            $(".checkbox1").prop('checked', $(this).prop("checked"));
+        });
+
     });
 </script>
