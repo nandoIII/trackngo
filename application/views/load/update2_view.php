@@ -5,8 +5,8 @@
     if (in_array("load/add", $roles)) {
         ?>
         <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/add'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-add-bt-45w.png" width="45" height="70" alt="Add a Load"></a></div>
-    <?php } ?>  
-</div>  
+    <?php } ?>
+</div>
 <div class="container">
     <div class="row">
         <div class="container">
@@ -234,7 +234,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="myModalLabel">Drop  Address</h4>
+                            <h4 class="modal-title" id="myModalLabel">Drop Address</h4>
                         </div>
                         <div class="modal-body">
                             <fieldset>

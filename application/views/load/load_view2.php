@@ -388,14 +388,6 @@
         max-height: 320px;
     }
 
-    .pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus{
-        background-color: #ED1A3B;
-        border-color: #ED1A3B;        
-    }
-    .pagination > li > a, .pagination > li > span{
-        color: #ED1A3B;
-    }
-
 </style>
 
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAp8XadZn74QX4NLDphnzehQ0AN7q6NCwg"></script>

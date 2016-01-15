@@ -34,7 +34,9 @@ class load_model extends CRUD_model {
          * @uses element Description
          */
         if ($sw) {
-            $this->db->where('sw', $sw);
+            $this->db->where('sw', 1);
+        }else{
+            $this->db->where('sw', 0);
         }
 
         if (is_numeric($where)) {

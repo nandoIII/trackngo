@@ -78,7 +78,7 @@ class load extends MY_Controller {
 //        print_r($data['loads']);
 //        $this->output->set_output(json_encode($data['loads']));
 //        return false;
-//        $this->output->enable_profiler(TRUE);
+
 
         $config['num_rows'] = count($data['loads']);
 
@@ -94,10 +94,26 @@ class load extends MY_Controller {
         $this->load->library('table');
 
         //pagination
-        $config['base_url'] = site_url('load/index');
-        $config['per_page'] = 10;
+        $config['base_url'] = site_url('load/trash');
+        $config['per_page'] = 5;
         $config['num_links'] = 5;
-        $config['total_rows'] = count($this->get_load_view('x', 0, 1));
+        $config['total_rows'] = count($this->get_load_view('x', 0, 0));
+
+        $config['full_tag_open'] = "<ul class='pagination'>";
+        $config['full_tag_close'] = "</ul>";
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
+        $config['cur_tag_open'] = "<li class='disabled'><li class='active'><a href='#'>";
+        $config['cur_tag_close'] = "<span class='sr-only'></span></a></li>";
+        $config['next_tag_open'] = "<li>";
+        $config['next_tagl_close'] = "</li>";
+        $config['prev_tag_open'] = "<li>";
+        $config['prev_tagl_close'] = "</li>";
+        $config['first_tag_open'] = "<li>";
+        $config['first_tagl_close'] = "</li>";
+        $config['last_tag_open'] = "<li>";
+        $config['last_tagl_close'] = "</li>";
+
         $this->pagination->initialize($config);
 
         $this->load->model('driver_model');
@@ -108,6 +124,7 @@ class load extends MY_Controller {
         $this->load->model('customer_model');
         $data['customers'] = $this->customer_model->get();
         $data['drivers'] = $this->driver_model->get();
+        $data['total_loads'] = $config['total_rows'];
 
         $data['loads'] = $this->get_load_view(['sw' => 0], 0, 0, 'date_created', 'desc', $config['per_page'], $this->uri->segment(3));
 //        print_r($data['loads']);

@@ -26,28 +26,20 @@
                 <div id="category-button"><a style="outline: medium none;" hidefocus="true" href="<?php echo site_url('load/add'); ?>"><img src="<?php echo base_url() ?>/public/img/images/loads-add-bt-45w.png" width="45" height="70" alt="Add a Load"></a></div>
             <?php } ?>            
             <div id="category-button"></div>
-            <div id="category-search" class="search-customer">
-                <select class="selectpicker" name="customer" id="search_customer">
-                    <option value="0">-- Select Customer --</option>
-                    <?php
-                    foreach ($customers as $customer => $row) {
-                        echo '<option value="' . $row['idts_customer'] . '">' . $row['name'] . '</option>';
-                    }
-                    ?>
-                </select>
+            <div style="float: right;">
+                <div id="category-search" class="search-carrier">
+                    <select class="selectpicker" name="carrier" id="search_carrier">
+                        <option value="0">-- Select Carrier --</option>
+                        <?php
+                        foreach ($carriers as $carrier => $row) {
+                            echo '<option value="' . $row['idts_carrier'] . '">' . $row['name'] . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div id="category-search" class="search-loads"><input type="text" name="search_load_number" id="search_load_number" /></div>            
+                <div id="category-search" class="search-loads" style="width: 50px;"><button type="button" class="btn btn-red btn-small" id="load_search" style="position: relative;top: 5px"><span class="gradient">Search</span></button></div>
             </div>
-            <div id="category-search" class="search-carrier">
-                <select class="selectpicker" name="carrier" id="search_carrier">
-                    <option value="0">-- Select Carrier --</option>
-                    <?php
-                    foreach ($carriers as $carrier => $row) {
-                        echo '<option value="' . $row['idts_carrier'] . '">' . $row['name'] . '</option>';
-                    }
-                    ?>
-                </select>
-            </div>
-            <div id="category-search" class="search-loads"><input type="text" name="search_load_number" id="search_load_number" /></div>
-            <div id="category-search" class="search-loads" style="width: 50px;margin-left: 10px;"><a class="btn" id="load_search" >Search</a></div>
         </div>
         <div><h2>Trashed Loads</h2></div>
         <div class="table-responsive" style="margin-top:40px;">
@@ -97,7 +89,11 @@
                 </tbody>
 
             </table>
-            <?php echo $this->pagination->create_links() ?>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <?php echo $this->pagination->create_links() ?>
+                </div>
+            </div>   
         </div>
 
         <!-- Hidden values -->
@@ -398,6 +394,13 @@
         console.log('datos de load: ' + load.data('load_id'));
     });
     $(function () {
+        var wage = document.getElementById("search_load_number");
+        wage.addEventListener("keydown", function (e) {
+            if (e.keyCode === 13) {
+                searchLoad();
+            }
+        });
+
         $('#save').click(function () {
             alert($('#mytable').find('input[type="checkbox"]:checked').length + ' checked');
         });
@@ -443,7 +446,7 @@
             evt.preventDefault();
             $.ajax({
                 type: "POST",
-                url: '<?php echo site_url('load/get_load_view/0/1/1/date_created/desc') ?>',
+                url: '<?php echo site_url('load/get_load_view/0/1/0/date_created/desc') ?>',
                 data: {
                     search_customer: $("#search_customer").val(),
                     search_carrier: $("#search_carrier").val(),
@@ -622,8 +625,8 @@
                 }
             });
         });
-
-
+        
+        
         $('body').on('click', '.map_view', function (evt) {
             evt.preventDefault();
 
@@ -757,5 +760,44 @@
             google.maps.event.trigger(map, "resize");
         });
     }
+    
+    function searchLoad() {
+        var total_loads = '<?php echo $total_loads ?>';
+        $.ajax({
+            type: "POST",
+            url: '<?php echo site_url('load/get_load_view/0/1/0/date_created/desc') ?>' + '/' + total_loads,
+            data: {
+                search_customer: $("#search_customer").val(),
+                search_carrier: $("#search_carrier").val(),
+                search_load_number: $("#search_load_number").val()
+            },
+            async: true,
+            dataType: "json",
+            beforeSend: function () {
+                $('#result_destination').html('Loading...');
+                $('#result_destination').show();
+            },
+            success: function (data) {
+                $('#list_load tbody').empty();
+                var output = '';
+                for (var i = 0; i < data.length; i++) {
+                    var status = data[i].status;
+
+                    var data_format = data[i].date_created.split(" ");
+                    var myd = data_format[0].split("-");
+                    output += '<tr data-status="' + status + '" id="load_' + data[i].idts_load + '" data-load_id="' + data[i].idts_load + '" data-toggle="popover" class="po">';
+                    output += '<td>' + data[i].load_number + '</td>';
+                    output += '<td>' + myd[1] + '/' + myd[2] + '/' + myd[0] + ' ' + data_format[1] + '</td>';
+                    output += '<td>' + data[i].carrier_name + '</td>';
+                    output += '<td>' + data[i].driver_name + ' ' + data[i].driver_last_name + '</td>';
+                    output += '<td>' + data[i].address + '</td>';
+                    output += '<td class="color" style="font-weight: 800;color: #666;">' + status + '</td>';
+                    output += '<td><a class="enable" id="' + data[i].idts_load + '"> Enable </a></td>';
+                    output += '</tr>';
+                }
+                $('#list_load tbody').append(output);
+            }
+        });
+    }    
 
 </script>

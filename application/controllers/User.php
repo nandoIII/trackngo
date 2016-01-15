@@ -252,18 +252,21 @@ class user extends MY_Controller {
 
         if ($user_id) {
             $i = 0;
-            foreach ($role as $selected) {
-                $role_data = [
-                    'user_iduser' => $user_id,
-                    'role_idrole' => $selected
-                ];
 
-                $role_value[$i] = $role_data;
-                $i++;
+            if ($role) {
+                foreach ($role as $selected) {
+                    $role_data = [
+                        'user_iduser' => $user_id,
+                        'role_idrole' => $selected
+                    ];
+
+                    $role_value[$i] = $role_data;
+                    $i++;
+                }
+
+                $this->user_role_model->insertBatch($role_value);
+                $this->session->set_userdata(['user_id' => $user_id]);
             }
-
-            $this->user_role_model->insertBatch($role_value);
-            $this->session->set_userdata(['user_id' => $user_id]);
 
             //Sending confirmation mail
             $param['email'] = $email;
@@ -317,17 +320,13 @@ class user extends MY_Controller {
 
         $this->email->from('service@smith-cargo.com', 'Smith Transportation');
         $this->email->to($param['email']);
-        $this->email->cc('another@another-example.com');
-        $this->email->bcc('them@their-example.com');
+//        $this->email->cc('another@another-example.com');
+//        $this->email->bcc('them@their-example.com');
 
-        $this->email->subject('Smith Transportation user account');
-        $this->email->message('<div><h1>Smith Transportation</h1></div>
-                        <p>New user account</p>
-                        <ul>
-                            <li>user: ' . $param['login'] . '</li>
-                            <li>password: ' . $param['password'] . '</li>
-                        </ul>
-                        <p>Login with your accoutn <a href="leanstaffing.com/trackngo">here</a></p>');
+        $msg = $this->load->view('user/new_user_email_view', $param, true);
+
+        $this->email->subject('Smith Transportation new user account');
+        $this->email->message($msg);
         $this->email->set_mailtype("html");
 
         if (!$this->email->send()) {
