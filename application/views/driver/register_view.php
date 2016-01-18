@@ -10,6 +10,7 @@
 </div>
 <div class="row">
     <div class="span6 offset2">
+        <div id="register_form_error" class="alert alert-error"><!-- Dynamic --></div>
         <form id="register_form" class="form-horizontal" method="POST" action="<?php echo site_url('driver/register') ?>">
 
             <div class="text-right"><h3>Register Driver</h3></div>
@@ -54,13 +55,13 @@
                     <input type="text" name="email" class="input-xlarge"/>
                 </div>
             </div>
-
-            <div class="control-group">
-                <label class="control-label">Login</label>
-                <div class="controls">
-                    <input type="text" name="driver_login" class="input-xlarge"/>
-                </div>
-            </div>
+            <!--
+                        <div class="control-group">
+                            <label class="control-label">Login</label>
+                            <div class="controls">
+                                <input type="text" name="driver_login" class="input-xlarge"/>
+                            </div>
+                        </div>-->
 
             <div class="control-group">
                 <div class="controls">
@@ -72,7 +73,7 @@
     </div>
 </div>
 <style>
-        input[type="text"]{
+    input[type="text"]{
         background-color: #fff;
     }
 </style>
@@ -87,7 +88,7 @@
                 if (o.result == 1) {
                     window.location.href = '<?php echo site_url('driver') ?>';
                 } else {
-                    $("#register_form_error").show();
+                    $("#register_form_error").html('');
                     var output = '<ul>';
                     for (var key in o.error) {
                         var value = o.error[key];
@@ -95,6 +96,7 @@
                     }
                     output += '</ul>';
                     $("#register_form_error").html(output);
+                    $("#register_form_error").show();
                 }
             }, 'json');
         });

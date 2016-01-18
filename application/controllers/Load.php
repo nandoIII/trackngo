@@ -221,7 +221,7 @@ class load extends MY_Controller {
         $data = $this->get_session_user_data();
         $data['roles'] = $GLOBALS['roles'];
 
-        $data['load'] = $this->get_load_view($id, $sw = 0);
+        $data['load'] = $this->get_load_view($id, 0, 1);
         $driver_id = $data['load'][0]['ts_driver_idts_driver'];
         $data['driver'] = $this->driver_model->get($driver_id);
         $data['callchecks'] = $this->get_chat($id);
@@ -257,7 +257,7 @@ class load extends MY_Controller {
         $data['traces'] = $result;
 //
         $this->load->view('general/inc/header_view', $data);
-        $this->load->view('load/load_details');
+        $this->load->view('load/load_details_1');
         $this->load->view('general/inc/footer_view');
     }
 
@@ -387,7 +387,6 @@ class load extends MY_Controller {
         $this->load->model('customer_model');
         $data['customers'] = $this->customer_model->get();
         $data['last_load'] = $this->load_model->get(null, 'idts_load', 'desc', 1);
-//        $this->output->enable_profiler(TRUE);
 //        print_r($data['last_load']);
 
         $this->load->view('general/inc/header_view', $data);
@@ -1565,7 +1564,8 @@ class load extends MY_Controller {
 
         $this->load->model('driver_model');
         $data['drivers'] = $this->driver_model->get([
-            'ts_carrier_idts_carrier' => $data['load']['ts_carrier_idts_carrier']
+            'ts_carrier_idts_carrier' => $data['load']['ts_carrier_idts_carrier'],
+            'status' => 1
         ]);
 
 //        $this->output->set_output(json_encode($data['drivers']));

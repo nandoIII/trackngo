@@ -41,7 +41,7 @@
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Email</th>
-                        <th>Login</th>
+                        <!--<th>Login</th>-->
                         <?php echo in_array('driver/edit', $roles) || in_array('driver/trash', $roles) ? '<th>Actions</th>' : ''; ?>
                     </tr>
                 </thead>
@@ -54,7 +54,7 @@
                         echo '<td>' . $row['driver_name'] . ' ' . $row['driver_last_name'] . '</td>';
                         echo '<td>' . $row['driver_phone'] . '</td>';
                         echo '<td>' . $row['driver_email'] . '</td>';
-                        echo '<td>' . $row['login'] . '</td>';
+//                        echo '<td>' . $row['login'] . '</td>';
                         echo in_array('driver/edit', $roles) || in_array('driver/trash', $roles) ? '<td>' : '';
                         echo in_array('driver/edit', $roles) ? '<a href="' . site_url('driver/edit/' . $row['idts_driver']) . '">Edit</a>' : '';
                         echo in_array('driver/trash', $roles) ? '&nbsp; <a id="' . $row['idts_driver'] . '" class="trash">Trash</a>' : '';

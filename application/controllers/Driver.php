@@ -100,18 +100,16 @@ class driver extends MY_Controller {
         $this->_required_login();
         $this->output->set_content_type('application_json');
 
-//        $this->form_validation->set_rules('name', 'Name', 'required|min_length[2]|max_length[32]');
-//        $this->form_validation->set_rules('phone', 'Phone', 'required|min_length[4]|max_length[16]');
-//        $this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[user.email]');
-//        $this->form_validation->set_rules('address', 'Address', 'required|min_length[2]|max_length[32]');
-//        $this->form_validation->set_rules('city', 'City', 'required|min_length[2]|max_length[32]');
-//        $this->form_validation->set_rules('state', 'State', 'required|min_length[2]|max_length[32]');
-//        $this->form_validation->set_rules('country', 'Country', 'required|min_length[1]|max_length[32]');
-//
-//        if ($this->form_validation->run() == FALSE) {
-//            $this->output->set_output(json_encode(['result' => 0, 'error' => $this->form_validation->error_array()]));
-//            return false;
-//        }
+        $this->form_validation->set_rules('name', 'Name', 'required');
+        $this->form_validation->set_rules('last_name', 'Last Name', 'required');
+        $this->form_validation->set_rules('phone', 'Phone', 'required|min_length[4]|max_length[16]');
+        $this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[ts_driver.email]');
+
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->output->set_output(json_encode(['result' => 0, 'error' => $this->form_validation->error_array()]));
+            return false;
+        }
 
         $carrier = $this->input->post('carrier');
         $name = $this->input->post('name');
@@ -130,7 +128,7 @@ class driver extends MY_Controller {
             'full_name' => $name . ' ' . $last_name,
             'phone' => $phone,
             'email' => $email,
-            'login' => $login,
+            'login' => $name . '_' . $last_name,
             'pass' => $pass
         ]);
         if ($driver_id) {
@@ -165,14 +163,15 @@ class driver extends MY_Controller {
 
         $this->form_validation->set_rules('name', 'Name', 'required');
         $this->form_validation->set_rules('last_name', 'Last Name', 'required');
-        $this->form_validation->set_rules('phone', 'Phone', 'required');
-        $this->form_validation->set_rules('email', 'Email', 'required');
-        $this->form_validation->set_rules('login', 'Login', 'required');
+        $this->form_validation->set_rules('phone', 'Phone', 'required|min_length[4]|max_length[16]');
+//        $this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[ts_driver.email]');
+
 
         if ($this->form_validation->run() == FALSE) {
             $this->output->set_output(json_encode(['result' => 0, 'error' => $this->form_validation->error_array()]));
             return false;
         }
+
         $id = $this->input->post('id');
         $carrier = $this->input->post('carrier');
         $name = $this->input->post('name');
@@ -188,7 +187,7 @@ class driver extends MY_Controller {
             'full_name' => $name . ' ' . $last_name,
             'phone' => $phone,
             'email' => $email,
-            'login' => $login
+            'login' => $name . '_' . $last_name,
                 ], $id);
 
         if ($user_id) {
@@ -199,23 +198,23 @@ class driver extends MY_Controller {
         $this->output->set_output(json_encode(['result' => 0, 'error' => 'Driver not updated.']));
     }
 
+    public function test_send_mail() {
+        $this->load->view('driver/new_driver_email_view', true);
+    }
+
     public function send_mail($param) {
         $this->_required_login();
         $this->load->library('email');
 
+//        $msg = $this->load->view('email/inc/header_view', true);
+        $msg = $this->load->view('driver/new_driver_email_view', $param, true);
+//        $msg.= $this->load->view('email/inc/footer_view', true);
+
         $this->email->from('service@smith-cargo.com', 'Smith Transportation');
         $this->email->to($param['email']);
-        $this->email->cc('another@another-example.com');
-        $this->email->bcc('them@their-example.com');
 
         $this->email->subject('Smith Transportation new driver');
-        $this->email->message('<div><h1>Smith Transportation</h1></div>
-            <p>New Driver</p>
-                        <ul>
-                            <li> ' . $param['name'] . ' has been added as a driver in Smith Trackngo System. </li>
-                            <li>Download iPhone version <a href="">here</a>.</li>
-                            <li>Download Android version <a href="https://play.google.com/store/apps/details?id=com.leanlocation.staffing">here</a>.</li>
-                        </ul>');
+        $this->email->message($msg);
         $this->email->set_mailtype("html");
 
         if (!$this->email->send()) {

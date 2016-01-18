@@ -205,7 +205,8 @@ class carrier extends MY_Controller {
 
         $this->load->model('driver_model');
         $result = $this->driver_model->get([
-            'ts_carrier_idts_carrier' => $id_carrier
+            'ts_carrier_idts_carrier' => $id_carrier,
+            'status' => 1
         ]);
         $this->output->set_output(json_encode($result));
     }

@@ -393,6 +393,7 @@
 
         console.log('datos de load: ' + load.data('load_id'));
     });
+    
     $(function () {
         var wage = document.getElementById("search_load_number");
         wage.addEventListener("keydown", function (e) {

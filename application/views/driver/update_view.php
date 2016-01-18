@@ -10,6 +10,7 @@
 </div>
 <div class="row">
     <div class="span6 offset2">
+        <div id="register_form_error" class="alert alert-error"><!-- Dynamic --></div>
         <form id="register_form" class="form-horizontal" method="POST" action="<?php echo site_url('driver/update') ?>">
             <input type="hidden" name="id" class="input-xlarge" value="<?php echo $driver['idts_driver'] ?>"/>
             <div class="text-right"><h3>Update Driver</h3></div>
@@ -59,12 +60,12 @@
                 </div>
             </div>
 
-            <div class="control-group">
-                <label class="control-label">Login</label>
-                <div class="controls">
-                    <input type="text" name="login" class="input-xlarge" value="<?php echo $driver['login'] ?>"/>
-                </div>
-            </div>
+            <!--            <div class="control-group">
+                            <label class="control-label">Login</label>
+                            <div class="controls">
+                                <input type="text" name="login" class="input-xlarge" value="<?php echo $driver['login'] ?>"/>
+                            </div>
+                        </div>-->
 
             <div class="control-group">
                 <div class="controls">
@@ -91,7 +92,7 @@
                 if (o.result == 1) {
                     window.location.href = '<?php echo site_url('driver') ?>';
                 } else {
-                    $("#register_form_error").show();
+                    $("#register_form_error").html('');
                     var output = '<ul>';
                     for (var key in o.error) {
                         var value = o.error[key];
@@ -99,6 +100,7 @@
                     }
                     output += '</ul>';
                     $("#register_form_error").html(output);
+                    $("#register_form_error").show();
                 }
             }, 'json');
         });

@@ -77,6 +77,7 @@
                         <td class="contact_header">Phone</td>
                         <td class="contact_header">Email</td>
                         <td class="contact_header">Default</td>
+                        <td class="contact_header">Actions</td>
                     </tr>                      
                 </thead>
                 <tbody>                      
@@ -85,6 +86,7 @@
                         <td><input type="text" id="phone_1" name="contat_phone"/></td>
                         <td><input type="text" id="email_1" name="contat_email"/></td>
                         <td><input type="checkbox" id="default_1" name="contat_default"></td>
+                        <td>&nbsp;</td>
                     </tr>
                 </tbody>
             </table>
@@ -165,6 +167,14 @@
 //                    $('#customer_' + contact_number).html($('#customer_list').html());
         });
 
+        $('body').on('click', '.remove_contact', function (evt) {
+            evt.preventDefault();
+//            delete_contacts                        
+            var tr_id = $(this).data('id');
+            var tr = $('#contact_' + tr_id);
+            $(tr).remove();
+        });
+
     });
 
     //Global vars
@@ -177,11 +187,14 @@
         phone = $('<td>').html('<input type="text" id="phone_' + contact_number + '" name="contat_phone"/>');
         email = $('<td>').html('<input type="text" id="email_' + contact_number + '" name="contat_email"/>');
         cdefault = $('<td>').html('<input type="checkbox" id="default_' + contact_number + '" name="contat_default"/>');
+        actions = $('<td>').html('<a href="" data-id="' + contact_number + '" class="remove_contact">Delete</a>');
+
 
         tRow.append(cname);
         tRow.append(phone);
         tRow.append(email);
         tRow.append(cdefault);
+        tRow.append(actions);
 
         $('#contact-table tbody').append(tRow);
     }
