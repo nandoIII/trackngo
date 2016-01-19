@@ -9,7 +9,7 @@ class CRUD_model extends CI_Model {
         parent::__construct();
     }
 
-    public function get($id = null, $order_by = null, $order = null, $limit = null) {
+    public function get($id = null, $order_by = null, $order = null, $limit = null, $start = null) {
         /**
          * @uses $q = $this->db->get('user'); Muestra todos los usuarios
          * @uses element Description
@@ -29,7 +29,10 @@ class CRUD_model extends CI_Model {
         }
 
         if ($limit) {
-            $this->db->limit($limit);
+            if (!$start) {
+                $start = 0;
+            }
+            $this->db->limit($limit, $start);
         }
 
         $q = $this->db->get($this->_table);

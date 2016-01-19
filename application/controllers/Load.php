@@ -247,7 +247,7 @@ class load extends MY_Controller {
 //        $this->output->set_output(json_encode($data['shipments']));
 //        return false;
 
-        $result = $this->load_trace_model->get(['ts_load_idts_load' => $id], 'date', 'asc');
+        $result = $this->load_trace_model->get(['ts_load_idts_load' => $id], 'date', 'asc', 20);
 
 //        for ($i = 0; $i < count($result); $i++) {
 //            $driver_address = json_decode($this->get_driver_address($result[$i]['lat'], $result[$i]['lng']));
@@ -257,7 +257,7 @@ class load extends MY_Controller {
         $data['traces'] = $result;
 //
         $this->load->view('general/inc/header_view', $data);
-        $this->load->view('load/load_details_1');
+        $this->load->view('load/load_details');
         $this->load->view('general/inc/footer_view');
     }
 
@@ -281,9 +281,18 @@ class load extends MY_Controller {
         return $result;
     }
 
-    public function get_load_trace($load_id, $json = null) {
+    public function get_load_trace($load_id, $json = null, $limit = null, $start = null) {
+
+        if (!$start) {
+            $start = $this->input->post('start');
+        }
+
+        if (!$limit) {
+            $limit = $this->input->post('limit');
+        }
+
         $this->load->model('load_trace_model');
-        $result = $this->load_trace_model->get(['ts_load_idts_load' => $load_id], 'date', 'desc');
+        $result = $this->load_trace_model->get(['ts_load_idts_load' => $load_id], 'date', 'desc', $limit, $start);
         if ($json) {
             $this->output->set_output(json_encode($result));
             return false;
@@ -1748,17 +1757,21 @@ class load extends MY_Controller {
         return $status;
     }
 
-    public function get_driver_position($id, $sw = null, $load_id = null) {
+    public function get_driver_position($id, $sw = null, $load_id = null, $trace_start = null) {
         $this->load->model('driver_model');
 
         if (!$load_id) {
             $load_id = $this->input->post('load_id');
         }
 
+        if (!$trace_start) {
+            $trace_start = $this->input->post('trace_start');
+        }
+
         $driver = $this->driver_model->get($id);
         $driver = $driver[0];
         $driver_address = json_decode($this->get_driver_address($driver['lat'], $driver['lng']), true);
-        $driver_address['trace'] = $this->get_load_trace($load_id);
+        $driver_address['trace'] = $this->get_load_trace($load_id, 0, 20, 0);
 //        array_push($driver_address, $this->get_load_trace($load_id));
         if ($sw) {
             $this->output->set_output(json_encode($driver_address));

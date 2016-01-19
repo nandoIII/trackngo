@@ -60,85 +60,81 @@
                                 <a class="btn" href="#" hidefocus="true"><span class="gradient" data-toggle="modal" data-target="#destinationAddressModal">Send by e-mail</span></a>
                                 <a class="btn" href="#" onclick="reloadBol()" hidefocus="true"><span class="gradient">Refresh BOL</span></a>
                                 <iframe width="100%" height="600" id="if_bol" style="margin-top:15px" src="../../../tkgo_files/<?php echo $load['load_number'] ?>.pdf"></iframe>-->
-                                <div style="margin-bottom: 10px;">[<span>Expand</span>/<span>Collapse</span>]</div>
-                                <div class="accordion">
-                                    <?php
-                                    $file_path = VIEW_FILE_PATH;
-                                    $i = 1;
-                                    foreach ($shipments as $shipment => $row) {
-                                        ?>
-                                        <div class="accordion-section">
-                                            <a class="accordion-section-title" href="#accordion-<?php echo $i ?>">BOL #<?php echo $row['bol_number'] ?></a>
-                                            <div id="accordion-<?php echo $i ?>" class="accordion-section-content">
-                                                <table id="bol-table" class="table table-hover table-striped">
-                                                    <tbody>
-                                                        <tr>
-                                                            <td class="bol_header">Customer</td>
-                                                            <td class="bol_header">Pickup</td>
-                                                            <td class="bol_header">Pickup #</td>
-                                                            <td class="bol_header">Drop</td>
-                                                            <td class="bol_header">Drop #</td>
-                                                            <td class="bol_header">Status</td>
-                                                            <td class="bol_header">Documents</td>
-                                                        </tr>
-                                                        <?php
-                                                        $shp = $row['origin_sign'] == 1 ? '<div class="shp_document"><a id="sp_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
-                                                        $pod = $row['destination_sign'] == 1 ? '<div class="csn_document"><a id="cs_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" class="pop_cs" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="cs" data-pages_number="' . $row['drop_doc_pages'] . '" target="_blank">' . $row['drop_doc'] . '</a></div>' : '';
-                                                        $status = 'test';
-                                                        if ($load['tender'] == 0) {
-                                                            $status = 'Not tendered';
-                                                        } else if (($shp == '') && ($pod == '')) {
-                                                            $status = 'To Pickup';
-                                                        } else if (($shp != '') && ($pod == '')) {
-                                                            $status = 'In transit';
-                                                        } else {
-                                                            $status = 'Delivered';
-                                                        }
-                                                        echo'<tr data-status="' . $status . '">'
-                                                        . '<td style="text-align: center; width:14%">' . $row['customer_name'] . '</td>'
-                                                        . '<td style="text-align: center; width:20%">' . $row['pickup_format_address'] . '</td>'
-                                                        . '<td style="text-align: center; width:7%">' . $row['pickup_number'] . '</td>'
-                                                        . '<td style="text-align: center; width:20%">' . $row['drop_format_address'] . '</td>'
-                                                        . '<td style="text-align: center; width:7%">' . $row['drop_number'] . '</td>'
-                                                        . '<td class="status color" style="text-align: center;width:12%"">' . $status . '</td>'
-                                                        . '<td style="text-align: center;">'
-                                                        . '<div class="or_document"><a id="or_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $row['url_bol'] . '" class="pop_or" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '"  target="_blank">Original Document</a></div>'
-                                                        . $shp
-                                                        . $pod
-                                                        . ' </td>'
-                                                        . '</tr>';
 
-                                                        echo'<tr>';
-                                                        echo'<td colspan="7">Contacts: ';
-                                                        foreach ($row['contacts'] as $contact) {
-                                                            echo $contact['name'] . ', ';
-                                                        }
-                                                        echo'</td>';
-                                                        echo'</tr>';
-
-                                                        echo'<tr>';
-                                                        echo'<td colspan="7" style="border-left: none;border-right: none;">Documents: ';
-                                                        foreach ($row['documents'] as $documents) {
-                                                            echo '<a href="' . $file_path . $documents['url'] . '" target="_blank">' . $documents['name'] . '</a>, ';
-                                                        }
-                                                        echo'</td>';
-                                                        echo'</tr>';
-
-                                                        echo'<tr>';
-                                                        echo'<td colspan="7" style="border-left: none;border-right: none;">&nbsp;</td>';
-                                                        echo'</tr>';
-                                                        ?>                                                        
-                                                    </tbody>
-                                                </table>
-                                                <!--<p>Mauris interdum fringilla augue vitae tincidunt. Curabitur vitae tortor id eros euismod ultrices. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Praesent nulla mi, rutrum ut feugiat at, vestibulum ut neque? Cras tincidunt enim vel aliquet facilisis. Duis congue ullamcorper vehicula. Proin nunc lacus, semper sit amet elit sit amet, aliquet pulvinar erat. Nunc pretium quis sapien eu rhoncus. Suspendisse ornare gravida mi, et placerat tellus tempor vitae.</p>-->
-                                            </div><!--end .accordion-section-content-->
-                                        </div><!--end .accordion-section-->
-                                        <br>
+                                <!--  -->
+                                <table id="bol-table" class="table table-hover table-striped">
+                                    <tbody>
                                         <?php
-                                        $i++;
-                                    }
-                                    ?>
-                                </div><!--end .accordion-->                                
+                                        $file_path = VIEW_FILE_PATH;
+                                        $i = 1;
+                                        foreach ($shipments as $shipment => $row) {
+//                                            $date = explode(' ', $row['date']);
+//                                            $date_formated_temp = explode('-', $date[0]);
+//                                            $date_formated = $date_formated_temp[1] . '/' . $date_formated_temp[0] . '/' . $date_formated_temp[2];
+                                            echo'<tr>';
+                                            echo'<td colspan="7" style="background-color: #EBEBEB; font-size: 14px;font-weight: bolder;">BOL #' . $row['bol_number'] . '<div style="float: right;"><button id="refresh" onclick="location.reload();" class="btn btn-red btn-small" hidefocus="true" name="submit" style="outline: medium none;float: left;position: relative;bottom: 3px;right: 5px;"><span class="gradient">Refresh</span></button>&nbsp;&nbsp<span style="float:right" >S' . $i . '</span></div></td>';
+                                            echo'</tr>';
+
+                                            echo'<tr>';
+                                            echo'<td class="bol_header">Customer</td>';
+                                            echo'<td class="bol_header">Pickup</td>';
+                                            echo'<td class="bol_header">Pickup #</td>';
+                                            echo'<td class="bol_header">Drop</td>';
+                                            echo'<td class="bol_header">Drop #</td>';
+                                            echo'<td class="bol_header">Status</td>';
+                                            echo'<td class="bol_header">Documents</td>';
+                                            echo'</tr>';
+
+                                            $shp = $row['origin_sign'] == 1 ? '<div class="shp_document"><a id="sp_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
+                                            $pod = $row['destination_sign'] == 1 ? '<div class="csn_document"><a id="cs_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" class="pop_cs" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="cs" data-pages_number="' . $row['drop_doc_pages'] . '" target="_blank">' . $row['drop_doc'] . '</a></div>' : '';
+                                            $status = 'test';
+                                            if ($load['tender'] == 0) {
+                                                $status = 'Not tendered';
+                                            } else if (($shp == '') && ($pod == '')) {
+                                                $status = 'To Pickup';
+                                            } else if (($shp != '') && ($pod == '')) {
+                                                $status = 'In transit';
+                                            } else {
+                                                $status = 'Delivered';
+                                            }
+                                            echo'<tr data-status="' . $status . '">'
+                                            . '<td style="text-align: center; width:14%">' . $row['customer_name'] . '</td>'
+                                            . '<td style="text-align: center; width:20%">' . $row['pickup_format_address'] . '</td>'
+                                            . '<td style="text-align: center; width:7%">' . $row['pickup_number'] . '</td>'
+                                            . '<td style="text-align: center; width:20%">' . $row['drop_format_address'] . '</td>'
+                                            . '<td style="text-align: center; width:7%">' . $row['drop_number'] . '</td>'
+                                            . '<td class="status color" style="text-align: center;width:12%"">' . $status . '</td>'
+                                            . '<td style="text-align: center;">'
+                                            . '<div class="or_document"><a id="or_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $row['url_bol'] . '" class="pop_or" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '"  target="_blank">Original Document</a></div>'
+                                            . $shp
+                                            . $pod
+                                            . ' </td>'
+                                            . '</tr>';
+
+                                            echo'<tr>';
+                                            echo'<td colspan="7">Contacts: ';
+                                            foreach ($row['contacts'] as $contact) {
+                                                echo $contact['name'] . ', ';
+                                            }
+                                            echo'</td>';
+                                            echo'</tr>';
+
+                                            echo'<tr>';
+                                            echo'<td colspan="7" style="border-left: none;border-right: none;">Documents: ';
+                                            foreach ($row['documents'] as $documents) {
+                                                echo '<a href="' . $file_path . $documents['url'] . '" target="_blank">' . $documents['name'] . '</a>, ';
+                                            }
+                                            echo'</td>';
+                                            echo'</tr>';
+
+                                            echo'<tr>';
+                                            echo'<td colspan="7" style="border-left: none;border-right: none;">&nbsp;</td>';
+                                            echo'</tr>';
+                                            $i++;
+                                        }
+                                        ?>                                        
+                                    </tbody>
+                                </table>
                             </div>
 
                         </div>
@@ -386,50 +382,6 @@
 </div>
 
 <style>
-
-    /*----- Accordion -----*/
-    .accordion, .accordion * {
-        -webkit-box-sizing:border-box; 
-        -moz-box-sizing:border-box; 
-        box-sizing:border-box;
-    }
-
-    .accordion {
-        overflow:hidden;
-        box-shadow:0px 1px 3px rgba(0,0,0,0.25);
-        border-radius:3px;
-        background:#f7f7f7;
-    }
-
-    /*----- Section Titles -----*/
-    .accordion-section-title {
-        width:100%;
-        padding:15px;
-        display:inline-block;
-        border-bottom:1px solid #1a1a1a;
-        background:#333;
-        transition:all linear 0.15s;
-        /* Type */
-        font-size:1.200em;
-        text-shadow:0px 1px 0px #1a1a1a;
-        color:#fff;
-    }
-
-    .accordion-section-title.active, .accordion-section-title:hover {
-        background:#4c4c4c;
-        /* Type */
-        text-decoration:none;
-    }
-
-    .accordion-section:last-child .accordion-section-title {
-        border-bottom:none;
-    }
-
-    /*----- Section Content -----*/
-    .accordion-section-content {
-        padding:15px;
-        display:none;
-    }    
 
     #bol-table{
         width: 900px;
@@ -896,29 +848,6 @@ if ($count >= 1) {
 <script charset="UTF-8">
     var cur_pop;
     $(function () {
-
-        function close_accordion_section() {
-            $('.accordion .accordion-section-title').removeClass('active');
-            $('.accordion .accordion-section-content').slideUp(300).removeClass('open');
-        }
-
-        $('.accordion-section-title').click(function (e) {
-            // Grab current anchor value
-            var currentAttrValue = $(this).attr('href');
-
-            if ($(e.target).is('.active')) {
-                close_accordion_section();
-            } else {
-                close_accordion_section();
-
-                // Add active class to section title
-                $(this).addClass('active');
-                // Open up the hidden content panel
-                $('.accordion ' + currentAttrValue).slideDown(300).addClass('open');
-            }
-
-            e.preventDefault();
-        });
 
         $('body').on('click', '.exp-call', function (evt) {
 //            evt.preventDefault();

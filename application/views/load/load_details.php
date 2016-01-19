@@ -60,81 +60,85 @@
                                 <a class="btn" href="#" hidefocus="true"><span class="gradient" data-toggle="modal" data-target="#destinationAddressModal">Send by e-mail</span></a>
                                 <a class="btn" href="#" onclick="reloadBol()" hidefocus="true"><span class="gradient">Refresh BOL</span></a>
                                 <iframe width="100%" height="600" id="if_bol" style="margin-top:15px" src="../../../tkgo_files/<?php echo $load['load_number'] ?>.pdf"></iframe>-->
+                                <div style="margin-bottom: 10px;">[<span><a class="expd" style="cursor:pointer">Expand</a></span>/<span><a class="cpse" style="cursor:pointer">Collapse</a></span>]<div style="float: right; position: relative; bottom: 2px;"><button id="refresh" onclick="location.reload();" class="btn btn-red btn-small" hidefocus="true" name="submit" style="outline: medium none;float: left;position: relative;bottom: 3px;right: 5px;"><span class="gradient">Refresh</span></button></div></div>
+                                <div class="accordion">
+                                    <?php
+                                    $file_path = VIEW_FILE_PATH;
+                                    $i = 1;
+                                    foreach ($shipments as $shipment => $row) {
+                                        ?>
+                                        <div class="accordion-section">
+                                            <a class="accordion-section-title" href="#accordion-<?php echo $i ?>">BOL #<?php echo $row['bol_number'] ?> <div style="float: right;"><span style="float:right" >S<?php echo $i ?></span></div></a>
+                                            <div id="accordion-<?php echo $i ?>" class="accordion-section-content">
+                                                <table id="bol-table" class="table table-hover table-striped">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="bol_header">Customer</td>
+                                                            <td class="bol_header">Pickup</td>
+                                                            <td class="bol_header">Pickup #</td>
+                                                            <td class="bol_header">Drop</td>
+                                                            <td class="bol_header">Drop #</td>
+                                                            <td class="bol_header">Status</td>
+                                                            <td class="bol_header">Documents</td>
+                                                        </tr>
+                                                        <?php
+                                                        $shp = $row['origin_sign'] == 1 ? '<div class="shp_document"><a id="sp_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
+                                                        $pod = $row['destination_sign'] == 1 ? '<div class="csn_document"><a id="cs_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" class="pop_cs" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="cs" data-pages_number="' . $row['drop_doc_pages'] . '" target="_blank">' . $row['drop_doc'] . '</a></div>' : '';
+                                                        $status = 'test';
+                                                        if ($load['tender'] == 0) {
+                                                            $status = 'Not tendered';
+                                                        } else if (($shp == '') && ($pod == '')) {
+                                                            $status = 'To Pickup';
+                                                        } else if (($shp != '') && ($pod == '')) {
+                                                            $status = 'In transit';
+                                                        } else {
+                                                            $status = 'Delivered';
+                                                        }
+                                                        echo'<tr data-status="' . $status . '">'
+                                                        . '<td style="text-align: center; width:14%">' . $row['customer_name'] . '</td>'
+                                                        . '<td style="text-align: center; width:20%">' . $row['pickup_format_address'] . '</td>'
+                                                        . '<td style="text-align: center; width:7%">' . $row['pickup_number'] . '</td>'
+                                                        . '<td style="text-align: center; width:20%">' . $row['drop_format_address'] . '</td>'
+                                                        . '<td style="text-align: center; width:7%">' . $row['drop_number'] . '</td>'
+                                                        . '<td class="status color" style="text-align: center;width:12%"">' . $status . '</td>'
+                                                        . '<td style="text-align: center;">'
+                                                        . '<div class="or_document"><a id="or_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $row['url_bol'] . '" class="pop_or" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '"  target="_blank">Original Document</a></div>'
+                                                        . $shp
+                                                        . $pod
+                                                        . ' </td>'
+                                                        . '</tr>';
 
-                                <!--  -->
-                                <table id="bol-table" class="table table-hover table-striped">
-                                    <tbody>
+                                                        echo'<tr>';
+                                                        echo'<td colspan="7">Contacts: ';
+                                                        foreach ($row['contacts'] as $contact) {
+                                                            echo $contact['name'] . ', ';
+                                                        }
+                                                        echo'</td>';
+                                                        echo'</tr>';
+
+                                                        echo'<tr>';
+                                                        echo'<td colspan="7" style="border-left: none;border-right: none;">Documents: ';
+                                                        foreach ($row['documents'] as $documents) {
+                                                            echo '<a href="' . $file_path . $documents['url'] . '" target="_blank">' . $documents['name'] . '</a>, ';
+                                                        }
+                                                        echo'</td>';
+                                                        echo'</tr>';
+
+                                                        echo'<tr>';
+                                                        echo'<td colspan="7" style="border-left: none;border-right: none;">&nbsp;</td>';
+                                                        echo'</tr>';
+                                                        ?>                                                        
+                                                    </tbody>
+                                                </table>
+                                                <!--<p>Mauris interdum fringilla augue vitae tincidunt. Curabitur vitae tortor id eros euismod ultrices. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Praesent nulla mi, rutrum ut feugiat at, vestibulum ut neque? Cras tincidunt enim vel aliquet facilisis. Duis congue ullamcorper vehicula. Proin nunc lacus, semper sit amet elit sit amet, aliquet pulvinar erat. Nunc pretium quis sapien eu rhoncus. Suspendisse ornare gravida mi, et placerat tellus tempor vitae.</p>-->
+                                            </div><!--end .accordion-section-content-->
+                                        </div><!--end .accordion-section-->
+                                        <br>
                                         <?php
-                                        $file_path = VIEW_FILE_PATH;
-                                        $i = 1;
-                                        foreach ($shipments as $shipment => $row) {
-//                                            $date = explode(' ', $row['date']);
-//                                            $date_formated_temp = explode('-', $date[0]);
-//                                            $date_formated = $date_formated_temp[1] . '/' . $date_formated_temp[0] . '/' . $date_formated_temp[2];
-                                            echo'<tr>';
-                                            echo'<td colspan="7" style="background-color: #EBEBEB; font-size: 14px;font-weight: bolder;">BOL #' . $row['bol_number'] . '<div style="float: right;"><button id="refresh" onclick="location.reload();" class="btn btn-red btn-small" hidefocus="true" name="submit" style="outline: medium none;float: left;position: relative;bottom: 3px;right: 5px;"><span class="gradient">Refresh</span></button>&nbsp;&nbsp<span style="float:right" >S' . $i . '</span></div></td>';
-                                            echo'</tr>';
-
-                                            echo'<tr>';
-                                            echo'<td class="bol_header">Customer</td>';
-                                            echo'<td class="bol_header">Pickup</td>';
-                                            echo'<td class="bol_header">Pickup #</td>';
-                                            echo'<td class="bol_header">Drop</td>';
-                                            echo'<td class="bol_header">Drop #</td>';
-                                            echo'<td class="bol_header">Status</td>';
-                                            echo'<td class="bol_header">Documents</td>';
-                                            echo'</tr>';
-
-                                            $shp = $row['origin_sign'] == 1 ? '<div class="shp_document"><a id="sp_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_sp.pdf" class="pop" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="sp" data-pages_number="' . $row['pickup_doc_pages'] . '" target="_blank">' . $row['pickup_doc'] . '</a></div>' : '';
-                                            $pod = $row['destination_sign'] == 1 ? '<div class="csn_document"><a id="cs_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $load['idts_load'] . '_bol_' . $row['bol_number'] . '_cs.pdf" class="pop_cs" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '" data-doc_type="cs" data-pages_number="' . $row['drop_doc_pages'] . '" target="_blank">' . $row['drop_doc'] . '</a></div>' : '';
-                                            $status = 'test';
-                                            if ($load['tender'] == 0) {
-                                                $status = 'Not tendered';
-                                            } else if (($shp == '') && ($pod == '')) {
-                                                $status = 'To Pickup';
-                                            } else if (($shp != '') && ($pod == '')) {
-                                                $status = 'In transit';
-                                            } else {
-                                                $status = 'Delivered';
-                                            }
-                                            echo'<tr data-status="' . $status . '">'
-                                            . '<td style="text-align: center; width:14%">' . $row['customer_name'] . '</td>'
-                                            . '<td style="text-align: center; width:20%">' . $row['pickup_format_address'] . '</td>'
-                                            . '<td style="text-align: center; width:7%">' . $row['pickup_number'] . '</td>'
-                                            . '<td style="text-align: center; width:20%">' . $row['drop_format_address'] . '</td>'
-                                            . '<td style="text-align: center; width:7%">' . $row['drop_number'] . '</td>'
-                                            . '<td class="status color" style="text-align: center;width:12%"">' . $status . '</td>'
-                                            . '<td style="text-align: center;">'
-                                            . '<div class="or_document"><a id="or_pop_' . $row['bol_number'] . '" href="' . VIEW_FILE_PATH . $row['url_bol'] . '" class="pop_or" data-load_id="' . $load['idts_load'] . '" data-bol_number="' . $row['bol_number'] . '"  target="_blank">Original Document</a></div>'
-                                            . $shp
-                                            . $pod
-                                            . ' </td>'
-                                            . '</tr>';
-
-                                            echo'<tr>';
-                                            echo'<td colspan="7">Contacts: ';
-                                            foreach ($row['contacts'] as $contact) {
-                                                echo $contact['name'] . ', ';
-                                            }
-                                            echo'</td>';
-                                            echo'</tr>';
-
-                                            echo'<tr>';
-                                            echo'<td colspan="7" style="border-left: none;border-right: none;">Documents: ';
-                                            foreach ($row['documents'] as $documents) {
-                                                echo '<a href="' . $file_path . $documents['url'] . '" target="_blank">' . $documents['name'] . '</a>, ';
-                                            }
-                                            echo'</td>';
-                                            echo'</tr>';
-
-                                            echo'<tr>';
-                                            echo'<td colspan="7" style="border-left: none;border-right: none;">&nbsp;</td>';
-                                            echo'</tr>';
-                                            $i++;
-                                        }
-                                        ?>                                        
-                                    </tbody>
-                                </table>
+                                        $i++;
+                                    }
+                                    ?>
+                                </div><!--end .accordion-->                                
                             </div>
 
                         </div>
@@ -169,42 +173,48 @@
                                 <div class="widget-container widget_categories boxed">
                                     <h4 class="widget-title">LOCATION HISTORY<span class="refresh-driver" style="float:right; cursor:pointer"><img src="<?php echo base_url() ?>/public/img/ic_refresh_white_24dp_1x.png" style="width:22px;" alt="Loads Category"></span></h4>
                                     <div style="padding-top: 5px; padding-bottom: 5px; padding-left: 5px">
-                                        <div id="history_loc">                                                                         
-                                            <table id="trace_table" class="rows">
-                                                <thead>
-                                                <th>Date</th>
-                                                <th>Time</th>
-                                                <th>Position</th>
-                                                </thead>
-                                                <tbody>
-                                                    <?php
-                                                    foreach ($traces as $trace => $row) {
-                                                        $date = explode(' ', $row['date']);
-                                                        $date_formated_temp = explode('-', $date[0]);
-                                                        $date_formated = $date_formated_temp[1] . '/' . $date_formated_temp[0] . '/' . $date_formated_temp[2];
-                                                        $lat = $row['lat'];
-                                                        $lng = $row['lng'];
+                                        <div id="history_loc">
+                                            <div class="lc-header-wrapper">
+                                                <table class="lc-header" style="width: 873px;">
+                                                    <tr>
+                                                        <td style="width:124px"><span style="font-weight: 900 ">Date</span></td>
+                                                        <td style="width:124px"><span style="font-weight: 900 ">Time</span></td>
+                                                        <td><span style="font-weight: 900 ">Position</span></td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div class="lc-row-wrapper">
+                                                <table id="trace_table" class="lc-rows">
+                                                    <tbody>
+                                                        <?php
+                                                        foreach ($traces as $trace => $row) {
+                                                            $date = explode(' ', $row['date']);
+                                                            $date_formated_temp = explode('-', $date[0]);
+                                                            $date_formated = $date_formated_temp[1] . '/' . $date_formated_temp[0] . '/' . $date_formated_temp[2];
+                                                            $lat = $row['lat'];
+                                                            $lng = $row['lng'];
 
-                                                        if ($row['address_text']) {
-                                                            $driver_pos = '<td style="text-align: center;">' . $row['address_text'] . '</td>';
-                                                        } else {
-                                                            $driver_pos = '<td style="text-align: center;"><a class="get_position" style="cursor:pointer" data-id="' . $row['idts_load_trace'] . '" data-lat="' . $lat . '" data-lng="' . $lng . '" title="Popover Header">View Position</a></td>';
-                                                        }
+                                                            if ($row['address_text']) {
+                                                                $driver_pos = '<td style="text-align: center;">' . $row['address_text'] . '</td>';
+                                                            } else {
+                                                                $driver_pos = '<td style="text-align: center;"><a class="get_position" style="cursor:pointer" data-id="' . $row['idts_load_trace'] . '" data-lat="' . $lat . '" data-lng="' . $lng . '" title="Popover Header">View Position</a></td>';
+                                                            }
 
-                                                        if ($row['date']) {
-                                                            echo'<tr>'
-                                                            . '<td style="text-align: center; width:90px">' . $date_formated . '</td>'
-                                                            . '<td style="text-align: center; width:90px">' . $date[1] . '</td>'
-                                                            . $driver_pos
-                                                            . '</tr>';
+                                                            if ($row['date']) {
+                                                                echo'<tr>'
+                                                                . '<td style="text-align: center; width:124px">' . $date_formated . '</td>'
+                                                                . '<td style="text-align: center; width:124px">' . $date[1] . '</td>'
+                                                                . $driver_pos
+                                                                . '</tr>';
+                                                            }
                                                         }
-                                                    }
-                                                    ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>  
-                                </div>                                
+                                                        ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>  
+                                    </div>                                
+                                </div>
                             </div>
                         </div>
 
@@ -383,6 +393,50 @@
 
 <style>
 
+    /*----- Accordion -----*/
+    .accordion, .accordion * {
+        -webkit-box-sizing:border-box; 
+        -moz-box-sizing:border-box; 
+        box-sizing:border-box;
+    }
+
+    .accordion {
+        overflow:hidden;
+        box-shadow:0px 1px 3px rgba(0,0,0,0.25);
+        border-radius:3px;
+        background:#f7f7f7;
+    }
+
+    /*----- Section Titles -----*/
+    .accordion-section-title {
+        width:100%;
+        padding:15px;
+        display:inline-block;
+        border-bottom:1px solid #1a1a1a;
+        background:#626262;
+        transition:all linear 0.15s;
+        /* Type */
+        font-size:1.200em;
+        text-shadow:0px 1px 0px #1a1a1a;
+        color:#fff;
+    }
+
+    .accordion-section-title.active, .accordion-section-title:hover {
+        background:#4c4c4c;
+        /* Type */
+        text-decoration:none;
+    }
+
+    .accordion-section:last-child .accordion-section-title {
+        border-bottom:none;
+    }
+
+    /*----- Section Content -----*/
+    .accordion-section-content {
+        padding:15px;
+        display:none;
+    }    
+
     #bol-table{
         width: 900px;
         /*table-layout: fixed;*/
@@ -415,6 +469,14 @@
         z-index: 1;
     }
 
+    .lc-header-wrapper{
+        position: relative;
+        top: 0px;
+        width: 873px;
+        background-color: white;
+        z-index: 1;
+    }
+
     .row-wrapper {
         position: absolute;
         top: 0;
@@ -425,8 +487,22 @@
         padding-top: 19px;
     }
 
+    .lc-row-wrapper {
+        position: relative;
+        top: -12px;
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: auto;
+        padding-top: 11px;
+    }
+
     .header td{
         font-size: large;
+        text-align: center;
+    }
+
+    .lc-header td{
         text-align: center;
     }
 
@@ -436,6 +512,13 @@
         white-space: nowrap;
         border: 1px solid;
     }
+
+    .lc-header td, .lc-rows td {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        border: 1px solid;
+    }
+
 
     .notes{
         overflow: hidden;
@@ -451,12 +534,12 @@
     }
 
     #history_loc{
-        overflow-y: scroll;
+        /*overflow-y: scroll;*/
         height: 15em;
     }
 
     #trace_table{
-        width: 100%;
+        width: 873px;
     }
     #trace_table thead tr th{
         border: 1px solid;
@@ -543,6 +626,7 @@
 
 <!----------------------- Map, Distance , Time ------------------------------->
 <script>
+    var trace_number = 20;
     $('.get_position').popover();
     $('body').on('click', '.get_position', function (evt) {
         evt.preventDefault();
@@ -551,8 +635,8 @@
         $('.popover-title').html('<span>Driver address</span>');
         $('.popover-content').css({'background': 'url(' + '<?php echo base_url() ?>' + '/public/img/images/ajax-loader.gif)', 'background-repeat': 'no-repeat', 'background-position': 'center'});
         console.log('this is latitud: ' + geo.data('lat'));
-//        $('[data-toggle=popover]').not(this).popover('hide');
-//        $('.popover-title').html('<span>Driver address</span>');
+        //        $('[data-toggle=popover]').not(this).popover('hide');
+        //        $('.popover-title').html('<span>Driver address</span>');
         $.ajax({
             type: "POST",
             url: '<?php echo site_url('load/get_driver_address') ?>/' + geo.data('lat') + '/' + geo.data('lng') + '/1/' + geo.data('id') + '/1',
@@ -614,10 +698,10 @@
     $('#createmap').click(function () {
         $("#div1").animate({scrollTop: $(".grid").height()}, 1000);
         $("#map").html('');
-//        setTimeout(function () {
-//
-//            initMap1();
-//        }, 500);
+        //        setTimeout(function () {
+        //
+        //            initMap1();
+        //        }, 500);
         refreshDriverPosition();
     });
     function refreshDriverPosition() {
@@ -626,7 +710,7 @@
             url: '<?php echo site_url('load/get_driver_position/' . $driver['idts_driver'] . '/1') ?>',
             async: true,
             data: {
-                load_id: '<?php echo $load['idts_load'] ?>'
+                load_id: '<?php echo $load['idts_load'] ?>',
             },
             dataType: "json",
             success: function (o) {
@@ -641,6 +725,7 @@
         });
     }
 
+
     function setTraceTable(trace) {
         var output = '';
         for (var i = 0; i < trace.length; i++) {
@@ -648,8 +733,8 @@
             var full_date = str_date.split(" ");
             var date = full_date[0].split("-");
             output += '<tr>';
-            output += '<td style="text-align: center;">' + date[1] + '/' + date[2] + '/' + date[0] + '</td>';
-            output += '<td style="text-align: center;">' + full_date[1] + '</td>';
+            output += '<td style="text-align: center; width:124px;">' + date[1] + '/' + date[2] + '/' + date[0] + '</td>';
+            output += '<td style="text-align: center; width:124px;">' + full_date[1] + '</td>';
             if (trace[i].address_text == null) {
                 output += '<td style="text-align: center;"><a class="get_position" style="cursor:pointer" data-id="' + trace[i].idts_load_trace + '" data-lat="' + trace[i].lat + '" data-lng="' + trace[i].lng + '" title="" data-original-title="Popover Header">View Position</a></td>';
             } else {
@@ -660,10 +745,46 @@
         $('#trace_table tbody').html(output);
     }
 
+    function getPreviosTraces() {
+        $.ajax({
+            type: "POST",
+            url: '<?php echo site_url('load/get_load_trace/' . $load['idts_load'] . '/1/20') ?>',
+            async: true,
+            data: {
+                start: trace_number
+            },
+            dataType: "json",
+            success: function (o) {
+                setPreviosTraceTable(o.trace);
+            }
+
+        });
+        trace_number += 20;
+    }
+
+    function setPreviosTraceTable(trace) {
+        var output = '';
+        for (var i = 0; i < trace.length; i++) {
+            var str_date = trace[i].date;
+            var full_date = str_date.split(" ");
+            var date = full_date[0].split("-");
+            output += '<tr>';
+            output += '<td style="text-align: center; width:124px;">' + date[1] + '/' + date[2] + '/' + date[0] + '</td>';
+            output += '<td style="text-align: center; width:124px;">' + full_date[1] + '</td>';
+            if (trace[i].address_text == null) {
+                output += '<td style="text-align: center;"><a class="get_position" style="cursor:pointer" data-id="' + trace[i].idts_load_trace + '" data-lat="' + trace[i].lat + '" data-lng="' + trace[i].lng + '" title="" data-original-title="Popover Header">View Position</a></td>';
+            } else {
+                output += '<td style="text-align: center;">' + trace[i].address_text + '</td>';
+            }
+            output += '</tr>';
+        }
+        $('#trace_table tbody').append(output);
+    }
+
 
     function initMap1() {
 
-//        $().html()
+        //        $().html()
         var lat = parseFloat(<?php echo $driver['lat']; ?>);
         var lng = parseFloat(<?php echo $driver['lng']; ?>);
         var myLatlng = new google.maps.LatLng(lat, lng);
@@ -822,9 +943,9 @@ if ($count >= 1) {
 
     function hidePopover(id) {
         console.log(id);
-//        var bol_number = cur_pop.data('bol_number');
+        //        var bol_number = cur_pop.data('bol_number');
         $('#' + id).popover('hide');
-//            popover.('hide');
+        //            popover.('hide');
     }
 
 
@@ -849,17 +970,51 @@ if ($count >= 1) {
     var cur_pop;
     $(function () {
 
+        $('body').on('click', '.expd', function (evt) {
+            evt.preventDefault();
+            $('.accordion .accordion-section-content').slideDown(300).addClass('open');
+
+        });
+
+        $('body').on('click', '.cpse', function (evt) {
+            evt.preventDefault();
+            close_accordion_section();
+        });
+
+        function close_accordion_section() {
+            $('.accordion .accordion-section-title').removeClass('active');
+            $('.accordion .accordion-section-content').slideUp(300).removeClass('open');
+        }
+
+        $('.accordion-section-title').click(function (e) {
+            // Grab current anchor value
+            var currentAttrValue = $(this).attr('href');
+
+            if ($(e.target).is('.active')) {
+                close_accordion_section();
+            } else {
+                close_accordion_section();
+
+                // Add active class to section title
+                $(this).addClass('active');
+                // Open up the hidden content panel
+                $('.accordion ' + currentAttrValue).slideDown(300).addClass('open');
+            }
+
+            e.preventDefault();
+        });
+
         $('body').on('click', '.exp-call', function (evt) {
-//            evt.preventDefault();
-//            $('.exp-call').not(this).popover('hide');
+            //            evt.preventDefault();
+            //            $('.exp-call').not(this).popover('hide');
             var pop_contact = $(this);
             pop_contact.not(this).popover('hide');
             pop_contact.popover({
                 placement: 'right',
                 trigger: 'manual',
                 html: true,
-//                container: pop_contact,
-//                animation: true,
+                //                container: pop_contact,
+                //                animation: true,
                 title: 'Callcheck Text',
                 content: function () {
                     return pop_contact.data('comment');
@@ -874,8 +1029,8 @@ if ($count >= 1) {
                 placement: 'right',
                 trigger: 'manual',
                 html: true,
-//                container: pop_doc,
-//                animation: true,
+                //                container: pop_doc,
+                //                animation: true,
                 title: 'Original Documents <button type="button" id="close" class="close" onclick="hidePopover(&quot;' + pop_doc.attr('id') + '&quot;)">&times;</button>',
                 content: function () {
                     return getOriginalShpOptions(pop_doc);
@@ -890,8 +1045,8 @@ if ($count >= 1) {
                 placement: 'right',
                 trigger: 'manual',
                 html: true,
-//                container: pop_doc,
-//                animation: true,
+                //                container: pop_doc,
+                //                animation: true,
                 title: 'Edit Shipment Documents<button type="button" id="close" class="close" onclick="hidePopover(&quot;' + pop_doc.attr('id') + '&quot;)">&times;</button>',
                 content: function () {
                     return getShpPhotos(pop_doc);
@@ -906,8 +1061,8 @@ if ($count >= 1) {
                 placement: 'right',
                 trigger: 'manual',
                 html: true,
-//                container: pop_doc,
-//                animation: true,
+                //                container: pop_doc,
+                //                animation: true,
                 title: 'Edit Consignee Documents<button type="button" id="close" class="close" onclick="hidePopover(&quot;' + pop_doc.attr('id') + '&quot;)">&times;</button>',
                 content: function () {
                     return getShpPhotos(pop_doc);
@@ -978,7 +1133,7 @@ if ($count >= 1) {
                 saveNotinDB();
             }
         });
-//------------- send the BOL by email --------------------------------
+        //------------- send the BOL by email --------------------------------
 
         $('body').on('click', '#btn_send_bol', function (evt) {
             evt.preventDefault();
@@ -1036,9 +1191,9 @@ if ($count >= 1) {
                 $('#callcheck_table tbody').append(output);
                 var chat = $('#chat_load');
                 chat.scrollTop();
-//                chat.animate({ scrollTop: chat[0].scrollHeight}, 1000);
+                //                chat.animate({ scrollTop: chat[0].scrollHeight}, 1000);
 
-//                console.log('scrollTop: ' + chat.scrollTop());
+                //                console.log('scrollTop: ' + chat.scrollTop());
 
             }, 'json');
         }
@@ -1052,7 +1207,7 @@ if ($count >= 1) {
             evt.preventDefault();
             var load_id = $(this).data('load_id');
             var editHtml = '<ul><li data-load_edit="' + load_id + '">Edit</li></ul>';
-//            $('#abc').append(editHtml);
+            //            $('#abc').append(editHtml);
             var popover = $(this).attr('id');
             $('#popover_content ul li a.editLink').attr('href', 'load/update/' + popover)
 
@@ -1061,7 +1216,7 @@ if ($count >= 1) {
                 "html": "true",
                 "title": 'Load Options # ' + $(this).html() + '<span style="margin-left:15px;" class="pull-right"><a href="#" onclick="$(&quot;#' + popover + '&quot;).popover(&quot;toggle&quot;);" class="text-danger popover-close" data-bypass="true" title="Close"><i class="fa fa-close"></i>X</a></span>',
                 "content": $('#popover_content').html()
-//                "content":'<ul><li><a data-id="4" title="Edit this Load" href="load/update/'+popover+'"><i class="icon-pencil"></i> Edit</a> </li></ul>'
+                        //                "content":'<ul><li><a data-id="4" title="Edit this Load" href="load/update/'+popover+'"><i class="icon-pencil"></i> Edit</a> </li></ul>'
             });
             $(this).popover('toggle');
         });
@@ -1144,18 +1299,18 @@ if ($count >= 1) {
         var subject = $('#subject').val();
         var msg = $('textarea#styled_message').val();
         var user = '<?php echo $login; ?>';
-//        var output = '<div><b class="subject">' + user + ':</b><br>' + msg + '</div>';
+        //        var output = '<div><b class="subject">' + user + ':</b><br>' + msg + '</div>';
         var output = '<tr><td style="text-align: center; width:100px">' + date + '</td><td style="text-align: center; width:100px">' + time + '</td><td style="text-align: center;">' + city + '</td><td style="text-align: center;">' + state + '</td><td style="text-align: center; width:100px"><div class="notes" style="float:left">' + comment + '</div><a class="set-callcheck" data-note="' + comment + '" hidefocus="true" style="outline: medium none;margin: 0px 5px;" data-toggle="modal" data-target="#callcheckViewModal">view</a></td><td style="text-align: center; width:100px">' + user + '</td></tr>';
         $('#callcheck_table tbody').append(output);
         //clear form
-//            $('#subject').val('');
-//            $('textarea#styled_message').val('');
+        //            $('#subject').val('');
+        //            $('textarea#styled_message').val('');
         $("#div1").animate({scrollTop: $('#div1')[0].scrollHeight}, 1000);
     }
 
     function reloadBol(evt) {
-//        evt.preventDefault();
-//        $('#if_bol').contentDocument.location.reload(true);
+        //        evt.preventDefault();
+        //        $('#if_bol').contentDocument.location.reload(true);
         console.log(document.getElementById('if_bol').src);
         document.getElementById('if_bol').src = document.getElementById('if_bol').src;
     }
